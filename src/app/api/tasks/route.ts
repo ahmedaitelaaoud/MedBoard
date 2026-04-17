@@ -44,25 +44,33 @@ export async function POST(request: Request) {
     const user = await getSession();
     if (!user) return unauthorized();
 
-    if (user.role !== "DOCTOR" && user.role !== "ADMIN") {
+    if (user.role !== "DOCTOR") {
       return NextResponse.json({ error: "Only doctors can create tasks" }, { status: 403 });
     }
 
     const body = await request.json();
-    const { title, description, priority, assignedToId, patientId } = body;
+    const { title, description, priority, assignedToId, patientId, content } = body;
 
-    if (!title || !assignedToId) {
-      return badRequest("Title and assignee are required");
+    const normalizedContent = typeof content === "string" ? content.trim() : "";
+    const normalizedTitle = typeof title === "string" ? title.trim() : "";
+    const resolvedTitle = normalizedTitle || normalizedContent.slice(0, 80);
+    const resolvedDescription =
+      normalizedContent || (typeof description === "string" ? description.trim() : "") || null;
+    const resolvedAssignedToId =
+      typeof assignedToId === "string" && assignedToId.trim() ? assignedToId : user.id;
+
+    if (!resolvedTitle) {
+      return badRequest("Content is required");
     }
 
     const task = await prisma.task.create({
       data: {
-        title,
-        description: description || null,
+        title: resolvedTitle,
+        description: resolvedDescription,
         priority: priority || "NORMAL",
         patientId: patientId || null,
         createdById: user.id,
-        assignedToId,
+        assignedToId: resolvedAssignedToId,
       },
       include: {
         patient: {
@@ -81,7 +89,7 @@ export async function POST(request: Request) {
       action: "NOTE_CREATED",
       userId: user.id,
       patientId: patientId || undefined,
-      details: `Task "${title}" assigned to ${task.assignedTo.firstName} ${task.assignedTo.lastName}`,
+      details: `Ticket "${resolvedTitle}" created by ${user.firstName} ${user.lastName}`,
     });
 
     return NextResponse.json({ data: task }, { status: 201 });

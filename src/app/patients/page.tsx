@@ -6,6 +6,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge, statusToBadgeVariant } from "@/components/ui/Badge";
 import { SearchInput } from "@/components/ui/SearchInput";
+import { useAuth } from "@/hooks/useAuth";
 import { PATIENT_STATUS_LABELS } from "@/lib/constants";
 
 interface Patient {
@@ -19,12 +20,24 @@ interface Patient {
 
 export default function PatientsPage() {
   const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
+  const canViewPatients = user?.role === "DOCTOR" || user?.role === "ADMIN";
+
   useEffect(() => {
+    if (!authLoading && !canViewPatients) {
+      router.replace("/dashboard");
+    }
+  }, [authLoading, canViewPatients, router]);
+
+  useEffect(() => {
+    if (authLoading || !canViewPatients) return;
+
     async function load() {
+      setLoading(true);
       try {
         const params = search ? `?search=${encodeURIComponent(search)}` : "";
         const res = await fetch(`/api/patients${params}`);
@@ -39,7 +52,17 @@ export default function PatientsPage() {
       }
     }
     load();
-  }, [search]);
+  }, [search, authLoading, canViewPatients]);
+
+  if (authLoading || !canViewPatients) {
+    return (
+      <AppShell>
+        <div className="space-y-2">
+          {[1,2,3,4,5].map(i => <div key={i} className="h-16 bg-gray-100 rounded-xl animate-pulse" />)}
+        </div>
+      </AppShell>
+    );
+  }
 
   return (
     <AppShell>
@@ -47,7 +70,11 @@ export default function PatientsPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-lg font-semibold text-gray-900">Patients</h1>
-            <p className="text-sm text-gray-500 mt-0.5">{patients.length} patients</p>
+            <p className="text-sm text-gray-500 mt-0.5">
+              {user?.role === "DOCTOR"
+                ? `${patients.length} of your current and past patients`
+                : `${patients.length} patients across hospital history`}
+            </p>
           </div>
           <div className="w-64">
             <SearchInput

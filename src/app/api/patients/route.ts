@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { requirePermission } from "@/lib/permissions";
 import { unauthorized, serverError } from "@/lib/errors";
+import { Role } from "@/lib/constants";
 
 export async function GET(request: NextRequest) {
   try {
@@ -13,6 +14,10 @@ export async function GET(request: NextRequest) {
       requirePermission(user, "patient:read");
     } catch {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    if (user.role !== Role.DOCTOR && user.role !== Role.ADMIN) {
+      return NextResponse.json({ error: "Only doctors and admins can access the patient directory" }, { status: 403 });
     }
 
     const searchParams = request.nextUrl.searchParams;
@@ -27,6 +32,15 @@ export async function GET(request: NextRequest) {
         { lastName: { contains: search } },
         { patientCode: { contains: search } },
       ];
+    }
+
+    // Doctors see all their current and past patients; admins see all hospital patients.
+    if (user.role === Role.DOCTOR) {
+      where.assignments = {
+        some: {
+          doctorId: user.id,
+        },
+      };
     }
 
     const patients = await prisma.patient.findMany({
