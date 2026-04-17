@@ -273,6 +273,39 @@ async function main() {
   }
   console.log(`  ✓ 5 document placeholders`);
 
+  // ─── Tasks ─────────────────────────────────────────────────────────────────
+  const taskDefs = [
+    { title: "Check vitals every 2 hours", description: "Monitor BP, HR, SpO2 and temperature. Alert if BP > 160/100 or HR > 110.", priority: "HIGH", status: "PENDING", patientIdx: 0, doctorIdx: 0, nurseIdx: 0 },
+    { title: "Administer IV antibiotics", description: "Amoxicillin-clavulanate 1.2g IV at 14:00 and 22:00. Check for allergic reactions.", priority: "HIGH", status: "PENDING", patientIdx: 1, doctorIdx: 0, nurseIdx: 1 },
+    { title: "Post-op wound check", description: "Inspect surgical site for signs of infection. Change dressing if saturated.", priority: "NORMAL", status: "IN_PROGRESS", patientIdx: 2, doctorIdx: 1, nurseIdx: 0 },
+    { title: "Prepare discharge paperwork", description: "Complete discharge summary and medication reconciliation for patient.", priority: "LOW", status: "PENDING", patientIdx: 5, doctorIdx: 1, nurseIdx: 2 },
+    { title: "Blood glucose monitoring", description: "Finger-prick glucose readings before meals and at bedtime. Target 5-10 mmol/L.", priority: "NORMAL", status: "PENDING", patientIdx: 3, doctorIdx: 0, nurseIdx: 1 },
+    { title: "Mobilization assessment", description: "Assist patient with supervised walking. Document distance and any difficulty.", priority: "NORMAL", status: "COMPLETED", patientIdx: 8, doctorIdx: 2, nurseIdx: 3 },
+    { title: "Administer pain medication PRN", description: "Paracetamol 1g PO if pain score > 4. Maximum 4g in 24 hours.", priority: "NORMAL", status: "PENDING", patientIdx: 4, doctorIdx: 2, nurseIdx: 2 },
+    { title: "Oxygen saturation monitoring", description: "Continuous SpO2 monitoring. Titrate O2 to maintain SpO2 > 94%. Escalate if desaturation below 90%.", priority: "HIGH", status: "IN_PROGRESS", patientIdx: 7, doctorIdx: 3, nurseIdx: 0 },
+    { title: "Fluid balance chart", description: "Strict input/output monitoring. Target positive balance of 500ml/24h.", priority: "NORMAL", status: "PENDING", patientIdx: 9, doctorIdx: 3, nurseIdx: 3 },
+    { title: "Neurological observations", description: "GCS assessment every 4 hours. Check pupil reactivity and limb movements.", priority: "HIGH", status: "PENDING", patientIdx: 4, doctorIdx: 3, nurseIdx: 1 },
+    { title: "Arrange physiotherapy consult", description: "Contact PT department for bedside assessment. Patient needs mobility plan.", priority: "LOW", status: "COMPLETED", patientIdx: 5, doctorIdx: 1, nurseIdx: 2 },
+    { title: "ECG monitoring", description: "12-lead ECG before morning rounds. Report any rhythm changes immediately.", priority: "HIGH", status: "PENDING", patientIdx: 0, doctorIdx: 0, nurseIdx: 0 },
+  ];
+
+  for (const t of taskDefs) {
+    await prisma.task.create({
+      data: {
+        title: t.title,
+        description: t.description,
+        priority: t.priority,
+        status: t.status,
+        patientId: patients[t.patientIdx]?.id ?? null,
+        createdById: doctors[t.doctorIdx].id,
+        assignedToId: nurses[t.nurseIdx].id,
+        completedAt: t.status === "COMPLETED" ? new Date() : null,
+        createdAt: new Date(Date.now() - Math.floor(Math.random() * 3) * 86400000),
+      },
+    });
+  }
+  console.log(`  ✓ ${taskDefs.length} tasks`);
+
   console.log("\n✅ Seed complete!");
 }
 

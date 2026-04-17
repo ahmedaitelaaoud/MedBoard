@@ -25,6 +25,8 @@ model User {
   assignmentsAsNurse  Assignment[] @relation("NurseAssignment")
   notesAuthored       Note[]
   activityLogs        ActivityLog[]
+  tasksCreated        Task[]       @relation("TaskCreator")
+  tasksAssigned       Task[]       @relation("TaskAssignee")
 }
 
 model Floor {
@@ -82,6 +84,7 @@ model Patient {
   assignments   Assignment[]
   activityLogs  ActivityLog[]
   documents     Document[]
+  tasks         Task[]
 }
 
 model MedicalRecord {
@@ -135,6 +138,25 @@ model ActivityLog {
 
   user    User     @relation(fields: [userId], references: [id])
   patient Patient? @relation(fields: [patientId], references: [id])
+}
+
+model Task {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  priority    String   @default("NORMAL")
+  status      String   @default("PENDING")
+  dueDate     DateTime?
+  patientId   String?
+  createdById String
+  assignedToId String
+  completedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  patient    Patient?  @relation(fields: [patientId], references: [id])
+  createdBy  User      @relation("TaskCreator", fields: [createdById], references: [id])
+  assignedTo User      @relation("TaskAssignee", fields: [assignedToId], references: [id])
 }
 
 model Document {
