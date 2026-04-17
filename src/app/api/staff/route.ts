@@ -23,6 +23,8 @@ export async function GET() {
         lastName: true,
         role: true,
         active: true,
+        specialty: true,
+        isAvailable: true,
         createdAt: true,
       },
       orderBy: [{ role: "asc" }, { lastName: "asc" }],
