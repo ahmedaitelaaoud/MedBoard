@@ -16,6 +16,8 @@ model User {
   role      String   @default("NURSE")
   avatarUrl String?
   active    Boolean  @default(true)
+  specialty String?
+  isAvailable Boolean @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
