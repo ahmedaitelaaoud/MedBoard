@@ -11,18 +11,9 @@ interface RoomGridProps {
 export function RoomGrid({ rooms, loading }: RoomGridProps) {
   if (loading) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-        {Array.from({ length: 12 }).map((_, i) => (
-          <div key={i} className="bg-white border border-gray-100 rounded-xl shadow-card p-4 min-h-[120px] animate-pulse">
-            <div className="flex justify-between mb-3">
-              <div className="w-12 h-4 bg-gray-100 rounded" />
-              <div className="w-16 h-5 bg-gray-100 rounded" />
-            </div>
-            <div className="mt-auto">
-              <div className="w-28 h-4 bg-gray-100 rounded" />
-              <div className="w-20 h-3 bg-gray-50 rounded mt-2" />
-            </div>
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 py-6 animate-pulse">
+        {Array.from({ length: 9 }).map((_, i) => (
+          <div key={i} className="w-full h-[130px] bg-gray-200 rounded-xl" />
         ))}
       </div>
     );
@@ -37,7 +28,7 @@ export function RoomGrid({ rooms, loading }: RoomGridProps) {
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 py-6">
       {rooms.map((room) => (
         <RoomCard key={room.id} room={room} />
       ))}
