@@ -10,7 +10,7 @@ export function Select({ label, options, className = "", id, ...props }: SelectP
   return (
     <div className="space-y-1.5">
       {label && (
-        <label htmlFor={selectId} className="block text-sm font-medium text-gray-700">
+        <label htmlFor={selectId} className="block text-sm font-medium text-gray-700 dark:text-slate-300">
           {label}
         </label>
       )}
@@ -18,8 +18,8 @@ export function Select({ label, options, className = "", id, ...props }: SelectP
         <select
           id={selectId}
           className={`
-            w-full px-3.5 py-2.5 pr-9 text-sm bg-white border border-gray-200 rounded-lg
-            text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-400
+            w-full px-3.5 py-2.5 pr-9 text-sm bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg
+            text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-400
             transition-all duration-150 appearance-none cursor-pointer
             ${className}
           `}
@@ -32,7 +32,7 @@ export function Select({ label, options, className = "", id, ...props }: SelectP
           ))}
         </select>
         <svg
-          className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none"
+          className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-slate-500 pointer-events-none"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"

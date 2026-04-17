@@ -35,6 +35,10 @@ const PERMISSIONS: Record<string, readonly Role[]> = {
   // Activity log
   "activity:read":         [Role.DOCTOR, Role.NURSE, Role.ADMIN],
 
+  // Direct chat
+  "chat:read":             [Role.DOCTOR, Role.NURSE],
+  "chat:send":             [Role.DOCTOR, Role.NURSE],
+
   // Dashboard
   "dashboard:read":        [Role.DOCTOR, Role.NURSE, Role.ADMIN, Role.READONLY],
   "dashboard:manage":      [Role.ADMIN],

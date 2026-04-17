@@ -47,6 +47,18 @@ function getNavItems(user: SessionUser | null) {
     });
   }
 
+  if (can(user, "chat:read")) {
+    items.push({
+      name: "Chat",
+      href: "/chat",
+      icon: (
+        <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7.5 8.25h9m-9 3h5.25M6.75 18l-3 2.25V6A2.25 2.25 0 016 3.75h12A2.25 2.25 0 0120.25 6v9A2.25 2.25 0 0118 17.25H8.25L6.75 18z" />
+        </svg>
+      ),
+    });
+  }
+
   if (can(user, "staff:read")) {
     items.push({
       name: "Staff",
@@ -68,14 +80,14 @@ export function Sidebar() {
   const navItems = getNavItems(user);
 
   return (
-    <aside className="fixed left-0 top-0 bottom-0 w-[220px] bg-white border-r border-gray-100 flex flex-col z-30">
+    <aside className="fixed left-0 top-0 bottom-0 w-[220px] bg-white dark:bg-slate-900 border-r border-gray-100 dark:border-slate-800 flex flex-col z-30 transition-colors duration-200">
       {/* Logo */}
-      <div className="h-14 flex items-center px-5 border-b border-gray-50">
+      <div className="h-14 flex items-center px-5 border-b border-gray-50 dark:border-slate-800">
         <Link href="/dashboard" className="flex items-center gap-2.5">
           <div className="w-7 h-7 bg-brand-600 rounded-lg flex items-center justify-center">
             <span className="text-white text-xs font-bold">M</span>
           </div>
-          <span className="text-sm font-semibold text-gray-900 tracking-tight">MedBoard</span>
+          <span className="text-sm font-semibold text-gray-900 dark:text-slate-100 tracking-tight">MedBoard</span>
         </Link>
       </div>
 
@@ -90,8 +102,8 @@ export function Sidebar() {
               className={`
                 flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150
                 ${isActive
-                  ? "bg-brand-50 text-brand-700 border-l-2 border-brand-500 ml-0 pl-[10px]"
-                  : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                  ? "bg-brand-50 dark:bg-brand-900/25 text-brand-700 dark:text-brand-300 border-l-2 border-brand-500 ml-0 pl-[10px]"
+                  : "text-gray-500 dark:text-slate-400 hover:text-gray-900 dark:hover:text-slate-100 hover:bg-gray-50 dark:hover:bg-slate-800"
                 }
               `}
             >
@@ -105,19 +117,19 @@ export function Sidebar() {
       {/* User + Sign out */}
       <div className="px-3 pb-3 space-y-2">
         {user && (
-          <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg bg-gray-50">
+          <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg bg-gray-50 dark:bg-slate-800/80 transition-colors">
             <Avatar firstName={user.firstName} lastName={user.lastName} size="sm" />
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium text-gray-900 truncate">
+              <p className="text-xs font-medium text-gray-900 dark:text-slate-100 truncate">
                 {user.firstName} {user.lastName}
               </p>
-              <p className="text-[10px] text-gray-400 capitalize">{user.role.toLowerCase()}</p>
+              <p className="text-[10px] text-gray-400 dark:text-slate-400 capitalize">{user.role.toLowerCase()}</p>
             </div>
           </div>
         )}
         <button
           onClick={logout}
-          className="flex items-center gap-2 w-full px-3 py-2 text-xs font-medium text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-150"
+          className="flex items-center gap-2 w-full px-3 py-2 text-xs font-medium text-gray-400 dark:text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-all duration-150"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />

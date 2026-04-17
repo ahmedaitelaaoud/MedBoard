@@ -11,8 +11,8 @@ export function Card({ children, className = "", onClick, hoverable = false }: C
   return (
     <div
       className={`
-        bg-white border border-gray-100 rounded-xl shadow-card
-        ${hoverable ? "hover:shadow-card-hover hover:border-gray-200 transition-all duration-200 cursor-pointer" : ""}
+        bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-xl shadow-card
+        ${hoverable ? "hover:shadow-card-hover hover:border-gray-200 dark:hover:border-slate-700 transition-all duration-200 cursor-pointer" : ""}
         ${className}
       `}
       onClick={onClick}
@@ -25,7 +25,7 @@ export function Card({ children, className = "", onClick, hoverable = false }: C
 }
 
 export function CardHeader({ children, className = "" }: { children: React.ReactNode; className?: string }) {
-  return <div className={`px-5 py-4 border-b border-gray-50 ${className}`}>{children}</div>;
+  return <div className={`px-5 py-4 border-b border-gray-50 dark:border-slate-800 ${className}`}>{children}</div>;
 }
 
 export function CardContent({ children, className = "" }: { children: React.ReactNode; className?: string }) {

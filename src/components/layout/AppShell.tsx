@@ -5,7 +5,7 @@ import { Topbar } from "./Topbar";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-surface-50">
+    <div className="min-h-screen bg-surface-50 dark:bg-slate-950 transition-colors duration-200">
       <Sidebar />
       <Topbar />
       <main className="ml-[220px] pt-14">
