@@ -286,9 +286,9 @@ export function DoctorHome({ user }: { user: SessionUser }) {
   if (loading) {
     return (
       <div className="space-y-6 animate-pulse">
-        <div className="h-24 bg-gray-100 rounded-xl" />
+        <div className="h-24 bg-gray-100 dark:bg-slate-800 rounded-xl" />
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-          {[1,2,3,4,5,6].map(i => <div key={i} className="h-20 bg-gray-100 rounded-xl" />)}
+          {[1,2,3,4,5,6].map(i => <div key={i} className="h-20 bg-gray-100 dark:bg-slate-800 rounded-xl" />)}
         </div>
       </div>
     );
@@ -300,13 +300,13 @@ export function DoctorHome({ user }: { user: SessionUser }) {
       <div className="flex items-center gap-5">
         <Avatar firstName={user.firstName} lastName={user.lastName} size="xl" />
         <div>
-          <h1 className="text-xl font-semibold text-gray-900">
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-slate-100">
             Dr. {user.firstName} {user.lastName}
           </h1>
-          <p className="text-sm text-gray-500 mt-0.5">{user.email}</p>
+          <p className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">{user.email}</p>
           <div className="flex items-center gap-3 mt-2">
             <Badge variant="info" dot>Active</Badge>
-            <span className="text-xs text-gray-400">{patients.length} patients assigned</span>
+            <span className="text-xs text-gray-400 dark:text-slate-500">{patients.length} patients assigned</span>
           </div>
         </div>
       </div>
@@ -314,13 +314,13 @@ export function DoctorHome({ user }: { user: SessionUser }) {
       {/* My Patients */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-semibold text-gray-900">My Patients</h2>
-          <span className="text-xs text-gray-400">{patients.length} total</span>
+          <h2 className="text-sm font-semibold text-gray-900 dark:text-slate-100">My Patients</h2>
+          <span className="text-xs text-gray-400 dark:text-slate-500">{patients.length} total</span>
         </div>
         {patients.length === 0 ? (
           <Card>
             <CardContent>
-              <p className="text-sm text-gray-400 text-center py-6">No patients currently assigned</p>
+              <p className="text-sm text-gray-400 dark:text-slate-400 text-center py-6">No patients currently assigned</p>
             </CardContent>
           </Card>
         ) : (
@@ -329,11 +329,11 @@ export function DoctorHome({ user }: { user: SessionUser }) {
               <div
                 key={patient.id}
                 onClick={() => router.push(`/patients/${patient.id}`)}
-                className="flex items-center gap-3 px-4 py-3.5 bg-white border border-gray-100 rounded-xl hover:border-brand-200 hover:shadow-sm transition-all duration-150 cursor-pointer group"
+                className="flex items-center gap-3 px-4 py-3.5 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-xl hover:border-brand-200 dark:hover:border-slate-700 hover:shadow-sm transition-all duration-150 cursor-pointer group"
               >
                 <Avatar firstName={patient.firstName} lastName={patient.lastName} size="sm" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 group-hover:text-brand-700 transition-colors truncate">
+                  <p className="text-sm font-medium text-gray-900 dark:text-slate-100 group-hover:text-brand-700 dark:group-hover:text-brand-300 transition-colors truncate">
                     {patient.firstName} {patient.lastName}
                   </p>
                   <div className="flex items-center gap-2 mt-0.5">
@@ -341,11 +341,11 @@ export function DoctorHome({ user }: { user: SessionUser }) {
                       {PATIENT_STATUS_LABELS[patient.status as keyof typeof PATIENT_STATUS_LABELS] || patient.status}
                     </Badge>
                     {patient.room && (
-                      <span className="text-[10px] text-gray-400">Room {patient.room.number}</span>
+                      <span className="text-[10px] text-gray-400 dark:text-slate-500">Room {patient.room.number}</span>
                     )}
                   </div>
                 </div>
-                <svg className="w-4 h-4 text-gray-300 group-hover:text-brand-400 transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-gray-300 dark:text-slate-600 group-hover:text-brand-400 transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </div>
@@ -355,11 +355,11 @@ export function DoctorHome({ user }: { user: SessionUser }) {
       </div>
 
       {/* Tickets section */}
-      <div className="rounded-2xl border border-gray-100 bg-gradient-to-b from-white to-gray-50/60 p-4 sm:p-5">
+      <div className="rounded-2xl border border-gray-100 dark:border-slate-800 bg-gradient-to-b from-white to-gray-50/60 dark:from-slate-900 dark:to-slate-900/70 p-4 sm:p-5 transition-colors">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-sm font-semibold text-gray-900">Assigned Tickets</h2>
-            <p className="text-xs text-gray-500 mt-1">Write a short doctor note and tag a patient with @.</p>
+            <h2 className="text-sm font-semibold text-gray-900 dark:text-slate-100">Assigned Tickets</h2>
+            <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">Write a short doctor note and tag a patient with @.</p>
           </div>
           <Button
             size="sm"
@@ -372,32 +372,32 @@ export function DoctorHome({ user }: { user: SessionUser }) {
 
         {/* Ticket note form */}
         {showTaskForm && (
-          <Card className="mb-4 border-brand-100 shadow-sm">
+          <Card className="mb-4 border-brand-100 dark:border-brand-900/60 shadow-sm">
             <CardContent>
               <form onSubmit={createTask} className="space-y-3">
                 <div className="relative">
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Doctor ticket note</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Doctor ticket note</label>
                   <textarea
                     ref={ticketTextareaRef}
                     value={ticketNote}
                     onChange={(e) => handleTicketNoteChange(e.target.value, e.target.selectionStart ?? e.target.value.length)}
-                    className="w-full px-3.5 py-3 text-sm bg-white border border-gray-200 rounded-lg placeholder:text-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-400 transition-all duration-150 resize-y min-h-[110px]"
+                    className="w-full px-3.5 py-3 text-sm bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg placeholder:text-gray-400 dark:placeholder:text-slate-500 text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-400 transition-all duration-150 resize-y min-h-[110px]"
                     placeholder="Write a short note for the future agent workflow. Type @ to tag a patient, e.g. @Amina Benali"
                     rows={4}
                     required
                   />
 
                   {mentionOpen && mentionSuggestions.length > 0 && (
-                    <div className="absolute z-20 left-0 right-0 mt-1 rounded-lg border border-gray-200 bg-white shadow-lg overflow-hidden">
+                    <div className="absolute z-20 left-0 right-0 mt-1 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-lg overflow-hidden">
                       {mentionSuggestions.map((patient) => (
                         <button
                           key={patient.id}
                           type="button"
                           onClick={() => insertPatientMention(patient)}
-                          className="w-full text-left px-3 py-2 hover:bg-brand-50 transition-colors"
+                          className="w-full text-left px-3 py-2 hover:bg-brand-50 dark:hover:bg-slate-800 transition-colors"
                         >
-                          <p className="text-sm font-medium text-gray-900">{patient.firstName} {patient.lastName}</p>
-                          <p className="text-[11px] text-gray-500">{patient.patientCode}</p>
+                          <p className="text-sm font-medium text-gray-900 dark:text-slate-100">{patient.firstName} {patient.lastName}</p>
+                          <p className="text-[11px] text-gray-500 dark:text-slate-400">{patient.patientCode}</p>
                         </button>
                       ))}
                     </div>
@@ -405,7 +405,7 @@ export function DoctorHome({ user }: { user: SessionUser }) {
                 </div>
 
                 <div className="flex items-center justify-between gap-3 pt-1">
-                  <p className="text-[11px] text-gray-500">
+                  <p className="text-[11px] text-gray-500 dark:text-slate-400">
                     {availablePatients.length} patients available for @mention from the current dashboard.
                   </p>
                   <Button type="submit" loading={taskLoading} disabled={!ticketNote.trim()}>
@@ -421,7 +421,7 @@ export function DoctorHome({ user }: { user: SessionUser }) {
         {tasks.length === 0 ? (
           <Card>
             <CardContent>
-              <p className="text-sm text-gray-400 text-center py-6">No tickets created yet</p>
+              <p className="text-sm text-gray-400 dark:text-slate-400 text-center py-6">No tickets created yet</p>
             </CardContent>
           </Card>
         ) : (
@@ -429,23 +429,23 @@ export function DoctorHome({ user }: { user: SessionUser }) {
             {tasks.map((task) => (
               <div
                 key={task.id}
-                className={`flex items-start gap-3 px-4 py-3.5 bg-white border rounded-xl transition-all duration-150 ${
+                className={`flex items-start gap-3 px-4 py-3.5 bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-xl transition-all duration-150 ${
                   task.status === "COMPLETED"
                     ? "border-gray-100 opacity-70"
-                    : "border-gray-100 hover:border-brand-200 hover:shadow-sm"
+                    : "border-gray-100 hover:border-brand-200 dark:hover:border-slate-700 hover:shadow-sm"
                 }`}
               >
                 <span className={`mt-0.5 text-sm font-mono ${
-                  task.status === "COMPLETED" ? "text-emerald-500" : task.status === "IN_PROGRESS" ? "text-brand-500" : "text-gray-300"
+                  task.status === "COMPLETED" ? "text-emerald-500" : task.status === "IN_PROGRESS" ? "text-brand-500" : "text-gray-300 dark:text-slate-600"
                 }`}>
                   {statusIcon(task.status)}
                 </span>
                 <div className="flex-1 min-w-0">
-                  <p className={`text-sm font-medium ${task.status === "COMPLETED" ? "text-gray-400 line-through" : "text-gray-900"}`}>
+                  <p className={`text-sm font-medium ${task.status === "COMPLETED" ? "text-gray-400 dark:text-slate-500 line-through" : "text-gray-900 dark:text-slate-100"}`}>
                     {task.title}
                   </p>
                   {task.description && (
-                    <p className={`text-xs mt-1 leading-relaxed ${task.status === "COMPLETED" ? "text-gray-400" : "text-gray-600"}`}>
+                    <p className={`text-xs mt-1 leading-relaxed ${task.status === "COMPLETED" ? "text-gray-400 dark:text-slate-500" : "text-gray-600 dark:text-slate-300"}`}>
                       {task.description}
                     </p>
                   )}
@@ -459,7 +459,7 @@ export function DoctorHome({ user }: { user: SessionUser }) {
                       })}
                     </Badge>
                     {task.patient && (
-                      <span className="text-[10px] text-gray-400">
+                      <span className="text-[10px] text-gray-400 dark:text-slate-500">
                         @{task.patient.firstName} {task.patient.lastName}
                       </span>
                     )}
@@ -472,10 +472,10 @@ export function DoctorHome({ user }: { user: SessionUser }) {
       </div>
 
       {/* Full ward dashboard for doctors */}
-      <div className="space-y-6 rounded-2xl border border-gray-100 bg-white p-4 sm:p-5">
+      <div className="space-y-6 rounded-2xl border border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5 transition-colors">
         <div>
-          <h2 className="text-sm font-semibold text-gray-900">Ward Dashboard</h2>
-          <p className="text-sm text-gray-500 mt-0.5">Complete live room visibility across all floors</p>
+          <h2 className="text-sm font-semibold text-gray-900 dark:text-slate-100">Ward Dashboard</h2>
+          <p className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">Complete live room visibility across all floors</p>
         </div>
 
         <OccupancySummary rooms={rooms} />
@@ -498,7 +498,7 @@ export function DoctorHome({ user }: { user: SessionUser }) {
         </div>
 
         <div>
-          <h3 className="text-sm font-medium text-gray-400 mb-4">
+          <h3 className="text-sm font-medium text-gray-400 dark:text-slate-500 mb-4">
             {selectedFloor !== null ? floors.find((f) => f.number === selectedFloor)?.name : "All Floors"}
           </h3>
           <RoomGrid rooms={rooms} loading={roomsLoading} />
