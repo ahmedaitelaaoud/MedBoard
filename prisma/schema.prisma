@@ -1,0 +1,148 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  firstName String
+  lastName  String
+  role      String   @default("NURSE")
+  avatarUrl String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  assignmentsAsDoctor Assignment[] @relation("DoctorAssignment")
+  assignmentsAsNurse  Assignment[] @relation("NurseAssignment")
+  notesAuthored       Note[]
+  activityLogs        ActivityLog[]
+}
+
+model Floor {
+  id        String   @id @default(cuid())
+  name      String
+  number    Int      @unique
+  createdAt DateTime @default(now())
+  rooms     Room[]
+}
+
+model Ward {
+  id        String   @id @default(cuid())
+  name      String
+  code      String   @unique
+  createdAt DateTime @default(now())
+  rooms     Room[]
+}
+
+model Room {
+  id        String   @id @default(cuid())
+  number    String   @unique
+  floorId   String
+  wardId    String
+  capacity  Int      @default(1)
+  status    String   @default("EMPTY")
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  floor    Floor     @relation(fields: [floorId], references: [id])
+  ward     Ward      @relation(fields: [wardId], references: [id])
+  patients Patient[]
+}
+
+model Patient {
+  id               String    @id @default(cuid())
+  patientCode      String    @unique
+  firstName        String
+  lastName         String
+  dateOfBirth      DateTime
+  sex              String
+  height           Float?
+  weight           Float?
+  allergies        String?
+  emergencyContact String?
+  emergencyPhone   String?
+  status           String    @default("ADMITTED")
+  admissionDate    DateTime  @default(now())
+  dischargeDate    DateTime?
+  roomId           String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  room          Room?          @relation(fields: [roomId], references: [id])
+  medicalRecord MedicalRecord?
+  assignments   Assignment[]
+  activityLogs  ActivityLog[]
+  documents     Document[]
+}
+
+model MedicalRecord {
+  id               String   @id @default(cuid())
+  patientId        String   @unique
+  diagnosisSummary String?
+  medicalHistory   String?
+  currentPlan      String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  patient Patient @relation(fields: [patientId], references: [id])
+  notes   Note[]
+}
+
+model Note {
+  id              String   @id @default(cuid())
+  medicalRecordId String
+  authorId        String
+  type            String   @default("PROGRESS")
+  content         String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  medicalRecord MedicalRecord @relation(fields: [medicalRecordId], references: [id])
+  author        User          @relation(fields: [authorId], references: [id])
+}
+
+model Assignment {
+  id        String   @id @default(cuid())
+  patientId String
+  doctorId  String
+  nurseId   String?
+  role      String   @default("PRIMARY")
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  patient Patient @relation(fields: [patientId], references: [id])
+  doctor  User    @relation("DoctorAssignment", fields: [doctorId], references: [id])
+  nurse   User?   @relation("NurseAssignment", fields: [nurseId], references: [id])
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  action    String
+  userId    String
+  patientId String?
+  details   String?
+  metadata  String?
+  createdAt DateTime @default(now())
+
+  user    User     @relation(fields: [userId], references: [id])
+  patient Patient? @relation(fields: [patientId], references: [id])
+}
+
+model Document {
+  id         String   @id @default(cuid())
+  name       String
+  type       String
+  url        String?
+  patientId  String
+  uploadedBy String?
+  createdAt  DateTime @default(now())
+
+  patient Patient @relation(fields: [patientId], references: [id])
+}
