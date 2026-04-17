@@ -16,7 +16,7 @@ export function DemographicsCard({ patient }: DemographicsCardProps) {
     { label: "Sex", value: patient.sex === "MALE" ? "Male" : "Female" },
     { label: "Height", value: patient.height ? `${patient.height} cm` : "—" },
     { label: "Weight", value: patient.weight ? `${patient.weight} kg` : "—" },
-    { label: "Allergies", value: patient.allergies || "None recorded" },
+    { label: "Allergies", value: patient.allergies || "None recorded", highlight: !!patient.allergies },
     { label: "Emergency Contact", value: patient.emergencyContact || "—" },
     { label: "Emergency Phone", value: patient.emergencyPhone || "—" },
   ];
@@ -27,11 +27,13 @@ export function DemographicsCard({ patient }: DemographicsCardProps) {
         <h2 className="text-sm font-semibold text-gray-900">Demographics</h2>
       </CardHeader>
       <CardContent>
-        <dl className="grid grid-cols-2 gap-x-6 gap-y-3">
+        <dl className="space-y-3">
           {fields.map((f) => (
-            <div key={f.label}>
-              <dt className="text-2xs font-medium text-gray-400 uppercase tracking-wider">{f.label}</dt>
-              <dd className="text-sm text-gray-800 mt-0.5">{f.value}</dd>
+            <div key={f.label} className="flex justify-between items-baseline gap-4">
+              <dt className="text-xs text-gray-400 shrink-0">{f.label}</dt>
+              <dd className={`text-sm text-right ${f.highlight ? "text-red-600 font-medium" : "text-gray-800"}`}>
+                {f.value}
+              </dd>
             </div>
           ))}
         </dl>

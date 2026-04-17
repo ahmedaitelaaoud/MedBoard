@@ -1,4 +1,5 @@
 import { Avatar } from "@/components/ui/Avatar";
+import { Badge } from "@/components/ui/Badge";
 import type { ActivityLogItem } from "@/types/domain";
 
 interface ActivityFeedProps {
@@ -6,18 +7,82 @@ interface ActivityFeedProps {
   loading?: boolean;
 }
 
-const actionIcons: Record<string, string> = {
-  PATIENT_ADMITTED: "🏥",
-  PATIENT_DISCHARGED: "🚪",
-  NOTE_CREATED: "📝",
-  NOTE_UPDATED: "✏️",
-  RECORD_UPDATED: "📋",
-  STATUS_CHANGED: "🔄",
-  ROOM_ASSIGNED: "🛏️",
-  ROOM_TRANSFERRED: "↔️",
-  ASSIGNMENT_CHANGED: "👤",
-  LOGIN: "🔑",
-  LOGOUT: "👋",
+function ActionIcon({ action }: { action: string }) {
+  const iconClass = "w-4 h-4";
+  switch (action) {
+    case "PATIENT_ADMITTED":
+      return (
+        <div className="w-7 h-7 bg-blue-50 rounded-full flex items-center justify-center shrink-0">
+          <svg className={`${iconClass} text-blue-500`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+        </div>
+      );
+    case "PATIENT_DISCHARGED":
+      return (
+        <div className="w-7 h-7 bg-emerald-50 rounded-full flex items-center justify-center shrink-0">
+          <svg className={`${iconClass} text-emerald-500`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+      );
+    case "NOTE_CREATED":
+    case "NOTE_UPDATED":
+      return (
+        <div className="w-7 h-7 bg-violet-50 rounded-full flex items-center justify-center shrink-0">
+          <svg className={`${iconClass} text-violet-500`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+          </svg>
+        </div>
+      );
+    case "RECORD_UPDATED":
+      return (
+        <div className="w-7 h-7 bg-amber-50 rounded-full flex items-center justify-center shrink-0">
+          <svg className={`${iconClass} text-amber-500`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+          </svg>
+        </div>
+      );
+    case "STATUS_CHANGED":
+      return (
+        <div className="w-7 h-7 bg-cyan-50 rounded-full flex items-center justify-center shrink-0">
+          <svg className={`${iconClass} text-cyan-500`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182" />
+          </svg>
+        </div>
+      );
+    case "LOGIN":
+    case "LOGOUT":
+      return (
+        <div className="w-7 h-7 bg-gray-50 rounded-full flex items-center justify-center shrink-0">
+          <svg className={`${iconClass} text-gray-400`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+          </svg>
+        </div>
+      );
+    default:
+      return (
+        <div className="w-7 h-7 bg-gray-50 rounded-full flex items-center justify-center shrink-0">
+          <svg className={`${iconClass} text-gray-400`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+      );
+  }
+}
+
+const actionLabels: Record<string, string> = {
+  PATIENT_ADMITTED: "Patient Admitted",
+  PATIENT_DISCHARGED: "Patient Discharged",
+  NOTE_CREATED: "Note Created",
+  NOTE_UPDATED: "Note Updated",
+  RECORD_UPDATED: "Record Updated",
+  STATUS_CHANGED: "Status Changed",
+  ROOM_ASSIGNED: "Room Assigned",
+  ROOM_TRANSFERRED: "Room Transfer",
+  ASSIGNMENT_CHANGED: "Assignment Changed",
+  LOGIN: "Login",
+  LOGOUT: "Logout",
 };
 
 export function ActivityFeed({ activities, loading }: ActivityFeedProps) {
@@ -27,9 +92,9 @@ export function ActivityFeed({ activities, loading }: ActivityFeedProps) {
         {Array.from({ length: 6 }).map((_, i) => (
           <div key={i} className="flex items-start gap-3 p-3 animate-pulse">
             <div className="w-7 h-7 bg-gray-100 rounded-full" />
-            <div className="flex-1">
-              <div className="w-48 h-4 bg-gray-100 rounded" />
-              <div className="w-24 h-3 bg-gray-50 rounded mt-1" />
+            <div className="flex-1 space-y-1.5">
+              <div className="w-48 h-3.5 bg-gray-100 rounded" />
+              <div className="w-24 h-3 bg-gray-50 rounded" />
             </div>
           </div>
         ))}
@@ -38,33 +103,36 @@ export function ActivityFeed({ activities, loading }: ActivityFeedProps) {
   }
 
   if (activities.length === 0) {
-    return <p className="text-sm text-gray-400 italic py-4">No recent activity</p>;
+    return <p className="text-sm text-gray-400 py-6 text-center">No recent activity</p>;
   }
 
   return (
-    <div className="space-y-1">
+    <div className="space-y-0.5">
       {activities.map((activity) => (
         <div
           key={activity.id}
-          className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors duration-100"
+          className="flex items-start gap-3 px-3 py-3 rounded-lg hover:bg-gray-50/80 transition-colors duration-100"
         >
-          <Avatar firstName={activity.user.firstName} lastName={activity.user.lastName} size="sm" />
+          <ActionIcon action={activity.action} />
           <div className="flex-1 min-w-0">
             <p className="text-sm text-gray-700">
-              <span className="mr-1.5">{actionIcons[activity.action] || "•"}</span>
-              {activity.details || activity.action}
+              {activity.details || actionLabels[activity.action] || activity.action}
             </p>
-            <p className="text-2xs text-gray-400 mt-0.5">
-              {new Date(activity.createdAt).toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-[10px] text-gray-400">
+                {new Date(activity.createdAt).toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </span>
               {activity.patient && (
-                <span> · {activity.patient.firstName} {activity.patient.lastName}</span>
+                <Badge variant="muted" className="text-[10px] px-1.5 py-0">
+                  {activity.patient.firstName} {activity.patient.lastName}
+                </Badge>
               )}
-            </p>
+            </div>
           </div>
         </div>
       ))}
