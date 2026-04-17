@@ -27,6 +27,8 @@ model User {
   activityLogs        ActivityLog[]
   tasksCreated        Task[]       @relation("TaskCreator")
   tasksAssigned       Task[]       @relation("TaskAssignee")
+  messagesSent        DirectMessage[] @relation("DirectMessageSender")
+  messagesReceived    DirectMessage[] @relation("DirectMessageRecipient")
 }
 
 model Floor {
@@ -169,4 +171,20 @@ model Document {
   createdAt  DateTime @default(now())
 
   patient Patient @relation(fields: [patientId], references: [id])
+}
+
+model DirectMessage {
+  id          String   @id @default(cuid())
+  senderId    String
+  recipientId String
+  content     String
+  readAt      DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  sender    User @relation("DirectMessageSender", fields: [senderId], references: [id])
+  recipient User @relation("DirectMessageRecipient", fields: [recipientId], references: [id])
+
+  @@index([senderId, recipientId, createdAt])
+  @@index([recipientId, senderId, createdAt])
 }
