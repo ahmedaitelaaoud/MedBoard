@@ -22,7 +22,7 @@ interface Ward {
 export default function DashboardPage() {
   const [rooms, setRooms] = useState<RoomWithPatient[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedFloor, setSelectedFloor] = useState<number | null>(null);
+  const [selectedFloor, setSelectedFloor] = useState<number | null>(0);
   const [search, setSearch] = useState("");
   const [wardFilter, setWardFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
@@ -121,7 +121,12 @@ export default function DashboardPage() {
         </div>
 
         {/* Room grid */}
-        <RoomGrid rooms={rooms} loading={loading} />
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 overflow-hidden">
+          <h2 className="text-xl font-bold text-gray-400 mb-6 ml-4">
+             {selectedFloor !== null ? floors.find(f => f.number === selectedFloor)?.name : ""}
+          </h2>
+          <RoomGrid rooms={rooms} loading={loading} />
+        </div>
       </div>
     </AppShell>
   );
