@@ -9,7 +9,6 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Minimal, clean palette — white-first with calm accents
         brand: {
           50: "#f0f7ff",
           100: "#e0efff",
@@ -24,17 +23,22 @@ const config: Config = {
         },
         surface: {
           0: "#ffffff",
-          50: "#fafafa",
-          100: "#f5f5f5",
-          200: "#eeeeee",
-          300: "#e0e0e0",
+          50: "#fafbfc",
+          100: "#f4f5f7",
+          200: "#ebecf0",
+          300: "#dfe1e6",
         },
         status: {
           critical: "#dc2626",
+          "critical-bg": "#fef2f2",
           warning: "#d97706",
+          "warning-bg": "#fffbeb",
           stable: "#0b7dda",
+          "stable-bg": "#eff6ff",
           ready: "#16a34a",
+          "ready-bg": "#f0fdf4",
           inactive: "#9ca3af",
+          "inactive-bg": "#f9fafb",
         },
       },
       fontFamily: {
@@ -58,6 +62,11 @@ const config: Config = {
         "card-hover":
           "0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04)",
         soft: "0 1px 2px 0 rgba(0, 0, 0, 0.03)",
+        "inner-border": "inset 0 0 0 1px rgba(0, 0, 0, 0.04)",
+      },
+      animation: {
+        "fade-in": "fadeIn 0.3s ease-out",
+        "slide-up": "pageEnter 0.3s ease-out",
       },
     },
   },

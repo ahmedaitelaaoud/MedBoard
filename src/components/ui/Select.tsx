@@ -14,22 +14,32 @@ export function Select({ label, options, className = "", id, ...props }: SelectP
           {label}
         </label>
       )}
-      <select
-        id={selectId}
-        className={`
-          w-full px-3 py-2 text-sm bg-white border border-gray-200 rounded-lg
-          text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300
-          transition-colors duration-150 appearance-none
-          ${className}
-        `}
-        {...props}
-      >
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
+      <div className="relative">
+        <select
+          id={selectId}
+          className={`
+            w-full px-3.5 py-2.5 pr-9 text-sm bg-white border border-gray-200 rounded-lg
+            text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-400
+            transition-all duration-150 appearance-none cursor-pointer
+            ${className}
+          `}
+          {...props}
+        >
+          {options.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+        <svg
+          className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </div>
     </div>
   );
 }

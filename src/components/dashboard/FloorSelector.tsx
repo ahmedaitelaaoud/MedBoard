@@ -8,16 +8,28 @@ interface FloorSelectorProps {
 
 export function FloorSelector({ floors, selectedFloor, onSelect }: FloorSelectorProps) {
   return (
-    <div className="flex items-center gap-1.5">
+    <div className="flex items-center gap-1">
+      <button
+        onClick={() => onSelect(null)}
+        className={`
+          px-3.5 py-1.5 text-xs font-medium rounded-lg transition-all duration-150
+          ${selectedFloor === null
+            ? "bg-brand-600 text-white shadow-sm"
+            : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
+          }
+        `}
+      >
+        All
+      </button>
       {floors.map((floor) => (
         <button
           key={floor.number}
           onClick={() => onSelect(floor.number)}
           className={`
-            px-4 py-2 text-sm font-medium transition-colors duration-150 border-b-2
+            px-3.5 py-1.5 text-xs font-medium rounded-lg transition-all duration-150
             ${selectedFloor === floor.number
-              ? "border-teal-400 text-teal-500"
-              : "border-transparent text-teal-500/60 hover:text-teal-500 hover:border-teal-200"
+              ? "bg-brand-600 text-white shadow-sm"
+              : "text-gray-500 hover:text-gray-900 hover:bg-gray-100"
             }
           `}
         >

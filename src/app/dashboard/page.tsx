@@ -6,7 +6,10 @@ import { FloorSelector } from "@/components/dashboard/FloorSelector";
 import { FilterBar } from "@/components/dashboard/FilterBar";
 import { RoomGrid } from "@/components/dashboard/RoomGrid";
 import { OccupancySummary } from "@/components/dashboard/OccupancySummary";
+import { DoctorHome } from "@/components/dashboard/DoctorHome";
+import { NurseHome } from "@/components/dashboard/NurseHome";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useAuth } from "@/hooks/useAuth";
 import type { RoomWithPatient } from "@/types/domain";
 
 interface Floor {
@@ -20,6 +23,7 @@ interface Ward {
 }
 
 export default function DashboardPage() {
+  const { user } = useAuth();
   const [rooms, setRooms] = useState<RoomWithPatient[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedFloor, setSelectedFloor] = useState<number | null>(0);
@@ -29,7 +33,6 @@ export default function DashboardPage() {
 
   const debouncedSearch = useDebounce(search, 300);
 
-  // Derive floors and wards from room data
   const [floors, setFloors] = useState<Floor[]>([]);
   const [wards, setWards] = useState<Ward[]>([]);
 
@@ -54,7 +57,6 @@ export default function DashboardPage() {
     }
   }, [selectedFloor, wardFilter, statusFilter, debouncedSearch]);
 
-  // Initial load to get all rooms for floor/ward derivation
   useEffect(() => {
     async function loadAll() {
       try {
@@ -63,7 +65,6 @@ export default function DashboardPage() {
           const json = await res.json();
           const allRooms: RoomWithPatient[] = json.data;
 
-          // Extract unique floors
           const floorMap = new Map<number, string>();
           allRooms.forEach((r) => floorMap.set(r.floor.number, r.floor.name));
           setFloors(
@@ -72,7 +73,6 @@ export default function DashboardPage() {
               .map(([number, name]) => ({ number, name }))
           );
 
-          // Extract unique wards
           const wardMap = new Map<string, string>();
           allRooms.forEach((r) => wardMap.set(r.ward.code, r.ward.name));
           setWards(Array.from(wardMap.entries()).map(([code, name]) => ({ code, name })));
@@ -88,6 +88,24 @@ export default function DashboardPage() {
     fetchRooms();
   }, [fetchRooms]);
 
+  // Doctor and Nurse get their own home view
+  if (user?.role === "DOCTOR") {
+    return (
+      <AppShell>
+        <DoctorHome user={user} />
+      </AppShell>
+    );
+  }
+
+  if (user?.role === "NURSE") {
+    return (
+      <AppShell>
+        <NurseHome user={user} />
+      </AppShell>
+    );
+  }
+
+  // Admin / Read-only see the ward dashboard
   return (
     <AppShell>
       <div className="space-y-6">
@@ -98,9 +116,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Summary stats */}
-        <div className="bg-white border border-gray-100 rounded-xl shadow-card px-6 py-4">
-          <OccupancySummary rooms={rooms} />
-        </div>
+        <OccupancySummary rooms={rooms} />
 
         {/* Floor selector + filters */}
         <div className="flex items-center justify-between flex-wrap gap-3">
@@ -121,9 +137,9 @@ export default function DashboardPage() {
         </div>
 
         {/* Room grid */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 overflow-hidden">
-          <h2 className="text-xl font-bold text-gray-400 mb-6 ml-4">
-             {selectedFloor !== null ? floors.find(f => f.number === selectedFloor)?.name : ""}
+        <div>
+          <h2 className="text-sm font-medium text-gray-400 mb-4">
+            {selectedFloor !== null ? floors.find(f => f.number === selectedFloor)?.name : "All Floors"}
           </h2>
           <RoomGrid rooms={rooms} loading={loading} />
         </div>

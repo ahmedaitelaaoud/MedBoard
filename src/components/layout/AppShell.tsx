@@ -8,8 +8,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-surface-50">
       <Sidebar />
       <Topbar />
-      <main className="ml-56 pt-14">
-        <div className="p-6">{children}</div>
+      <main className="ml-[220px] pt-14">
+        <div className="p-6 page-enter">{children}</div>
       </main>
     </div>
   );
