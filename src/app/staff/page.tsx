@@ -2,9 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { AppShell } from "@/components/layout/AppShell";
-import { Card, CardContent, CardHeader } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
-import { Avatar } from "@/components/ui/Avatar";
 import { ROLE_LABELS } from "@/lib/constants";
 import type { Role } from "@/lib/constants";
 
@@ -15,14 +12,9 @@ interface StaffMember {
   lastName: string;
   role: string;
   active: boolean;
+  specialty?: string;
+  isAvailable?: boolean;
 }
-
-const roleBadgeVariant: Record<string, "info" | "success" | "warning" | "default"> = {
-  DOCTOR: "info",
-  NURSE: "success",
-  ADMIN: "warning",
-  READONLY: "default",
-};
 
 export default function StaffPage() {
   const [staff, setStaff] = useState<StaffMember[]>([]);
@@ -46,63 +38,118 @@ export default function StaffPage() {
   }, []);
 
   const grouped = {
-    DOCTOR: staff.filter((s) => s.role === "DOCTOR"),
-    NURSE: staff.filter((s) => s.role === "NURSE"),
-    ADMIN: staff.filter((s) => s.role === "ADMIN"),
-    READONLY: staff.filter((s) => s.role === "READONLY"),
+    DOCTORS: staff.filter((s) => s.role === "DOCTOR"),
+    OTHERS: staff.filter((s) => s.role !== "DOCTOR"),
+  };
+
+  // Helper to generate a fake available date for visual similarity
+  const getFakeDate = (idx: number) => {
+    const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    return `${days[idx % 7]}, ${20 + (idx % 10)} Jan 2025`;
+  };
+
+  const getFakePrice = (idx: number) => {
+    const prices = [400, 450, 300, 250, 350, 700, 200, 400];
+    return prices[idx % prices.length];
   };
 
   return (
     <AppShell>
-      <div className="space-y-6">
+      <div className="space-y-6 max-w-7xl mx-auto">
         <div>
-          <h1 className="text-lg font-semibold text-gray-900">Staff Directory</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Team members and their roles</p>
+          <h1 className="text-2xl font-bold text-gray-900">Medecins Dashboard</h1>
+          <p className="text-sm text-gray-500 mt-1">Manage and view our medical specialists</p>
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {[1, 2].map((i) => (
-              <div key={i} className="h-48 bg-gray-100 rounded-xl animate-pulse" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-[130px] bg-white border border-gray-100 shadow-sm rounded-xl animate-pulse" />
             ))}
           </div>
         ) : (
-          <div className="space-y-6">
-            {Object.entries(grouped).map(([role, members]) => (
-              members.length > 0 && (
-                <Card key={role}>
-                  <CardHeader>
-                    <div className="flex items-center gap-2">
-                      <h2 className="text-sm font-semibold text-gray-900">
-                        {ROLE_LABELS[role as Role]}s
-                      </h2>
-                      <span className="text-2xs text-gray-400">{members.length}</span>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                      {members.map((member) => (
-                        <div
-                          key={member.id}
-                          className="flex items-center gap-3 p-3 rounded-lg bg-surface-50 border border-gray-50"
-                        >
-                          <Avatar firstName={member.firstName} lastName={member.lastName} size="md" />
-                          <div className="min-w-0">
-                            <p className="text-sm font-medium text-gray-800 truncate">
-                              {member.role === "DOCTOR" ? "Dr. " : ""}{member.firstName} {member.lastName}
-                            </p>
-                            <p className="text-2xs text-gray-400 truncate">{member.email}</p>
+          <div className="space-y-10">
+            {/* DOCTORS GRID */}
+            {grouped.DOCTORS.length > 0 && (
+              <div>
+                <h2 className="text-lg font-semibold text-gray-800 mb-6 border-b border-gray-200 pb-2">Medical Specialists</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {grouped.DOCTORS.map((member, idx) => (
+                    <div
+                      key={member.id}
+                      className="w-full flex h-[130px] rounded-xl border border-gray-100 bg-white shadow-sm overflow-hidden hover:shadow-md transition-shadow"
+                    >
+                      {/* Left: Avatar side matched to screenshot style (colored background behind rounded-edge pic or full image) */}
+                      <div className="shrink-0 w-[110px] bg-sky-50 flex items-center justify-center relative">
+                        <img 
+                          src={`https://i.pravatar.cc/150?u=${member.id}`} 
+                          alt="Doctor" 
+                          className="w-full h-full object-cover object-top"
+                        />
+                      </div>
+
+                      {/* Right: Info matched to screenshot */}
+                      <div className="flex-1 p-4 flex flex-col justify-between">
+                        <div>
+                          <div className="flex justify-between items-start">
+                            <h3 className="font-bold text-gray-900 text-[14px]">
+                              Dr. {member.firstName} {member.lastName}
+                            </h3>
+                            <button className="text-gray-400 hover:text-gray-600 px-1">
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                              </svg>
+                            </button>
                           </div>
-                          <Badge variant={roleBadgeVariant[member.role] || "default"} className="ml-auto flex-shrink-0">
-                            {ROLE_LABELS[member.role as Role]}
-                          </Badge>
+                          <div className="text-[12px] text-gray-400 mt-0.5">
+                            {member.specialty || "General Practitioner"}
+                          </div>
                         </div>
-                      ))}
+
+                        <div className="flex flex-col gap-1.5 mt-2">
+                          <div className="text-[11px] text-gray-500 overflow-hidden whitespace-nowrap">
+                            Available : <span className="font-medium text-gray-600">{getFakeDate(idx)}</span>
+                          </div>
+                          
+                          <div className="flex justify-between items-center text-[11px] text-gray-500">
+                            <div className="flex items-center gap-1.5">
+                              Starts From : <span className="font-bold text-blue-800 text-[13px]">${getFakePrice(idx)}</span>
+                            </div>
+                            <div className="text-gray-400 border border-gray-200 rounded p-0.5">
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                  </CardContent>
-                </Card>
-              )
-            ))}
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* OTHER STAFF (Optional, but good to keep) */}
+            {grouped.OTHERS.length > 0 && (
+              <div>
+                <h2 className="text-lg font-semibold text-gray-800 mb-6 border-b border-gray-200 pb-2 mt-8">Other Staff</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {grouped.OTHERS.map((member) => (
+                    <div key={member.id} className="flex items-center gap-3 p-4 rounded-xl border border-gray-100 bg-white shadow-sm">
+                      <div className="shrink-0 w-12 h-12 rounded-full overflow-hidden bg-gray-100">
+                         <img src={`https://i.pravatar.cc/150?u=${member.id}`} alt="Staff" className="w-full h-full object-cover" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-gray-900 truncate">
+                          {member.firstName} {member.lastName}
+                        </p>
+                        <p className="text-xs text-gray-500 truncate">{ROLE_LABELS[member.role as Role] || member.role}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
