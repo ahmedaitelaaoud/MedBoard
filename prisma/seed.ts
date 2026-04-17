@@ -76,10 +76,10 @@ async function main() {
   // ─── Users ─────────────────────────────────────────────────────────────────
   const users = await Promise.all([
     // Doctors
-    prisma.user.create({ data: { email: "dr.amrani@medboard.local", password: "demo123", firstName: "Youssef", lastName: "Amrani", role: "DOCTOR" } }),
-    prisma.user.create({ data: { email: "dr.benkirane@medboard.local", password: "demo123", firstName: "Fatima", lastName: "Benkirane", role: "DOCTOR" } }),
-    prisma.user.create({ data: { email: "dr.elhassan@medboard.local", password: "demo123", firstName: "Omar", lastName: "El Hassan", role: "DOCTOR" } }),
-    prisma.user.create({ data: { email: "dr.tazi@medboard.local", password: "demo123", firstName: "Khadija", lastName: "Tazi", role: "DOCTOR" } }),
+    prisma.user.create({ data: { email: "dr.amrani@medboard.local", password: "demo123", firstName: "Youssef", lastName: "Amrani", role: "DOCTOR", specialty: "Cardiologist", isAvailable: true } }),
+    prisma.user.create({ data: { email: "dr.benkirane@medboard.local", password: "demo123", firstName: "Fatima", lastName: "Benkirane", role: "DOCTOR", specialty: "General Surgeon", isAvailable: false } }),
+    prisma.user.create({ data: { email: "dr.elhassan@medboard.local", password: "demo123", firstName: "Omar", lastName: "El Hassan", role: "DOCTOR", specialty: "Pediatrician", isAvailable: true } }),
+    prisma.user.create({ data: { email: "dr.tazi@medboard.local", password: "demo123", firstName: "Khadija", lastName: "Tazi", role: "DOCTOR", specialty: "Neurologist", isAvailable: false } }),
     // Nurses
     prisma.user.create({ data: { email: "n.benali@medboard.local", password: "demo123", firstName: "Amina", lastName: "Benali", role: "NURSE" } }),
     prisma.user.create({ data: { email: "n.idrissi@medboard.local", password: "demo123", firstName: "Rachid", lastName: "Idrissi", role: "NURSE" } }),
