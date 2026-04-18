@@ -74,7 +74,7 @@ async function main() {
   console.log(`  ✓ ${rooms.length} rooms`);
 
   // ─── Users ─────────────────────────────────────────────────────────────────
-  const users = await Promise.all([
+  const staffUsers = await Promise.all([
     // Doctors
     prisma.user.create({ data: { email: "dr.amrani@medboard.local", password: "demo123", firstName: "Youssef", lastName: "Amrani", role: "DOCTOR", specialty: "Cardiologist", isAvailable: true } }),
     prisma.user.create({ data: { email: "dr.benkirane@medboard.local", password: "demo123", firstName: "Fatima", lastName: "Benkirane", role: "DOCTOR", specialty: "General Surgeon", isAvailable: false } }),
@@ -88,14 +88,11 @@ async function main() {
     // Admins
     prisma.user.create({ data: { email: "admin@medboard.local", password: "demo123", firstName: "Nadia", lastName: "Ziani", role: "ADMIN" } }),
     prisma.user.create({ data: { email: "admin2@medboard.local", password: "demo123", firstName: "Mehdi", lastName: "Bouchta", role: "ADMIN" } }),
-    // Read-only
-    prisma.user.create({ data: { email: "viewer@medboard.local", password: "demo123", firstName: "Sara", lastName: "Mouline", role: "READONLY" } }),
-    prisma.user.create({ data: { email: "viewer2@medboard.local", password: "demo123", firstName: "Amine", lastName: "Fassi", role: "READONLY" } }),
   ]);
-  console.log(`  ✓ ${users.length} users`);
+  console.log(`  ✓ ${staffUsers.length} staff users`);
 
-  const doctors = users.filter((u) => u.role === "DOCTOR");
-  const nurses = users.filter((u) => u.role === "NURSE");
+  const doctors = staffUsers.filter((u) => u.role === "DOCTOR");
+  const nurses = staffUsers.filter((u) => u.role === "NURSE");
 
   // ─── Patients ──────────────────────────────────────────────────────────────
   const occupiedRooms = rooms.filter((r) => ["OCCUPIED", "CRITICAL", "DISCHARGE_READY", "UNDER_OBSERVATION"].includes(
@@ -177,6 +174,88 @@ async function main() {
   patients.push(temporaryPatient);
   console.log(`  ✓ ${patients.length} patients`);
 
+  // ─── Patient Portal Users ─────────────────────────────────────────────────
+  const patientPortalUsers = await Promise.all([
+    prisma.user.create({
+      data: {
+        email: "patient.kettani@medboard.local",
+        password: "demo123",
+        firstName: "Fatima Zahra",
+        lastName: "Kettani",
+        role: "PATIENT",
+        patientId: patients[1].id,
+      },
+    }),
+    prisma.user.create({
+      data: {
+        email: "patient.ouazzani@medboard.local",
+        password: "demo123",
+        firstName: "Rachid",
+        lastName: "Ouazzani",
+        role: "PATIENT",
+        patientId: patients[8].id,
+      },
+    }),
+  ]);
+  console.log(`  ✓ ${patientPortalUsers.length} patient portal users`);
+
+  const scheduleAt = (daysFromNow: number, hours: number, minutes: number) => {
+    const d = new Date();
+    d.setDate(d.getDate() + daysFromNow);
+    d.setHours(hours, minutes, 0, 0);
+    return d;
+  };
+
+  const scheduleItems = [
+    {
+      patientId: patients[1].id,
+      title: "Nurse morning check",
+      scheduledAt: scheduleAt(1, 8, 30),
+      type: "NURSE_VISIT",
+      notes: "Routine blood pressure and vitals.",
+    },
+    {
+      patientId: patients[1].id,
+      title: "Doctor round",
+      scheduledAt: scheduleAt(1, 10, 0),
+      type: "DOCTOR_VISIT",
+      notes: "Daily attending physician review.",
+    },
+    {
+      patientId: patients[1].id,
+      title: "Vitals follow-up",
+      scheduledAt: scheduleAt(1, 14, 0),
+      type: "CHECKUP",
+      notes: "Nurse follow-up check.",
+    },
+    {
+      patientId: patients[8].id,
+      title: "Nurse morning check",
+      scheduledAt: scheduleAt(1, 8, 45),
+      type: "NURSE_VISIT",
+      notes: "Morning comfort and vitals check.",
+    },
+    {
+      patientId: patients[8].id,
+      title: "Doctor round",
+      scheduledAt: scheduleAt(1, 10, 30),
+      type: "DOCTOR_VISIT",
+      notes: "Review response to treatment.",
+    },
+    {
+      patientId: patients[8].id,
+      title: "Afternoon checkup",
+      scheduledAt: scheduleAt(1, 15, 0),
+      type: "CHECKUP",
+      notes: "Standard afternoon follow-up.",
+    },
+  ];
+
+  await prisma.patientScheduleItem.createMany({ data: scheduleItems });
+  console.log(`  ✓ ${scheduleItems.length} patient schedule items`);
+
+  const users = [...staffUsers, ...patientPortalUsers];
+
   // ─── Medical Records ───────────────────────────────────────────────────────
   const diagnoses = [
     { summary: "Acute myocardial infarction, anterior wall", history: "History of hypertension for 15 years, type 2 diabetes. Previous angioplasty in 2019.", plan: "Cardiac monitoring, dual antiplatelet therapy, cardiology consult for possible catheterization." },
@@ -218,11 +297,13 @@ async function main() {
   for (let i = 0; i < patients.length; i++) {
     const primaryDoctor = doctors[i % doctors.length];
     const consultingDoctor = doctors[(i + 1) % doctors.length];
+    const primaryNurse = nurses[i % nurses.length];
 
     await prisma.assignment.create({
       data: {
         patientId: patients[i].id,
         doctorId: primaryDoctor.id,
+        nurseId: primaryNurse.id,
         role: "PRIMARY",
         active: true,
       },
@@ -240,7 +321,7 @@ async function main() {
       });
     }
   }
-  console.log(`  ✓ doctor assignments created (no nurse assignments)`);
+  console.log(`  ✓ doctor and nurse assignments created`);
 
   // ─── Notes ─────────────────────────────────────────────────────────────────
   const noteContents = [

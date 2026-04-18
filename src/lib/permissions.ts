@@ -10,11 +10,14 @@ import type { SessionUser } from "./auth";
 
 const PERMISSIONS: Record<string, readonly Role[]> = {
   // Patient data
-  "patient:read":          [Role.DOCTOR, Role.NURSE, Role.ADMIN, Role.READONLY],
+  "patient:read":          [Role.DOCTOR, Role.NURSE, Role.ADMIN],
   "patient:create":        [Role.ADMIN],
   "patient:create:temporary": [Role.ADMIN, Role.DOCTOR, Role.NURSE],
   "patient:update":        [Role.ADMIN],
   "patient:update:administrative": [Role.ADMIN],
+
+  // Patient portal
+  "patient-portal:read":   [Role.PATIENT, Role.READONLY],
 
   // Medical records
   "record:read":           [Role.DOCTOR, Role.NURSE],
@@ -30,7 +33,7 @@ const PERMISSIONS: Record<string, readonly Role[]> = {
   "document:upload":       [Role.DOCTOR],
 
   // Room management
-  "room:read":             [Role.DOCTOR, Role.NURSE, Role.ADMIN, Role.READONLY],
+  "room:read":             [Role.DOCTOR, Role.NURSE, Role.ADMIN],
   "room:manage":           [Role.ADMIN],
 
   // Staff
@@ -45,7 +48,7 @@ const PERMISSIONS: Record<string, readonly Role[]> = {
   "chat:send":             [Role.DOCTOR, Role.NURSE],
 
   // Dashboard
-  "dashboard:read":        [Role.DOCTOR, Role.NURSE, Role.ADMIN, Role.READONLY],
+  "dashboard:read":        [Role.DOCTOR, Role.NURSE, Role.ADMIN],
   "dashboard:manage":      [Role.ADMIN],
 } as const;
 

@@ -54,7 +54,7 @@ setup:
 	@echo "  Doctor:    dr.amrani@medboard.local"
 	@echo "  Nurse:     n.benali@medboard.local"
 	@echo "  Admin:     admin@medboard.local"
-	@echo "  Read-only: viewer@medboard.local"
+	@echo "  Patient:   patient.kettani@medboard.local"
 
 # Start development server
 dev:

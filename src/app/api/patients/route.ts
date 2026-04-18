@@ -111,8 +111,8 @@ export async function POST(request: Request) {
     const canCreateNormal = can(user, "patient:create");
     const canCreateTemporary = can(user, "patient:create:temporary");
 
-    if (user.role === Role.READONLY) {
-      return NextResponse.json({ error: "Read-only users cannot register patients" }, { status: 403 });
+    if (user.role === Role.READONLY || user.role === Role.PATIENT) {
+      return NextResponse.json({ error: "Patient portal users cannot register patients" }, { status: 403 });
     }
 
     if (!isEmergencyTemporary && !canCreateNormal) {
