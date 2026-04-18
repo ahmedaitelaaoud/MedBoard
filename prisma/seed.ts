@@ -184,17 +184,31 @@ async function main() {
 
   // ─── Assignments ───────────────────────────────────────────────────────────
   for (let i = 0; i < patients.length; i++) {
+    const primaryDoctor = doctors[i % doctors.length];
+    const consultingDoctor = doctors[(i + 1) % doctors.length];
+
     await prisma.assignment.create({
       data: {
         patientId: patients[i].id,
-        doctorId: doctors[i % doctors.length].id,
-        nurseId: nurses[i % nurses.length].id,
+        doctorId: primaryDoctor.id,
         role: "PRIMARY",
         active: true,
       },
     });
+
+    // Add a second doctor assignment for part of the patients.
+    if (i % 3 === 0 && consultingDoctor.id !== primaryDoctor.id) {
+      await prisma.assignment.create({
+        data: {
+          patientId: patients[i].id,
+          doctorId: consultingDoctor.id,
+          role: "CONSULTING",
+          active: true,
+        },
+      });
+    }
   }
-  console.log(`  ✓ ${patients.length} assignments`);
+  console.log(`  ✓ doctor assignments created (no nurse assignments)`);
 
   // ─── Notes ─────────────────────────────────────────────────────────────────
   const noteContents = [
