@@ -62,7 +62,7 @@ export function DoctorHome({ user }: { user: SessionUser }) {
   // Ticket note composer
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [ticketNote, setTicketNote] = useState("");
-  const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
+  const [, setSelectedPatientId] = useState<string | null>(null);
   const [taskLoading, setTaskLoading] = useState(false);
   const [mentionOpen, setMentionOpen] = useState(false);
   const [mentionQuery, setMentionQuery] = useState("");
