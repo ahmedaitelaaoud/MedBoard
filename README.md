@@ -9,6 +9,8 @@ This document explains MedBoard in simple technical terms:
 - What logic exists today
 - What the future AI Agent layer will add (not implemented yet)
 
+---
+
 ## 1) What MedBoard Is
 
 MedBoard is a ward-level hospital operations platform.
@@ -21,72 +23,253 @@ Its job is to help medical staff:
 - Track all important actions in an activity log
 
 The product is built around 6 backbone pillars:
-1. Visibility (live room/floor/ward map)
-2. Patient data (clean patient profile)
-3. Doctor update flow (record + notes)
-4. Permissions (RBAC)
-5. Operational status (pending actions/escalation context)
-6. Traceability (audit/activity history)
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     MEDBOARD — 6 PILLARS                        │
+├───────────────┬───────────────┬───────────────┬─────────────────┤
+│  1. VISIBILITY│  2. PATIENT   │  3. DOCTOR    │  4. PERMISSIONS │
+│               │     DATA      │    UPDATES    │                 │
+│  Live room /  │  Clean patient│  Record +     │  RBAC: doctor,  │
+│  floor / ward │  profile      │  notes flow   │  nurse, admin,  │
+│  map          │               │               │  patient, ro    │
+├───────────────┴───────────────┼───────────────┴─────────────────┤
+│      5. OPERATIONAL STATUS    │       6. TRACEABILITY           │
+│                               │                                 │
+│  Pending actions / escalation │  Audit log / activity history   │
+│  context                      │                                 │
+└───────────────────────────────┴─────────────────────────────────┘
+```
+
+---
 
 ## 2) Stack Overview
 
-## Frontend
-- Next.js App Router (React + TypeScript)
-- Tailwind CSS for UI styling
-- Componentized UI in src/components grouped by domain (dashboard, patient, chat, notes, etc.)
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                        FULL STACK                                │
+│                                                                  │
+│  ┌────────────────────────────────────────────────────────────┐  │
+│  │                       FRONTEND                             │  │
+│  │                                                            │  │
+│  │   Next.js App Router (React + TypeScript)                  │  │
+│  │   Tailwind CSS                                             │  │
+│  │   /src/components/  →  dashboard / patient / chat /        │  │
+│  │                         notes / ...                        │  │
+│  └───────────────────────────┬────────────────────────────────┘  │
+│                              │  HTTP / fetch                     │
+│  ┌───────────────────────────▼────────────────────────────────┐  │
+│  │                       BACKEND                              │  │
+│  │                                                            │  │
+│  │   Next.js Route Handlers  →  /src/app/api/**/route.ts      │  │
+│  │   Zod schemas             →  request validation            │  │
+│  │   JWT cookie session      →  authentication                │  │
+│  │   RBAC utilities          →  permission checks             │  │
+│  │   Activity Logger         →  audit trail                   │  │
+│  │   Error helpers           →  consistent responses          │  │
+│  └───────────────────────────┬────────────────────────────────┘  │
+│                              │  Prisma ORM                      │
+│  ┌───────────────────────────▼────────────────────────────────┐  │
+│  │                      DATABASE                              │  │
+│  │                                                            │  │
+│  │   SQLite via Prisma                                        │  │
+│  │                                                            │  │
+│  │   User · Patient · Room · Floor · Ward                     │  │
+│  │   MedicalRecord · Note · Assignment · ActivityLog          │  │
+│  │   Task · Document · PatientScheduleItem                    │  │
+│  └────────────────────────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────────────┘
+```
 
-## Backend
-- Next.js Route Handlers in src/app/api/**/route.ts
-- Prisma ORM for database access
-- Zod schemas for API request validation
-- JWT cookie session authentication
-- Role and permission checks through shared permission utilities
-- Shared error helpers for consistent API responses
-- Activity logger for auditable state changes
-
-## Database
-- SQLite via Prisma datasource
-- Core models include User, Patient, Room, Floor, Ward, MedicalRecord, Note, Assignment, ActivityLog, Task, Document, PatientScheduleItem
+---
 
 ## 3) Current Platform Logic (How It Works Today)
 
-## A. Authentication and access control
-1. User logs in through API
-2. Backend validates credentials and issues JWT cookie session
-3. Middleware/API reads session for each request
-4. Permission checks run in APIs before data access or write
-5. Forbidden/unauthorized requests return standardized error responses
+### A. Authentication and Access Control
 
-## B. Operational dashboard flow
-1. Frontend requests rooms/floors/wards and occupancy data
-2. Backend returns room context and linked patient assignments
-3. Dashboard renders occupancy, status, and quick drill-down links
-4. User opens patient profile directly from room-level context
+```
+  Client
+    │
+    │  POST /api/auth/login
+    ▼
+┌─────────────┐     invalid      ┌──────────────────┐
+│  Validate   │ ───────────────► │  401 Unauthorized │
+│ Credentials │                  └──────────────────┘
+└──────┬──────┘
+       │ valid
+       ▼
+┌─────────────┐
+│  Issue JWT  │
+│Cookie Session│
+└──────┬──────┘
+       │
+       ▼
+  Subsequent Requests
+       │
+       ├──► Read session from cookie
+       │
+       ├──► Run RBAC permission check
+       │           │ forbidden
+       │           └──────────────► 403 Forbidden
+       │           │ allowed
+       └──────────►▼
+              Proceed to API logic
+```
 
-## C. Patient profile and clinical flow
-1. Frontend loads patient identity + medical context
-2. Backend aggregates demographics, record, notes, assignments, and room info
-3. Doctors can create clinical notes (and update record fields where allowed)
-4. Nurses can add role-appropriate note types (observation-focused)
-5. Every important state change is logged to activity stream
+### B. Operational Dashboard Flow
 
-## D. Activity and traceability flow
-1. API write actions trigger activity logger
-2. Logger stores actor, action, target patient (if relevant), metadata, and timestamp
-3. Activity feed UI displays historical events for accountability
+```
+  Browser
+    │
+    │  GET /api/rooms + /api/wards
+    ▼
+┌──────────────────────┐
+│   Backend resolves   │
+│  room / floor / ward │
+│  occupancy data      │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│  Link patient        │
+│  assignments to      │
+│  rooms               │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────────────────────┐
+│          Dashboard renders           │
+│                                      │
+│  [Room A]  [Room B]  [Room C]  ...   │
+│  occupied  empty     occupied        │
+│     │                   │            │
+│     └──► drill-down     └──► drill   │
+│          patient              patient│
+└──────────────────────────────────────┘
+```
+
+### C. Patient Profile and Clinical Flow
+
+```
+  Doctor / Nurse opens patient
+         │
+         ▼
+┌────────────────────────┐
+│  Load patient identity │
+│  + medical context     │
+└──────────┬─────────────┘
+           │  Prisma aggregation
+           ▼
+┌──────────────────────────────────────────────────┐
+│  demographics + record + notes + assignments     │
+│  + room info                                     │
+└──────────┬───────────────────────────────────────┘
+           │
+           ├──────────────────────────────────────────┐
+           ▼  (Doctor)                                 ▼  (Nurse)
+  ┌──────────────────┐                     ┌──────────────────────┐
+  │  Create / update │                     │  Add observation     │
+  │  clinical notes  │                     │  notes (role-scoped) │
+  │  + record fields │                     └──────────┬───────────┘
+  └──────────┬───────┘                                │
+             └─────────────────┬──────────────────────┘
+                               ▼
+                   ┌──────────────────────┐
+                   │   Activity Logger    │
+                   │  actor + action +    │
+                   │  patient + timestamp │
+                   └──────────────────────┘
+```
+
+### D. Activity and Traceability Flow
+
+```
+  API write action triggered
+         │
+         ▼
+┌────────────────────────────────┐
+│       Activity Logger          │
+│                                │
+│  actor    →  who did it        │
+│  action   →  what happened     │
+│  target   →  which patient     │
+│  metadata →  contextual detail │
+│  timestamp→  when              │
+└──────────────┬─────────────────┘
+               │  stored to ActivityLog table
+               ▼
+┌────────────────────────────────┐
+│      Activity Feed UI          │
+│                                │
+│  [09:12]  Dr. Smith updated    │
+│           record for P-042     │
+│  [09:08]  Nurse Lee added obs. │
+│           note for P-019       │
+│  [08:55]  Admin assigned       │
+│           patient to Room 3B   │
+└────────────────────────────────┘
+```
+
+---
 
 ## 4) Request/Data Flow Pattern (Technical High-Level)
 
-Most API routes follow this pattern:
-1. Receive HTTP request
-2. Resolve authenticated session
-3. Run RBAC permission check
-4. Validate input with Zod safeParse
-5. Execute Prisma read/write
-6. Log action through activity logger (non-blocking)
-7. Return standardized JSON response
+Every API route follows this consistent pipeline:
 
-This pattern keeps behavior consistent across modules and reduces security/validation drift.
+```
+  Incoming HTTP Request
+         │
+         ▼
+  ┌─────────────────┐
+  │  1. Receive     │  Parse method, path, body
+  │     Request     │
+  └────────┬────────┘
+           │
+           ▼
+  ┌─────────────────┐
+  │  2. Resolve     │  Read JWT cookie → identify user
+  │     Session     │
+  └────────┬────────┘     ┌──────────────────┐
+           │  no session  │  401 Unauthorized │
+           ├─────────────►│                  │
+           │              └──────────────────┘
+           ▼
+  ┌─────────────────┐
+  │  3. RBAC        │  Check role + permission map
+  │  Permission     │
+  │  Check          │
+  └────────┬────────┘     ┌──────────────────┐
+           │  forbidden   │  403 Forbidden    │
+           ├─────────────►│                  │
+           │              └──────────────────┘
+           ▼
+  ┌─────────────────┐
+  │  4. Zod Input   │  safeParse request body / query
+  │  Validation     │
+  └────────┬────────┘     ┌──────────────────┐
+           │  invalid     │  400 Bad Request  │
+           ├─────────────►│                  │
+           │              └──────────────────┘
+           ▼
+  ┌─────────────────┐
+  │  5. Prisma      │  Read or write to SQLite
+  │  Read / Write   │
+  └────────┬────────┘
+           │
+           ▼
+  ┌─────────────────┐
+  │  6. Activity    │  Non-blocking log entry
+  │  Logger         │
+  └────────┬────────┘
+           │
+           ▼
+  ┌─────────────────┐
+  │  7. Return      │  Standardized JSON response
+  │  Response       │
+  └─────────────────┘
+```
+
+---
 
 ## 5) What Is In Progress (MVP Completion Focus)
 
@@ -99,18 +282,20 @@ Current phase is about hardening and completeness, especially:
 - Better doctor-first editing experience for records and notes
 - Stronger audit trail depth and list API pagination contracts
 
+---
+
 ## 6) Future AI Agent Layer (Planned, Not Implemented Yet)
 
 Source of truth for this section:
 - helper.md
 - IMPLEMENTATION_PLAN.md
 
-## Safety-first principle
+### Safety-first principle
 - AI is suggestion-only
 - Doctor approval is mandatory before clinical write actions
 - Every AI run/suggestion/approval must be auditable
 
-## Planned capabilities
+### Planned capabilities
 - Note parsing: convert free text to structured actions
 - Task extraction: identify labs/imaging/consult/follow-up tasks
 - Auto-assignment support: recommend best doctor for intake based on department + workload
@@ -118,72 +303,225 @@ Source of truth for this section:
 - Schedule suggestion: propose patient schedule items and sync approved items to patient portal
 - Escalation detection: highlight urgent cases based on context and confidence
 
-## Planned workflow summary
+---
 
-### Intake and assignment
-1. Admin registers patient
-2. Agent classifies context and recommends doctor
-3. System applies assignment (with rationale snapshot)
-4. Doctor receives bot notification
-5. Activity log records decision trail
+### Planned workflow summary
 
-### Diagnostic suggestion flow
-1. Doctor uploads diagnostics/documents
-2. RAG retrieves patient evidence
-3. Gemini generates summary and care suggestions
-4. Doctor approves/rejects per item
-5. Only approved items are written to record
+#### Intake and Assignment
 
-### Ticket to nurse routing
-1. Doctor creates ticket/context
-2. Agent structures the task and recommends nurse
-3. Doctor approves
-4. Task is created and nurse is notified
+```
+  Admin registers patient
+         │
+         ▼
+┌────────────────────────┐
+│  Agent classifies      │
+│  context               │
+│  (dept, urgency, etc.) │
+└──────────┬─────────────┘
+           │
+           ▼
+┌────────────────────────┐
+│  Recommend best        │
+│  doctor                │
+│  (dept + workload)     │
+└──────────┬─────────────┘
+           │  suggestion
+           ▼
+┌────────────────────────┐       ┌──────────────────────┐
+│  System applies        │       │  Activity Log records │
+│  assignment with       │──────►│  full decision trail  │
+│  rationale snapshot    │       │  (AI + human steps)   │
+└──────────┬─────────────┘       └──────────────────────┘
+           │
+           ▼
+  Doctor receives bot notification
+```
 
-### Schedule suggestion and portal sync
-1. Doctor requests schedule recommendations
-2. Agent proposes schedule set
-3. Doctor approves full/partial plan
-4. Approved items are stored
-5. Patient portal shows updated schedule
+#### Diagnostic Suggestion Flow
 
-## Proposed AI technical stack (future)
-- Gemini SDK: @google/genai
-- RAG orchestration: langchain + @langchain/google-genai
-- Vector DB: Qdrant
-- Queue/retries for production mode: bullmq + ioredis
-- Extraction support: pdf-parse (+ OCR fallback when needed)
-- Validation contracts: zod
+```
+  Doctor uploads diagnostics / documents
+         │
+         ▼
+┌────────────────────────┐
+│   RAG Indexing         │
+│   Service              │
+│   builds embeddings    │
+│   from records/notes   │
+└──────────┬─────────────┘
+           │  vector search
+           ▼
+┌────────────────────────┐
+│   Qdrant Vector DB     │
+│   retrieves relevant   │
+│   patient evidence     │
+└──────────┬─────────────┘
+           │  retrieved context
+           ▼
+┌────────────────────────┐
+│   Gemini LLM           │
+│   generates summary    │
+│   + care suggestions   │
+└──────────┬─────────────┘
+           │  suggestion list
+           ▼
+┌───────────────────────────────────────────┐
+│  Doctor reviews each suggestion           │
+│                                           │
+│   [✓] Approve  →  written to record       │
+│   [✗] Reject   →  discarded + logged      │
+└───────────────────────────────────────────┘
+```
+
+#### Ticket to Nurse Routing
+
+```
+  Doctor creates ticket / context
+         │
+         ▼
+┌────────────────────────┐
+│  Agent structures task │
+│  + recommends best     │
+│  nurse (workload-aware)│
+└──────────┬─────────────┘
+           │  proposal
+           ▼
+┌────────────────────────┐
+│  Doctor approves       │◄─── reject → agent revises
+└──────────┬─────────────┘
+           │ approved
+           ▼
+┌────────────────────────┐
+│  Task created          │
+│  Nurse notified        │
+└────────────────────────┘
+```
+
+#### Schedule Suggestion and Portal Sync
+
+```
+  Doctor requests schedule recommendations
+         │
+         ▼
+┌────────────────────────┐
+│  Agent proposes        │
+│  schedule set          │
+└──────────┬─────────────┘
+           │
+           ▼
+┌─────────────────────────────────────┐
+│  Doctor reviews proposed items      │
+│                                     │
+│  [Full approve]  [Partial approve]  │
+└──────────┬──────────────────────────┘
+           │ approved items
+           ▼
+┌────────────────────────┐
+│  Stored to DB          │
+│  PatientScheduleItem   │
+└──────────┬─────────────┘
+           │
+           ▼
+┌────────────────────────┐
+│  Patient Portal shows  │
+│  updated schedule      │
+└────────────────────────┘
+```
+
+### Proposed AI technical stack (future)
+
+```
+┌────────────────────────────────────────────────────────────┐
+│                   AI LAYER — TECH STACK                    │
+│                                                            │
+│   LLM            →   Gemini SDK (@google/genai)            │
+│   RAG            →   LangChain + @langchain/google-genai   │
+│   Vector DB      →   Qdrant                                │
+│   Queue/Retries  →   BullMQ + ioredis                      │
+│   PDF extract    →   pdf-parse (+ OCR fallback)            │
+│   Validation     →   Zod                                   │
+└────────────────────────────────────────────────────────────┘
+```
+
+---
 
 ## 7) Planned AI Architecture (High-Level Components)
 
-1. Agent Orchestrator
-- Entry point for AI workflows and policy enforcement
+```
+  Incoming AI Workflow Request
+         │
+         ▼
+┌──────────────────────────────────────────────────────────────┐
+│                    Agent Orchestrator                        │
+│         Entry point · policy enforcement · routing           │
+└───────┬──────────────┬──────────────────┬────────────────────┘
+        │              │                  │
+        ▼              ▼                  ▼
+┌──────────────┐ ┌──────────────┐ ┌─────────────────┐
+│ RAG Indexing │ │  Decision    │ │   Approval      │
+│   Service    │ │  Engine      │ │   Engine        │
+│              │ │              │ │                 │
+│ Builds       │ │ Deterministic│ │ Stores          │
+│ embeddings   │ │ constraints  │ │ suggestions     │
+│ from records,│ │ + model      │ │ Applies only    │
+│ notes, docs  │ │ output       │ │ approved items  │
+│              │ │ scoring      │ │                 │
+└──────┬───────┘ └──────┬───────┘ └────────┬────────┘
+       │                │                  │
+       │    ┌───────────┘                  │
+       ▼    ▼                              ▼
+  ┌──────────────┐               ┌──────────────────┐
+  │  Qdrant      │               │  Notification    │
+  │  Vector DB   │               │  Dispatcher      │
+  │              │               │                  │
+  │  Stores +    │               │  Sends in-app    │
+  │  retrieves   │               │  bot alerts to   │
+  │  embeddings  │               │  doctor / nurse  │
+  └──────────────┘               └──────────────────┘
+```
 
-2. RAG Indexing Service
-- Builds embeddings from records/notes/documents with metadata
-
-3. Decision Engine
-- Combines deterministic constraints with model output scoring
-
-4. Approval Engine
-- Stores suggestions and applies only approved outcomes
-
-5. Notification Dispatcher
-- Sends doctor/nurse bot notifications in-app
+---
 
 ## 8) Full Platform Logic In One Simple View
 
-Today:
-- MedBoard is the operational system of record for rooms, patients, records, notes, tasks, and activity tracking.
+```
+┌──────────────────────────────────────────────────────────────────┐
+│                        TODAY                                     │
+│                                                                  │
+│   Rooms ──► Floors ──► Wards ──► Patients ──► Records           │
+│                                      │                           │
+│                              Notes / Tasks / Docs                │
+│                                      │                           │
+│                              Activity Log (full audit)           │
+│                                                                  │
+│   MedBoard is the operational system of record.                  │
+└──────────────────────────────────────────────────────────────────┘
 
-Tomorrow (with Agent layer):
-- MedBoard remains the source of truth.
-- AI adds recommendation intelligence on top.
-- Humans (especially doctors) stay in control of final clinical actions.
+                              +
+                              │ (future)
+                              ▼
 
-So the platform model is:
-- Operational core + clinical workflow control + auditable AI-assisted decision support
+┌──────────────────────────────────────────────────────────────────┐
+│                     TOMORROW (with AI)                           │
+│                                                                  │
+│   Same operational core                                          │
+│         │                                                        │
+│         ▼                                                        │
+│   AI Agent Layer  (suggestion only — never direct writes)        │
+│         │                                                        │
+│         ▼                                                        │
+│   Doctor / Human approval gate  ◄──── mandatory                  │
+│         │                                                        │
+│         ▼                                                        │
+│   Approved outcome written to MedBoard + logged                  │
+│                                                                  │
+│   Model:  Operational core                                       │
+│         + Clinical workflow control                              │
+│         + Auditable AI-assisted decision support                 │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+---
 
 ## 9) Suggested Reading Order
 
@@ -192,16 +530,18 @@ So the platform model is:
 3. IMPLEMENTATION_PLAN.md (detailed AI architecture and delivery phases)
 4. future/README.md and future/*/README.md (deferred expansion modules)
 
+---
+
 ## 10) Run and Development Commands
 
-- First-time setup (recommended): ./setup.sh
-- Alternative setup: make setup
-- Start development server: npm run dev (or make dev)
-- Build for production: npm run build
-- Start production server: npm start
-- Lint: npm run lint
-- Prisma after schema changes: npx prisma generate && npx prisma db push
-- Seed/reset data: npx prisma db seed / make reset
+- First-time setup (recommended): `./setup.sh`
+- Alternative setup: `make setup`
+- Start development server: `npm run dev` (or `make dev`)
+- Build for production: `npm run build`
+- Start production server: `npm start`
+- Lint: `npm run lint`
+- Prisma after schema changes: `npx prisma generate && npx prisma db push`
+- Seed/reset data: `npx prisma db seed` / `make reset`
 
 ---
 
