@@ -28,5 +28,5 @@ npm-debug.log*
 next-env.d.ts
 
 # database
-prisma/dev.db
+# Keep prisma/dev.db tracked for Vercel demo deployments.
 prisma/dev.db-journal
