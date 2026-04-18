@@ -14,6 +14,7 @@ model User {
   firstName String
   lastName  String
   role      String   @default("NURSE")
+  patientId String?  @unique
   avatarUrl String?
   active    Boolean  @default(true)
   specialty String?
@@ -27,6 +28,9 @@ model User {
   activityLogs        ActivityLog[]
   tasksCreated        Task[]       @relation("TaskCreator")
   tasksAssigned       Task[]       @relation("TaskAssignee")
+  messagesSent        DirectMessage[] @relation("DirectMessageSender")
+  messagesReceived    DirectMessage[] @relation("DirectMessageRecipient")
+  patient             Patient?     @relation("PatientPortalAccount", fields: [patientId], references: [id])
 }
 
 model Floor {
@@ -67,12 +71,18 @@ model Patient {
   lastName         String
   dateOfBirth      DateTime
   sex              String
+  phoneNumber      String?
   height           Float?
   weight           Float?
   allergies        String?
   emergencyContact String?
   emergencyPhone   String?
   status           String    @default("ADMITTED")
+  registrationStatus String  @default("PENDING")
+  createdByRole    String    @default("ADMIN")
+  admissionSource  String    @default("WALK_IN")
+  intakeType       String    @default("NORMAL")
+  admissionStatus  String    @default("ACTIVE")
   admissionDate    DateTime  @default(now())
   dischargeDate    DateTime?
   roomId           String?
@@ -85,6 +95,23 @@ model Patient {
   activityLogs  ActivityLog[]
   documents     Document[]
   tasks         Task[]
+  scheduleItems PatientScheduleItem[]
+  portalAccount User?                 @relation("PatientPortalAccount")
+}
+
+model PatientScheduleItem {
+  id          String   @id @default(cuid())
+  patientId   String
+  title       String
+  scheduledAt DateTime
+  type        String
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  patient Patient @relation(fields: [patientId], references: [id])
+
+  @@index([patientId, scheduledAt])
 }
 
 model MedicalRecord {
@@ -169,4 +196,20 @@ model Document {
   createdAt  DateTime @default(now())
 
   patient Patient @relation(fields: [patientId], references: [id])
+}
+
+model DirectMessage {
+  id          String   @id @default(cuid())
+  senderId    String
+  recipientId String
+  content     String
+  readAt      DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  sender    User @relation("DirectMessageSender", fields: [senderId], references: [id])
+  recipient User @relation("DirectMessageRecipient", fields: [recipientId], references: [id])
+
+  @@index([senderId, recipientId, createdAt])
+  @@index([recipientId, senderId, createdAt])
 }

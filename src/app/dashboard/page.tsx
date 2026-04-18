@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
 import { FloorSelector } from "@/components/dashboard/FloorSelector";
 import { FilterBar } from "@/components/dashboard/FilterBar";
@@ -23,7 +24,8 @@ interface Ward {
 }
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
   const [rooms, setRooms] = useState<RoomWithPatient[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedFloor, setSelectedFloor] = useState<number | null>(0);
@@ -35,8 +37,23 @@ export default function DashboardPage() {
 
   const [floors, setFloors] = useState<Floor[]>([]);
   const [wards, setWards] = useState<Ward[]>([]);
+  const canAccessDashboard = user?.role === "DOCTOR" || user?.role === "NURSE" || user?.role === "ADMIN";
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!user) return;
+
+    if (!canAccessDashboard) {
+      if (user.role === "PATIENT" || user.role === "READONLY") {
+        router.replace("/patient-portal");
+      } else {
+        router.replace("/login");
+      }
+    }
+  }, [authLoading, user, canAccessDashboard, router]);
 
   const fetchRooms = useCallback(async () => {
+    if (!canAccessDashboard) return;
     setLoading(true);
     const params = new URLSearchParams();
     if (selectedFloor !== null) params.set("floor", String(selectedFloor));
@@ -55,9 +72,11 @@ export default function DashboardPage() {
     } finally {
       setLoading(false);
     }
-  }, [selectedFloor, wardFilter, statusFilter, debouncedSearch]);
+  }, [selectedFloor, wardFilter, statusFilter, debouncedSearch, canAccessDashboard]);
 
   useEffect(() => {
+    if (!canAccessDashboard) return;
+
     async function loadAll() {
       try {
         const res = await fetch("/api/rooms");
@@ -82,11 +101,16 @@ export default function DashboardPage() {
       }
     }
     loadAll();
-  }, []);
+  }, [canAccessDashboard]);
 
   useEffect(() => {
+    if (!canAccessDashboard) return;
     fetchRooms();
-  }, [fetchRooms]);
+  }, [fetchRooms, canAccessDashboard]);
+
+  if (authLoading || !user || !canAccessDashboard) {
+    return null;
+  }
 
   // Doctor and Nurse get their own home view
   if (user?.role === "DOCTOR") {
@@ -105,14 +129,14 @@ export default function DashboardPage() {
     );
   }
 
-  // Admin / Read-only see the ward dashboard
+  // Admin sees the ward dashboard
   return (
     <AppShell>
       <div className="space-y-6">
         {/* Page header */}
         <div>
-          <h1 className="text-lg font-semibold text-gray-900">Ward Dashboard</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Real-time room occupancy and patient status</p>
+          <h1 className="text-lg font-semibold text-gray-900 dark:text-slate-100">Tableau de bord des unités</h1>
+          <p className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">Occupation des chambres et statut des patients en temps réel</p>
         </div>
 
         {/* Summary stats */}
@@ -138,8 +162,8 @@ export default function DashboardPage() {
 
         {/* Room grid */}
         <div>
-          <h2 className="text-sm font-medium text-gray-400 mb-4">
-            {selectedFloor !== null ? floors.find(f => f.number === selectedFloor)?.name : "All Floors"}
+          <h2 className="text-sm font-medium text-gray-400 dark:text-slate-500 mb-4">
+            {selectedFloor !== null ? floors.find(f => f.number === selectedFloor)?.name : "Tous les étages"}
           </h2>
           <RoomGrid rooms={rooms} loading={loading} />
         </div>

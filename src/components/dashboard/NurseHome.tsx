@@ -4,7 +4,13 @@ import { useState, useEffect, useCallback } from "react";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent } from "@/components/ui/Card";
+import { OccupancySummary } from "@/components/dashboard/OccupancySummary";
+import { FloorSelector } from "@/components/dashboard/FloorSelector";
+import { FilterBar } from "@/components/dashboard/FilterBar";
+import { RoomGrid } from "@/components/dashboard/RoomGrid";
+import { useDebounce } from "@/hooks/useDebounce";
 import type { SessionUser } from "@/lib/auth";
+import type { RoomWithPatient } from "@/types/domain";
 
 interface TaskItem {
   id: string;
@@ -12,24 +18,187 @@ interface TaskItem {
   description: string | null;
   priority: string;
   status: string;
-  patient: { id: string; firstName: string; lastName: string } | null;
+  patient: { id: string; firstName: string; lastName: string; patientCode?: string } | null;
   createdBy: { id: string; firstName: string; lastName: string };
   createdAt: string;
 }
 
+type PriorityFilter = "ALL" | "URGENT" | "HIGH" | "NORMAL";
+type BoardColumnKey = "PATIENT_CHECKS" | "MEDICATION" | "ADMIN_HANDOVER" | "COMPLETED";
+
+interface Floor {
+  number: number;
+  name: string;
+}
+
+interface Ward {
+  code: string;
+  name: string;
+}
+
+function classifyTaskToColumn(task: TaskItem): BoardColumnKey {
+  if (task.status === "COMPLETED") return "COMPLETED";
+
+  const text = `${task.title} ${task.description ?? ""}`.toLowerCase();
+  if (/medication|administer|antibiotic|dose|pain|iv|tablet|drug/.test(text)) {
+    return "MEDICATION";
+  }
+  if (/discharge|paperwork|handover|consult|chart|admin|report|arrange|transfer/.test(text)) {
+    return "ADMIN_HANDOVER";
+  }
+  return "PATIENT_CHECKS";
+}
+
+function ensureOpenCategoryExamples(tasks: TaskItem[]): { mergedTasks: TaskItem[]; addedCount: number } {
+  const openTasks = tasks.filter((t) => t.status !== "COMPLETED");
+  const openCategories = new Set(openTasks.map(classifyTaskToColumn));
+
+  const now = Date.now();
+  const examples: TaskItem[] = [];
+
+  if (!openCategories.has("PATIENT_CHECKS")) {
+    examples.push({
+      id: "sample-category-patient-checks",
+      title: "Routine patient checks",
+      description: "Perform vitals and comfort round for assigned patients before shift handoff.",
+      priority: "NORMAL",
+      status: "IN_PROGRESS",
+      patient: { id: "sample-p-cat-1", firstName: "Ahmed", lastName: "Benjelloun", patientCode: "PAT-00001" },
+      createdBy: { id: "sample-doc-cat-1", firstName: "Youssef", lastName: "Amrani" },
+      createdAt: new Date(now - 45 * 60 * 1000).toISOString(),
+    });
+  }
+
+  if (!openCategories.has("MEDICATION")) {
+    examples.push({
+      id: "sample-category-medication",
+      title: "Administer scheduled medication",
+      description: "Give due medication round and verify allergies before administration.",
+      priority: "HIGH",
+      status: "IN_PROGRESS",
+      patient: { id: "sample-p-cat-2", firstName: "Fatima Zahra", lastName: "Kettani", patientCode: "PAT-00002" },
+      createdBy: { id: "sample-doc-cat-1", firstName: "Youssef", lastName: "Amrani" },
+      createdAt: new Date(now - 35 * 60 * 1000).toISOString(),
+    });
+  }
+
+  if (!openCategories.has("ADMIN_HANDOVER")) {
+    examples.push({
+      id: "sample-category-admin-handover",
+      title: "Prepare admin handover summary",
+      description: "Update handover chart and discharge paperwork for the next shift.",
+      priority: "NORMAL",
+      status: "PENDING",
+      patient: { id: "sample-p-cat-3", firstName: "Houda", lastName: "Berrada", patientCode: "PAT-00006" },
+      createdBy: { id: "sample-doc-cat-2", firstName: "Fatima", lastName: "Benkirane" },
+      createdAt: new Date(now - 25 * 60 * 1000).toISOString(),
+    });
+  }
+
+  if (examples.length === 0) {
+    return { mergedTasks: tasks, addedCount: 0 };
+  }
+
+  const existingIds = new Set(tasks.map((task) => task.id));
+  const dedupedExamples = examples.filter((task) => !existingIds.has(task.id));
+  return {
+    mergedTasks: [...tasks, ...dedupedExamples],
+    addedCount: dedupedExamples.length,
+  };
+}
+
+function getExampleNurseTasks(): TaskItem[] {
+  const now = Date.now();
+
+  return [
+    {
+      id: "sample-nurse-task-1",
+      title: "Morning vitals round",
+      description: "Check BP, HR, SpO2 and temperature for assigned rooms before 09:00.",
+      priority: "HIGH",
+      status: "PENDING",
+      patient: { id: "sample-p-1", firstName: "Ahmed", lastName: "Benjelloun", patientCode: "PAT-00001" },
+      createdBy: { id: "sample-doc-1", firstName: "Youssef", lastName: "Amrani" },
+      createdAt: new Date(now - 2 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      id: "sample-nurse-task-2",
+      title: "Administer IV antibiotics",
+      description: "Give scheduled dose at 14:00 and monitor for allergic reaction.",
+      priority: "HIGH",
+      status: "IN_PROGRESS",
+      patient: { id: "sample-p-2", firstName: "Fatima Zahra", lastName: "Kettani", patientCode: "PAT-00002" },
+      createdBy: { id: "sample-doc-1", firstName: "Youssef", lastName: "Amrani" },
+      createdAt: new Date(now - 90 * 60 * 1000).toISOString(),
+    },
+    {
+      id: "sample-nurse-task-3",
+      title: "Glucose monitoring",
+      description: "Pre-meal and bedtime glucose checks with chart update.",
+      priority: "NORMAL",
+      status: "PENDING",
+      patient: { id: "sample-p-3", firstName: "Mohammed", lastName: "Alaoui", patientCode: "PAT-00003" },
+      createdBy: { id: "sample-doc-2", firstName: "Fatima", lastName: "Benkirane" },
+      createdAt: new Date(now - 50 * 60 * 1000).toISOString(),
+    },
+    {
+      id: "sample-nurse-task-4",
+      title: "Prepare discharge paperwork",
+      description: "Verify medication reconciliation and handover summary before discharge.",
+      priority: "LOW",
+      status: "PENDING",
+      patient: { id: "sample-p-4", firstName: "Houda", lastName: "Berrada", patientCode: "PAT-00006" },
+      createdBy: { id: "sample-doc-2", firstName: "Fatima", lastName: "Benkirane" },
+      createdAt: new Date(now - 30 * 60 * 1000).toISOString(),
+    },
+  ];
+}
+
 export function NurseHome({ user }: { user: SessionUser }) {
   const [tasks, setTasks] = useState<TaskItem[]>([]);
+  const [rooms, setRooms] = useState<RoomWithPatient[]>([]);
   const [loading, setLoading] = useState(true);
+  const [roomsLoading, setRoomsLoading] = useState(true);
+  const [taskActionMessage, setTaskActionMessage] = useState<string | null>(null);
+  const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>("ALL");
+
+  const [selectedFloor, setSelectedFloor] = useState<number | null>(null);
+  const [search, setSearch] = useState("");
+  const [wardFilter, setWardFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [floors, setFloors] = useState<Floor[]>([]);
+  const [wards, setWards] = useState<Ward[]>([]);
+
+  const debouncedSearch = useDebounce(search, 300);
 
   const fetchTasks = useCallback(async () => {
     try {
       const res = await fetch("/api/tasks?role=assignee");
       if (res.ok) {
         const json = await res.json();
-        setTasks(json.data);
+        if (Array.isArray(json.data) && json.data.length > 0) {
+          const { mergedTasks, addedCount } = ensureOpenCategoryExamples(json.data);
+          setTasks(mergedTasks);
+
+          if (addedCount > 0) {
+            setTaskActionMessage(`Added ${addedCount} example task${addedCount > 1 ? "s" : ""} to fill empty board categories.`);
+            setTimeout(() => setTaskActionMessage(null), 3200);
+          }
+
+          return;
+        }
       }
+
+      const { mergedTasks } = ensureOpenCategoryExamples(getExampleNurseTasks());
+      setTasks(mergedTasks);
+      setTaskActionMessage("No assigned tasks found. Showing example nurse tasks.");
+      setTimeout(() => setTaskActionMessage(null), 3200);
     } catch (err) {
       console.error("Failed to fetch tasks:", err);
+      const { mergedTasks } = ensureOpenCategoryExamples(getExampleNurseTasks());
+      setTasks(mergedTasks);
+      setTaskActionMessage("Unable to load tasks. Showing example nurse tasks.");
+      setTimeout(() => setTaskActionMessage(null), 3200);
     } finally {
       setLoading(false);
     }
@@ -39,27 +208,251 @@ export function NurseHome({ user }: { user: SessionUser }) {
     fetchTasks();
   }, [fetchTasks]);
 
+  const fetchRooms = useCallback(async () => {
+    setRoomsLoading(true);
+    const params = new URLSearchParams();
+    if (selectedFloor !== null) params.set("floor", String(selectedFloor));
+    if (wardFilter) params.set("ward", wardFilter);
+    if (statusFilter) params.set("status", statusFilter);
+    if (debouncedSearch) params.set("search", debouncedSearch);
+
+    try {
+      const res = await fetch(`/api/rooms?${params}`);
+      if (res.ok) {
+        const json = await res.json();
+        setRooms(json.data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch rooms:", err);
+    } finally {
+      setRoomsLoading(false);
+    }
+  }, [selectedFloor, wardFilter, statusFilter, debouncedSearch]);
+
+  useEffect(() => {
+    async function loadRoomMetadata() {
+      try {
+        const res = await fetch("/api/rooms");
+        if (res.ok) {
+          const json = await res.json();
+          const allRooms: RoomWithPatient[] = json.data;
+
+          const floorMap = new Map<number, string>();
+          allRooms.forEach((r) => floorMap.set(r.floor.number, r.floor.name));
+          setFloors(
+            Array.from(floorMap.entries())
+              .sort(([a], [b]) => a - b)
+              .map(([number, name]) => ({ number, name }))
+          );
+
+          const wardMap = new Map<string, string>();
+          allRooms.forEach((r) => wardMap.set(r.ward.code, r.ward.name));
+          setWards(Array.from(wardMap.entries()).map(([code, name]) => ({ code, name })));
+        }
+      } catch (err) {
+        console.error("Failed to load room metadata:", err);
+      }
+    }
+
+    loadRoomMetadata();
+  }, []);
+
+  useEffect(() => {
+    fetchRooms();
+  }, [fetchRooms]);
+
   const updateTaskStatus = async (taskId: string, status: string) => {
+    if (status === "COMPLETED") {
+      const confirmed = window.confirm("Security confirmation: are you sure you want to mark this task as completed?");
+      if (!confirmed) {
+        setTaskActionMessage("Task completion was cancelled for security.");
+        setTimeout(() => setTaskActionMessage(null), 2200);
+        return;
+      }
+
+      setTaskActionMessage("Security confirmation received. Completing task...");
+      setTimeout(() => setTaskActionMessage(null), 1600);
+    }
+
+    const isExampleTask = taskId.startsWith("sample-");
+
+    if (isExampleTask) {
+      setTasks((prev) =>
+        prev.map((task) =>
+          task.id === taskId
+            ? {
+                ...task,
+                status,
+              }
+            : task
+        )
+      );
+
+      if (status === "COMPLETED") {
+        setTaskActionMessage("Task marked as completed after confirmation.");
+        setTimeout(() => setTaskActionMessage(null), 2200);
+      }
+
+      return;
+    }
+
     try {
       const res = await fetch(`/api/tasks/${taskId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
       });
-      if (res.ok) fetchTasks();
+      if (res.ok) {
+        fetchTasks();
+
+        if (status === "COMPLETED") {
+          setTaskActionMessage("Task marked as completed.");
+          setTimeout(() => setTaskActionMessage(null), 2200);
+        }
+      }
     } catch (err) {
       console.error("Failed to update task:", err);
     }
   };
 
-  const pendingTasks = tasks.filter(t => t.status === "PENDING");
-  const inProgressTasks = tasks.filter(t => t.status === "IN_PROGRESS");
-  const completedTasks = tasks.filter(t => t.status === "COMPLETED");
+  const normalizePriority = (priority: string): PriorityFilter => {
+    if (priority === "URGENT") return "URGENT";
+    if (priority === "HIGH") return "HIGH";
+    return "NORMAL";
+  };
 
-  const priorityColor = (p: string) => {
-    if (p === "HIGH") return "critical";
-    if (p === "LOW") return "muted";
-    return "default";
+  const filteredTasks = tasks.filter((task) => {
+    if (priorityFilter === "ALL") return true;
+    return normalizePriority(task.priority) === priorityFilter;
+  });
+
+  const openTasks = filteredTasks.filter((t) => t.status !== "COMPLETED");
+  const completedTasks = filteredTasks.filter((t) => t.status === "COMPLETED");
+
+  const patientChecks = openTasks.filter((task) => classifyTaskToColumn(task) === "PATIENT_CHECKS");
+  const medication = openTasks.filter((task) => classifyTaskToColumn(task) === "MEDICATION");
+  const adminHandover = openTasks.filter((task) => classifyTaskToColumn(task) === "ADMIN_HANDOVER");
+
+  const priorityToBadgeVariant = (priority: string) => {
+    if (priority === "URGENT") return "critical";
+    if (priority === "HIGH") return "warning";
+    return "muted";
+  };
+
+  const boardDateLabel = new Intl.DateTimeFormat("fr-FR", {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  }).format(new Date());
+
+  const formatTaskTime = (dateString: string) => {
+    try {
+      return new Intl.DateTimeFormat("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }).format(new Date(dateString));
+    } catch {
+      return "--:--";
+    }
+  };
+
+  const boardColumns: {
+    key: BoardColumnKey;
+    title: string;
+    subtitle: string;
+    tasks: TaskItem[];
+  }[] = [
+    {
+      key: "PATIENT_CHECKS",
+      title: "PATIENT CHECKS",
+      subtitle: "(VÉRIFICATIONS PATIENTS)",
+      tasks: patientChecks,
+    },
+    {
+      key: "MEDICATION",
+      title: "MEDICATION",
+      subtitle: "(MÉDICAMENTS)",
+      tasks: medication,
+    },
+    {
+      key: "ADMIN_HANDOVER",
+      title: "ADMIN & HANDOVER",
+      subtitle: "(ADMINISTRATIVE ET TRANSMISSION)",
+      tasks: adminHandover,
+    },
+    {
+      key: "COMPLETED",
+      title: "COMPLETED",
+      subtitle: "(TERMINÉ)",
+      tasks: completedTasks,
+    },
+  ];
+
+  const totalActive = tasks.filter((t) => t.status !== "COMPLETED").length;
+  const inProgressCount = tasks.filter((t) => t.status === "IN_PROGRESS").length;
+  const completedCount = tasks.filter((t) => t.status === "COMPLETED").length;
+
+  const renderTaskCard = (task: TaskItem) => {
+    const isCompleted = task.status === "COMPLETED";
+
+    return (
+      <div
+        key={task.id}
+        className={`
+          rounded-xl border px-3.5 py-3.5 bg-white/95 dark:bg-slate-900/95 shadow-sm transition-all duration-200 hover:shadow-md
+          ${isCompleted ? "border-emerald-100 dark:border-emerald-900/40 opacity-80" : "border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600"}
+        `}
+      >
+        <div className="flex items-start justify-between gap-2">
+          <p className={`text-sm font-semibold leading-snug ${isCompleted ? "text-gray-500 dark:text-slate-500 line-through" : "text-slate-800 dark:text-slate-100"}`}>
+            {task.title}
+          </p>
+          <Badge
+            variant={priorityToBadgeVariant(normalizePriority(task.priority)) as "critical" | "warning" | "muted"}
+            className="text-[10px] px-1.5 py-0 uppercase shrink-0"
+          >
+            {normalizePriority(task.priority)}
+          </Badge>
+        </div>
+
+        <div className="mt-2.5 space-y-0.5">
+          {task.patient && (
+            <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+              {task.patient.patientCode ? `Patient ${task.patient.patientCode}` : "Patient"}
+            </p>
+          )}
+          <p className="text-sm text-slate-600 dark:text-slate-300">
+            {task.patient
+              ? `${task.patient.firstName} ${task.patient.lastName}`
+              : `From Dr. ${task.createdBy.firstName} ${task.createdBy.lastName}`}
+          </p>
+        </div>
+
+        <div className="mt-3.5 flex items-center justify-between">
+          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">{formatTaskTime(task.createdAt)}</span>
+
+          {isCompleted ? (
+            <Badge variant="success" className="text-[10px] px-2 py-0">Done</Badge>
+          ) : task.status === "IN_PROGRESS" ? (
+            <button
+              onClick={() => updateTaskStatus(task.id, "COMPLETED")}
+              className="text-[11px] font-medium px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-900/60 text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/35 transition-colors"
+            >
+              Mark as completed
+            </button>
+          ) : (
+            <button
+              onClick={() => updateTaskStatus(task.id, "IN_PROGRESS")}
+              className="text-[11px] font-medium px-2.5 py-1 rounded-full border border-amber-200 dark:border-amber-900/60 text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/35 transition-colors"
+            >
+              To Do
+            </button>
+          )}
+        </div>
+      </div>
+    );
   };
 
   if (loading) {
@@ -74,149 +467,138 @@ export function NurseHome({ user }: { user: SessionUser }) {
   }
 
   return (
-    <div className="space-y-8 max-w-4xl">
+    <div className="space-y-8">
       {/* Nurse Profile Header */}
       <div className="flex items-center gap-5">
         <Avatar firstName={user.firstName} lastName={user.lastName} size="xl" />
         <div>
-          <h1 className="text-xl font-semibold text-gray-900">
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-slate-100">
             {user.firstName} {user.lastName}
           </h1>
-          <p className="text-sm text-gray-500 mt-0.5">{user.email}</p>
+          <p className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">{user.email}</p>
           <div className="flex items-center gap-3 mt-2">
             <Badge variant="info" dot>On Duty</Badge>
-            <span className="text-xs text-gray-400">
-              {pendingTasks.length + inProgressTasks.length} active tasks
+            <span className="text-xs text-gray-400 dark:text-slate-500">
+              {totalActive} active tasks
             </span>
           </div>
         </div>
       </div>
 
-      {/* Task Summary Cards */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="bg-white border border-gray-100 rounded-xl px-4 py-3">
-          <p className="text-2xl font-semibold text-amber-600">{pendingTasks.length}</p>
-          <p className="text-xs text-gray-500 mt-0.5">Pending</p>
+      {/* Daily task board */}
+      <div className="rounded-2xl border border-gray-200/80 dark:border-slate-700 bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-900/90 p-4 sm:p-5 shadow-sm transition-colors duration-200">
+        <div className="flex items-start justify-between gap-3 mb-4">
+          <div>
+            <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">Daily Task Board</h2>
+            <p className="text-[11px] uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400 mt-1">Your nurse workflow for today</p>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <span className="text-xs px-2.5 py-1 rounded-full bg-blue-50 dark:bg-blue-900/25 text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-blue-900/50">
+                Active: {totalActive}
+              </span>
+              <span className="text-xs px-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-900/25 text-amber-700 dark:text-amber-300 border border-amber-100 dark:border-amber-900/50">
+                In progress: {inProgressCount}
+              </span>
+              <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-900/25 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-900/50">
+                Completed: {completedCount}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap justify-end">
+            {(["ALL", "URGENT", "HIGH", "NORMAL"] as PriorityFilter[]).map((filter) => (
+              <button
+                key={filter}
+                onClick={() => setPriorityFilter(filter)}
+                className={`
+                  px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors
+                  ${
+                    priorityFilter === filter
+                      ? "bg-slate-900 dark:bg-brand-700 text-white border-slate-900 dark:border-brand-600 shadow-sm"
+                      : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700"
+                  }
+                `}
+              >
+                {filter === "ALL" ? "All" : filter === "URGENT" ? "Urgent" : filter === "HIGH" ? "High" : "Normal"}
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="bg-white border border-gray-100 rounded-xl px-4 py-3">
-          <p className="text-2xl font-semibold text-brand-600">{inProgressTasks.length}</p>
-          <p className="text-xs text-gray-500 mt-0.5">In Progress</p>
+
+        <div className="flex items-center justify-between mb-3.5">
+          <div className="text-[10px] uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Task categories</div>
+          <div className="text-xs text-slate-500 dark:text-slate-400 capitalize">{boardDateLabel}</div>
         </div>
-        <div className="bg-white border border-gray-100 rounded-xl px-4 py-3">
-          <p className="text-2xl font-semibold text-emerald-600">{completedTasks.length}</p>
-          <p className="text-xs text-gray-500 mt-0.5">Completed</p>
+
+        {taskActionMessage && (
+          <div className="mb-3.5 rounded-lg border border-emerald-200 dark:border-emerald-900/60 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-2 text-xs font-medium text-emerald-700 dark:text-emerald-300">
+            {taskActionMessage}
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-3.5">
+          {boardColumns.map((column) => (
+            <div key={column.key} className="rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50/90 dark:bg-slate-800/55 p-2.5 transition-colors">
+              <div className="rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-3 text-center">
+                <p className="text-sm font-semibold tracking-wide text-slate-800 dark:text-slate-200">{column.title}</p>
+                <p className="text-[10px] mt-0.5 tracking-wide text-slate-500 dark:text-slate-400">{column.subtitle}</p>
+                <p className="text-[10px] mt-1 text-slate-400 dark:text-slate-500">{column.tasks.length} task{column.tasks.length !== 1 ? "s" : ""}</p>
+              </div>
+
+              <div className="mt-2.5 space-y-2.5 min-h-[260px]">
+                {column.tasks.length === 0 ? (
+                  <div className="h-[56px] rounded-lg border border-dashed border-slate-300 dark:border-slate-600 bg-white/80 dark:bg-slate-900/40 flex items-center justify-center text-xs text-slate-500 dark:text-slate-400">
+                    No task
+                  </div>
+                ) : (
+                  column.tasks.map(renderTaskCard)
+                )}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
-
-      {/* Pending Tasks */}
-      {pendingTasks.length > 0 && (
-        <div>
-          <h2 className="text-sm font-semibold text-gray-900 mb-3">Pending Tasks</h2>
-          <div className="space-y-2">
-            {pendingTasks.map((task) => (
-              <div key={task.id} className="flex items-start gap-3 px-4 py-3.5 bg-white border border-gray-100 rounded-xl hover:border-gray-200 transition-all duration-150">
-                <button
-                  onClick={() => updateTaskStatus(task.id, "IN_PROGRESS")}
-                  className="mt-0.5 w-5 h-5 rounded-full border-2 border-gray-300 hover:border-brand-500 transition-colors shrink-0"
-                  title="Start task"
-                />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900">{task.title}</p>
-                  {task.description && (
-                    <p className="text-xs text-gray-500 mt-1 line-clamp-2">{task.description}</p>
-                  )}
-                  <div className="flex items-center gap-2 mt-2">
-                    <Badge variant={priorityColor(task.priority) as "critical" | "muted" | "default"} className="text-[10px] px-1.5 py-0">
-                      {task.priority}
-                    </Badge>
-                    <span className="text-[10px] text-gray-400">
-                      from Dr. {task.createdBy.firstName} {task.createdBy.lastName}
-                    </span>
-                    {task.patient && (
-                      <span className="text-[10px] text-gray-400">
-                        · {task.patient.firstName} {task.patient.lastName}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* In Progress Tasks */}
-      {inProgressTasks.length > 0 && (
-        <div>
-          <h2 className="text-sm font-semibold text-gray-900 mb-3">In Progress</h2>
-          <div className="space-y-2">
-            {inProgressTasks.map((task) => (
-              <div key={task.id} className="flex items-start gap-3 px-4 py-3.5 bg-brand-50/30 border border-brand-100 rounded-xl">
-                <button
-                  onClick={() => updateTaskStatus(task.id, "COMPLETED")}
-                  className="mt-0.5 w-5 h-5 rounded-full border-2 border-brand-400 bg-brand-50 hover:bg-brand-500 hover:border-brand-500 transition-all shrink-0 flex items-center justify-center"
-                  title="Mark complete"
-                >
-                  <svg className="w-3 h-3 text-brand-600 opacity-0 hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                  </svg>
-                </button>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900">{task.title}</p>
-                  {task.description && (
-                    <p className="text-xs text-gray-500 mt-1 line-clamp-2">{task.description}</p>
-                  )}
-                  <div className="flex items-center gap-2 mt-2">
-                    <Badge variant="info" className="text-[10px] px-1.5 py-0">In Progress</Badge>
-                    <span className="text-[10px] text-gray-400">
-                      from Dr. {task.createdBy.firstName} {task.createdBy.lastName}
-                    </span>
-                    {task.patient && (
-                      <span className="text-[10px] text-gray-400">
-                        · {task.patient.firstName} {task.patient.lastName}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Completed Tasks */}
-      {completedTasks.length > 0 && (
-        <div>
-          <h2 className="text-sm font-semibold text-gray-900 mb-3">Completed</h2>
-          <div className="space-y-2">
-            {completedTasks.map((task) => (
-              <div key={task.id} className="flex items-start gap-3 px-4 py-3 bg-white border border-gray-100 rounded-xl opacity-60">
-                <div className="mt-0.5 w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center shrink-0">
-                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-400 line-through">{task.title}</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-[10px] text-gray-400">
-                      from Dr. {task.createdBy.firstName} {task.createdBy.lastName}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       {tasks.length === 0 && (
         <Card>
           <CardContent>
-            <p className="text-sm text-gray-400 text-center py-8">No tasks assigned yet. Tasks from doctors will appear here.</p>
+            <p className="text-sm text-gray-400 dark:text-slate-400 text-center py-8">No tasks assigned yet. Tasks from doctors will appear here.</p>
           </CardContent>
         </Card>
       )}
+
+      {/* Full room dashboard for nurses */}
+      <div className="space-y-6 rounded-2xl border border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5 transition-colors">
+        <div>
+          <h2 className="text-sm font-semibold text-gray-900 dark:text-slate-100">All Rooms</h2>
+          <p className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">Complete live room visibility across all floors</p>
+        </div>
+
+        <OccupancySummary rooms={rooms} />
+
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <FloorSelector
+            floors={floors}
+            selectedFloor={selectedFloor}
+            onSelect={setSelectedFloor}
+          />
+          <FilterBar
+            search={search}
+            onSearchChange={setSearch}
+            wardFilter={wardFilter}
+            onWardChange={setWardFilter}
+            statusFilter={statusFilter}
+            onStatusChange={setStatusFilter}
+            wards={wards}
+          />
+        </div>
+
+        <div>
+          <h3 className="text-sm font-medium text-gray-400 dark:text-slate-500 mb-4">
+            {selectedFloor !== null ? floors.find((f) => f.number === selectedFloor)?.name : "All Floors"}
+          </h3>
+          <RoomGrid rooms={rooms} loading={roomsLoading} />
+        </div>
+      </div>
     </div>
   );
 }

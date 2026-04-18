@@ -74,7 +74,7 @@ async function main() {
   console.log(`  ✓ ${rooms.length} rooms`);
 
   // ─── Users ─────────────────────────────────────────────────────────────────
-  const users = await Promise.all([
+  const staffUsers = await Promise.all([
     // Doctors
     prisma.user.create({ data: { email: "dr.amrani@medboard.local", password: "demo123", firstName: "Youssef", lastName: "Amrani", role: "DOCTOR", specialty: "Cardiologist", isAvailable: true } }),
     prisma.user.create({ data: { email: "dr.benkirane@medboard.local", password: "demo123", firstName: "Fatima", lastName: "Benkirane", role: "DOCTOR", specialty: "General Surgeon", isAvailable: false } }),
@@ -88,14 +88,11 @@ async function main() {
     // Admins
     prisma.user.create({ data: { email: "admin@medboard.local", password: "demo123", firstName: "Nadia", lastName: "Ziani", role: "ADMIN" } }),
     prisma.user.create({ data: { email: "admin2@medboard.local", password: "demo123", firstName: "Mehdi", lastName: "Bouchta", role: "ADMIN" } }),
-    // Read-only
-    prisma.user.create({ data: { email: "viewer@medboard.local", password: "demo123", firstName: "Sara", lastName: "Mouline", role: "READONLY" } }),
-    prisma.user.create({ data: { email: "viewer2@medboard.local", password: "demo123", firstName: "Amine", lastName: "Fassi", role: "READONLY" } }),
   ]);
-  console.log(`  ✓ ${users.length} users`);
+  console.log(`  ✓ ${staffUsers.length} staff users`);
 
-  const doctors = users.filter((u) => u.role === "DOCTOR");
-  const nurses = users.filter((u) => u.role === "NURSE");
+  const doctors = staffUsers.filter((u) => u.role === "DOCTOR");
+  const nurses = staffUsers.filter((u) => u.role === "NURSE");
 
   // ─── Patients ──────────────────────────────────────────────────────────────
   const occupiedRooms = rooms.filter((r) => ["OCCUPIED", "CRITICAL", "DISCHARGE_READY", "UNDER_OBSERVATION"].includes(
@@ -127,6 +124,7 @@ async function main() {
   for (let i = 0; i < patientDefs.length; i++) {
     const p = patientDefs[i];
     const room = i < occupiedRooms.length ? occupiedRooms[i] : null;
+    const admissionSource = i % 4 === 0 ? "EMERGENCY" : i % 4 === 1 ? "WALK_IN" : i % 4 === 2 ? "REFERRAL" : "TRANSFER";
     const patient = await prisma.patient.create({
       data: {
         patientCode: `PAT-${String(i + 1).padStart(5, "0")}`,
@@ -134,19 +132,129 @@ async function main() {
         lastName: p.lastName,
         dateOfBirth: new Date(p.dob),
         sex: p.sex,
+        phoneNumber: `+212 6${String(50000000 + i * 1234).slice(0, 8)}`,
         height: p.height,
         weight: p.weight,
         allergies: p.allergies,
         emergencyContact: p.emergency,
         emergencyPhone: p.emergPhone,
         status: p.status,
+        registrationStatus: i % 6 === 0 ? "COMPLETED" : "REGISTERED",
+        createdByRole: "ADMIN",
+        admissionSource,
+        intakeType: "NORMAL",
+        admissionStatus: room ? "ASSIGNED" : "WAITING_ASSIGNMENT",
         admissionDate: new Date(Date.now() - Math.floor(Math.random() * 14) * 86400000),
         roomId: room?.id ?? null,
       },
     });
     patients.push(patient);
   }
+
+  const temporaryPatient = await prisma.patient.create({
+    data: {
+      patientCode: "TMP-00001",
+      firstName: "Unknown",
+      lastName: "Male 01",
+      dateOfBirth: new Date("1970-01-01"),
+      sex: "MALE",
+      phoneNumber: null,
+      emergencyContact: null,
+      emergencyPhone: null,
+      status: "UNDER_OBSERVATION",
+      registrationStatus: "TEMPORARY",
+      createdByRole: "DOCTOR",
+      admissionSource: "EMERGENCY",
+      intakeType: "EMERGENCY_TEMPORARY",
+      admissionStatus: "WAITING_ASSIGNMENT",
+      admissionDate: new Date(),
+      roomId: null,
+    },
+  });
+  patients.push(temporaryPatient);
   console.log(`  ✓ ${patients.length} patients`);
+
+  // ─── Patient Portal Users ─────────────────────────────────────────────────
+  const patientPortalUsers = await Promise.all([
+    prisma.user.create({
+      data: {
+        email: "patient.kettani@medboard.local",
+        password: "demo123",
+        firstName: "Fatima Zahra",
+        lastName: "Kettani",
+        role: "PATIENT",
+        patientId: patients[1].id,
+      },
+    }),
+    prisma.user.create({
+      data: {
+        email: "patient.ouazzani@medboard.local",
+        password: "demo123",
+        firstName: "Rachid",
+        lastName: "Ouazzani",
+        role: "PATIENT",
+        patientId: patients[8].id,
+      },
+    }),
+  ]);
+  console.log(`  ✓ ${patientPortalUsers.length} patient portal users`);
+
+  const scheduleAt = (daysFromNow: number, hours: number, minutes: number) => {
+    const d = new Date();
+    d.setDate(d.getDate() + daysFromNow);
+    d.setHours(hours, minutes, 0, 0);
+    return d;
+  };
+
+  const scheduleItems = [
+    {
+      patientId: patients[1].id,
+      title: "Nurse morning check",
+      scheduledAt: scheduleAt(1, 8, 30),
+      type: "NURSE_VISIT",
+      notes: "Routine blood pressure and vitals.",
+    },
+    {
+      patientId: patients[1].id,
+      title: "Doctor round",
+      scheduledAt: scheduleAt(1, 10, 0),
+      type: "DOCTOR_VISIT",
+      notes: "Daily attending physician review.",
+    },
+    {
+      patientId: patients[1].id,
+      title: "Vitals follow-up",
+      scheduledAt: scheduleAt(1, 14, 0),
+      type: "CHECKUP",
+      notes: "Nurse follow-up check.",
+    },
+    {
+      patientId: patients[8].id,
+      title: "Nurse morning check",
+      scheduledAt: scheduleAt(1, 8, 45),
+      type: "NURSE_VISIT",
+      notes: "Morning comfort and vitals check.",
+    },
+    {
+      patientId: patients[8].id,
+      title: "Doctor round",
+      scheduledAt: scheduleAt(1, 10, 30),
+      type: "DOCTOR_VISIT",
+      notes: "Review response to treatment.",
+    },
+    {
+      patientId: patients[8].id,
+      title: "Afternoon checkup",
+      scheduledAt: scheduleAt(1, 15, 0),
+      type: "CHECKUP",
+      notes: "Standard afternoon follow-up.",
+    },
+  ];
+
+  await prisma.patientScheduleItem.createMany({ data: scheduleItems });
+  console.log(`  ✓ ${scheduleItems.length} patient schedule items`);
+
+  const users = [...staffUsers, ...patientPortalUsers];
 
   // ─── Medical Records ───────────────────────────────────────────────────────
   const diagnoses = [
@@ -170,31 +278,50 @@ async function main() {
     { summary: "Pulmonary embolism, sub-massive", history: "Recent long-haul flight. Oral contraceptive use. No prior VTE.", plan: "Therapeutic anticoagulation (LMWH bridging to DOAC), echocardiography, consider thrombophilia workup." },
   ];
 
-  for (let i = 0; i < patients.length; i++) {
+  const patientsForMedicalRecords = patients.filter((p) => p.intakeType !== "EMERGENCY_TEMPORARY");
+
+  for (let i = 0; i < patientsForMedicalRecords.length; i++) {
+    const diagnosis = diagnoses[i % diagnoses.length];
     await prisma.medicalRecord.create({
       data: {
-        patientId: patients[i].id,
-        diagnosisSummary: diagnoses[i].summary,
-        medicalHistory: diagnoses[i].history,
-        currentPlan: diagnoses[i].plan,
+        patientId: patientsForMedicalRecords[i].id,
+        diagnosisSummary: diagnosis.summary,
+        medicalHistory: diagnosis.history,
+        currentPlan: diagnosis.plan,
       },
     });
   }
-  console.log(`  ✓ ${patients.length} medical records`);
+  console.log(`  ✓ ${patientsForMedicalRecords.length} medical records`);
 
   // ─── Assignments ───────────────────────────────────────────────────────────
   for (let i = 0; i < patients.length; i++) {
+    const primaryDoctor = doctors[i % doctors.length];
+    const consultingDoctor = doctors[(i + 1) % doctors.length];
+    const primaryNurse = nurses[i % nurses.length];
+
     await prisma.assignment.create({
       data: {
         patientId: patients[i].id,
-        doctorId: doctors[i % doctors.length].id,
-        nurseId: nurses[i % nurses.length].id,
+        doctorId: primaryDoctor.id,
+        nurseId: primaryNurse.id,
         role: "PRIMARY",
         active: true,
       },
     });
+
+    // Add a second doctor assignment for part of the patients.
+    if (i % 3 === 0 && consultingDoctor.id !== primaryDoctor.id) {
+      await prisma.assignment.create({
+        data: {
+          patientId: patients[i].id,
+          doctorId: consultingDoctor.id,
+          role: "CONSULTING",
+          active: true,
+        },
+      });
+    }
   }
-  console.log(`  ✓ ${patients.length} assignments`);
+  console.log(`  ✓ doctor and nurse assignments created`);
 
   // ─── Notes ─────────────────────────────────────────────────────────────────
   const noteContents = [
@@ -234,6 +361,10 @@ async function main() {
   // ─── Activity Log ──────────────────────────────────────────────────────────
   const activities = [
     { action: "PATIENT_ADMITTED", details: "Patient admitted to ward" },
+    { action: "PATIENT_REGISTERED", details: "Patient registered by admissions" },
+    { action: "TEMPORARY_PATIENT_CREATED", details: "Temporary emergency intake created" },
+    { action: "ADMIN_DATA_COMPLETED", details: "Administrative registration completed" },
+    { action: "MEDICAL_RECORD_INITIALIZED", details: "Doctor initialized medical record" },
     { action: "NOTE_CREATED", details: "Progress note added" },
     { action: "RECORD_UPDATED", details: "Medical record updated" },
     { action: "STATUS_CHANGED", details: "Patient status changed" },

@@ -3,10 +3,12 @@ import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
 const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "medboard-dev-secret-2026"
+  process.env.JWT_SECRET || "medboard-dev-secret-fallback"
 );
 
 const PUBLIC_PATHS = ["/login", "/api/auth/login"];
+const PATIENT_PORTAL_PAGE = "/patient-portal";
+const PATIENT_ALLOWED_API_PREFIXES = ["/api/auth/me", "/api/auth/logout", "/api/patient-portal"];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -38,7 +40,30 @@ export async function middleware(request: NextRequest) {
 
   // Verify token
   try {
-    await jwtVerify(token, JWT_SECRET);
+    const { payload } = await jwtVerify(token, JWT_SECRET);
+    const role = payload.role as string | undefined;
+    const isPatientUser = role === "PATIENT" || role === "READONLY";
+
+    if (isPatientUser) {
+      if (pathname.startsWith("/api/")) {
+        const isAllowedApi = PATIENT_ALLOWED_API_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+        if (!isAllowedApi) {
+          return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+        }
+      } else {
+        if (pathname !== PATIENT_PORTAL_PAGE) {
+          return NextResponse.redirect(new URL(PATIENT_PORTAL_PAGE, request.url));
+        }
+      }
+    } else {
+      if (pathname === PATIENT_PORTAL_PAGE) {
+        return NextResponse.redirect(new URL("/dashboard", request.url));
+      }
+      if (pathname.startsWith("/api/patient-portal")) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
+    }
+
     return NextResponse.next();
   } catch {
     // Invalid token — redirect to login

@@ -24,14 +24,14 @@ export function DemographicsCard({ patient }: DemographicsCardProps) {
   return (
     <Card>
       <CardHeader>
-        <h2 className="text-sm font-semibold text-gray-900">Demographics</h2>
+        <h2 className="text-sm font-semibold text-gray-900 dark:text-slate-100">Demographics</h2>
       </CardHeader>
       <CardContent>
         <dl className="space-y-3">
           {fields.map((f) => (
             <div key={f.label} className="flex justify-between items-baseline gap-4">
-              <dt className="text-xs text-gray-400 shrink-0">{f.label}</dt>
-              <dd className={`text-sm text-right ${f.highlight ? "text-red-600 font-medium" : "text-gray-800"}`}>
+              <dt className="text-xs text-gray-400 dark:text-slate-500 shrink-0">{f.label}</dt>
+              <dd className={`text-sm text-right ${f.highlight ? "text-red-600 dark:text-red-300 font-medium" : "text-gray-800 dark:text-slate-200"}`}>
                 {f.value}
               </dd>
             </div>

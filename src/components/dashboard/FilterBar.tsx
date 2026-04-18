@@ -24,12 +24,12 @@ export function FilterBar({
   wards,
 }: FilterBarProps) {
   const wardOptions = [
-    { value: "", label: "All Wards" },
+    { value: "", label: "Tous les services" },
     ...wards.map((w) => ({ value: w.code, label: w.name })),
   ];
 
   const statusOptions = [
-    { value: "", label: "All Statuses" },
+    { value: "", label: "Tous les statuts" },
     ...Object.entries(ROOM_STATUS_LABELS).map(([val, label]) => ({
       value: val,
       label,
@@ -40,7 +40,7 @@ export function FilterBar({
     <div className="flex items-center gap-3">
       <div className="w-64">
         <SearchInput
-          placeholder="Search rooms or patients..."
+          placeholder="Rechercher une chambre ou un patient..."
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           onClear={() => onSearchChange("")}

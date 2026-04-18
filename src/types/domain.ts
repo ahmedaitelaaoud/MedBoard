@@ -36,6 +36,8 @@ export interface PatientBrief {
   firstName: string;
   lastName: string;
   status: PatientStatus;
+  registrationStatus?: "PENDING" | "REGISTERED" | "TEMPORARY" | "COMPLETED";
+  intakeType?: "NORMAL" | "EMERGENCY_TEMPORARY";
   assignments: {
     doctor: UserSummary | null;
     nurse: UserSummary | null;
@@ -49,12 +51,18 @@ export interface PatientFull {
   lastName: string;
   dateOfBirth: string;
   sex: string;
+  phoneNumber: string | null;
   height: number | null;
   weight: number | null;
   allergies: string | null;
   emergencyContact: string | null;
   emergencyPhone: string | null;
   status: PatientStatus;
+  registrationStatus: "PENDING" | "REGISTERED" | "TEMPORARY" | "COMPLETED";
+  createdByRole: Role;
+  admissionSource: "WALK_IN" | "EMERGENCY" | "REFERRAL" | "TRANSFER";
+  intakeType: "NORMAL" | "EMERGENCY_TEMPORARY";
+  admissionStatus: "WAITING_ASSIGNMENT" | "ASSIGNED" | "ACTIVE" | "DISCHARGED";
   admissionDate: string;
   dischargeDate: string | null;
   room: { id: string; number: string; floor: { name: string }; ward: { name: string } } | null;

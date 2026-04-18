@@ -22,7 +22,11 @@
   }
 
   body {
-    @apply bg-white text-gray-900 font-sans antialiased;
+    @apply bg-white text-gray-900 font-sans antialiased transition-colors duration-200;
+  }
+
+  .dark body {
+    @apply bg-slate-950 text-slate-100;
   }
 
   /* Smooth focus-visible for keyboard navigation */

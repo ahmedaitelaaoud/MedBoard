@@ -10,9 +10,14 @@ import type { SessionUser } from "./auth";
 
 const PERMISSIONS: Record<string, readonly Role[]> = {
   // Patient data
-  "patient:read":          [Role.DOCTOR, Role.NURSE, Role.ADMIN, Role.READONLY],
-  "patient:create":        [Role.DOCTOR, Role.ADMIN],
-  "patient:update":        [Role.DOCTOR, Role.ADMIN],
+  "patient:read":          [Role.DOCTOR, Role.NURSE, Role.ADMIN],
+  "patient:create":        [Role.ADMIN],
+  "patient:create:temporary": [Role.ADMIN, Role.DOCTOR, Role.NURSE],
+  "patient:update":        [Role.ADMIN],
+  "patient:update:administrative": [Role.ADMIN],
+
+  // Patient portal
+  "patient-portal:read":   [Role.PATIENT, Role.READONLY],
 
   // Medical records
   "record:read":           [Role.DOCTOR, Role.NURSE],
@@ -24,8 +29,11 @@ const PERMISSIONS: Record<string, readonly Role[]> = {
   "note:create:observation": [Role.DOCTOR, Role.NURSE],
   "note:update":           [Role.DOCTOR],
 
+  // Documents
+  "document:upload":       [Role.DOCTOR],
+
   // Room management
-  "room:read":             [Role.DOCTOR, Role.NURSE, Role.ADMIN, Role.READONLY],
+  "room:read":             [Role.DOCTOR, Role.NURSE, Role.ADMIN],
   "room:manage":           [Role.ADMIN],
 
   // Staff
@@ -35,8 +43,12 @@ const PERMISSIONS: Record<string, readonly Role[]> = {
   // Activity log
   "activity:read":         [Role.DOCTOR, Role.NURSE, Role.ADMIN],
 
+  // Direct chat
+  "chat:read":             [Role.DOCTOR, Role.NURSE],
+  "chat:send":             [Role.DOCTOR, Role.NURSE],
+
   // Dashboard
-  "dashboard:read":        [Role.DOCTOR, Role.NURSE, Role.ADMIN, Role.READONLY],
+  "dashboard:read":        [Role.DOCTOR, Role.NURSE, Role.ADMIN],
   "dashboard:manage":      [Role.ADMIN],
 } as const;
 

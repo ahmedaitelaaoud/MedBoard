@@ -56,8 +56,30 @@ export async function POST(request: Request) {
     const resolvedTitle = normalizedTitle || normalizedContent.slice(0, 80);
     const resolvedDescription =
       normalizedContent || (typeof description === "string" ? description.trim() : "") || null;
-    const resolvedAssignedToId =
-      typeof assignedToId === "string" && assignedToId.trim() ? assignedToId : user.id;
+    let resolvedAssignedToId =
+      typeof assignedToId === "string" && assignedToId.trim() ? assignedToId.trim() : "";
+
+    if (!resolvedAssignedToId) {
+      const nurses = await prisma.user.findMany({
+        where: { role: "NURSE", active: true },
+        select: {
+          id: true,
+          tasksAssigned: {
+            where: { status: { not: "COMPLETED" } },
+            select: { id: true },
+          },
+        },
+      });
+
+      if (nurses.length > 0) {
+        const leastBusyNurse = nurses.reduce((best, current) =>
+          current.tasksAssigned.length < best.tasksAssigned.length ? current : best
+        );
+        resolvedAssignedToId = leastBusyNurse.id;
+      } else {
+        resolvedAssignedToId = user.id;
+      }
+    }
 
     if (!resolvedTitle) {
       return badRequest("Content is required");
