@@ -11,8 +11,10 @@ import type { SessionUser } from "./auth";
 const PERMISSIONS: Record<string, readonly Role[]> = {
   // Patient data
   "patient:read":          [Role.DOCTOR, Role.NURSE, Role.ADMIN, Role.READONLY],
-  "patient:create":        [Role.DOCTOR, Role.ADMIN],
-  "patient:update":        [Role.DOCTOR, Role.ADMIN],
+  "patient:create":        [Role.ADMIN],
+  "patient:create:temporary": [Role.ADMIN, Role.DOCTOR, Role.NURSE],
+  "patient:update":        [Role.ADMIN],
+  "patient:update:administrative": [Role.ADMIN],
 
   // Medical records
   "record:read":           [Role.DOCTOR, Role.NURSE],

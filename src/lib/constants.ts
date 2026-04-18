@@ -34,6 +34,36 @@ export const PatientStatus = {
 } as const;
 export type PatientStatus = (typeof PatientStatus)[keyof typeof PatientStatus];
 
+export const RegistrationStatus = {
+  PENDING: "PENDING",
+  REGISTERED: "REGISTERED",
+  TEMPORARY: "TEMPORARY",
+  COMPLETED: "COMPLETED",
+} as const;
+export type RegistrationStatus = (typeof RegistrationStatus)[keyof typeof RegistrationStatus];
+
+export const AdmissionSource = {
+  WALK_IN: "WALK_IN",
+  EMERGENCY: "EMERGENCY",
+  REFERRAL: "REFERRAL",
+  TRANSFER: "TRANSFER",
+} as const;
+export type AdmissionSource = (typeof AdmissionSource)[keyof typeof AdmissionSource];
+
+export const IntakeType = {
+  NORMAL: "NORMAL",
+  EMERGENCY_TEMPORARY: "EMERGENCY_TEMPORARY",
+} as const;
+export type IntakeType = (typeof IntakeType)[keyof typeof IntakeType];
+
+export const AdmissionStatus = {
+  WAITING_ASSIGNMENT: "WAITING_ASSIGNMENT",
+  ASSIGNED: "ASSIGNED",
+  ACTIVE: "ACTIVE",
+  DISCHARGED: "DISCHARGED",
+} as const;
+export type AdmissionStatus = (typeof AdmissionStatus)[keyof typeof AdmissionStatus];
+
 export const NoteType = {
   ADMISSION: "ADMISSION",
   PROGRESS: "PROGRESS",
@@ -48,6 +78,10 @@ export const ActivityType = {
   LOGIN: "LOGIN",
   LOGOUT: "LOGOUT",
   PATIENT_ADMITTED: "PATIENT_ADMITTED",
+  PATIENT_REGISTERED: "PATIENT_REGISTERED",
+  TEMPORARY_PATIENT_CREATED: "TEMPORARY_PATIENT_CREATED",
+  ADMIN_DATA_COMPLETED: "ADMIN_DATA_COMPLETED",
+  MEDICAL_RECORD_INITIALIZED: "MEDICAL_RECORD_INITIALIZED",
   PATIENT_DISCHARGED: "PATIENT_DISCHARGED",
   ROOM_ASSIGNED: "ROOM_ASSIGNED",
   ROOM_TRANSFERRED: "ROOM_TRANSFERRED",
@@ -83,6 +117,32 @@ export const PATIENT_STATUS_LABELS: Record<PatientStatus, string> = {
   CRITICAL: "Critical",
   STABLE: "Stable",
   DISCHARGE_READY: "Discharge Ready",
+  DISCHARGED: "Discharged",
+};
+
+export const REGISTRATION_STATUS_LABELS: Record<RegistrationStatus, string> = {
+  PENDING: "Pending",
+  REGISTERED: "Registered",
+  TEMPORARY: "Temporary",
+  COMPLETED: "Completed",
+};
+
+export const ADMISSION_SOURCE_LABELS: Record<AdmissionSource, string> = {
+  WALK_IN: "Walk-in",
+  EMERGENCY: "Emergency",
+  REFERRAL: "Referral",
+  TRANSFER: "Transfer",
+};
+
+export const INTAKE_TYPE_LABELS: Record<IntakeType, string> = {
+  NORMAL: "Normal Intake",
+  EMERGENCY_TEMPORARY: "Emergency Temporary",
+};
+
+export const ADMISSION_STATUS_LABELS: Record<AdmissionStatus, string> = {
+  WAITING_ASSIGNMENT: "Waiting Assignment",
+  ASSIGNED: "Assigned",
+  ACTIVE: "Active",
   DISCHARGED: "Discharged",
 };
 

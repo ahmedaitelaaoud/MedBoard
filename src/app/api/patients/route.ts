@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
-import { requirePermission } from "@/lib/permissions";
+import { can, requirePermission } from "@/lib/permissions";
 import { unauthorized, serverError, badRequest } from "@/lib/errors";
 import { Role } from "@/lib/constants";
 import { patientIntakeSchema } from "@/lib/validation/patient";
@@ -101,12 +101,6 @@ export async function POST(request: Request) {
     const user = await getSession();
     if (!user) return unauthorized();
 
-    try {
-      requirePermission(user, "patient:create");
-    } catch {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
     const body = await request.json();
     const parsed = patientIntakeSchema.safeParse(body);
     if (!parsed.success) return badRequest("Invalid intake data", parsed.error.flatten());
@@ -114,11 +108,14 @@ export async function POST(request: Request) {
     const isEmergencyTemporary =
       parsed.data.temporaryRegistration === true || parsed.data.intakeType === "EMERGENCY_TEMPORARY";
 
+    const canCreateNormal = can(user, "patient:create");
+    const canCreateTemporary = can(user, "patient:create:temporary");
+
     if (user.role === Role.READONLY) {
       return NextResponse.json({ error: "Read-only users cannot register patients" }, { status: 403 });
     }
 
-    if (!isEmergencyTemporary && user.role !== Role.ADMIN) {
+    if (!isEmergencyTemporary && !canCreateNormal) {
       return NextResponse.json(
         {
           error:
@@ -128,7 +125,7 @@ export async function POST(request: Request) {
       );
     }
 
-    if (isEmergencyTemporary && user.role !== Role.ADMIN && user.role !== Role.DOCTOR && user.role !== Role.NURSE) {
+    if (isEmergencyTemporary && !canCreateTemporary) {
       return NextResponse.json({ error: "Only admin, doctors, or nurses can create temporary emergency intake" }, { status: 403 });
     }
 

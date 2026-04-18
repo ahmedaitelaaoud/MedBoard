@@ -199,17 +199,20 @@ async function main() {
     { summary: "Pulmonary embolism, sub-massive", history: "Recent long-haul flight. Oral contraceptive use. No prior VTE.", plan: "Therapeutic anticoagulation (LMWH bridging to DOAC), echocardiography, consider thrombophilia workup." },
   ];
 
-  for (let i = 0; i < patients.length; i++) {
+  const patientsForMedicalRecords = patients.filter((p) => p.intakeType !== "EMERGENCY_TEMPORARY");
+
+  for (let i = 0; i < patientsForMedicalRecords.length; i++) {
+    const diagnosis = diagnoses[i % diagnoses.length];
     await prisma.medicalRecord.create({
       data: {
-        patientId: patients[i].id,
-        diagnosisSummary: diagnoses[i].summary,
-        medicalHistory: diagnoses[i].history,
-        currentPlan: diagnoses[i].plan,
+        patientId: patientsForMedicalRecords[i].id,
+        diagnosisSummary: diagnosis.summary,
+        medicalHistory: diagnosis.history,
+        currentPlan: diagnosis.plan,
       },
     });
   }
-  console.log(`  ✓ ${patients.length} medical records`);
+  console.log(`  ✓ ${patientsForMedicalRecords.length} medical records`);
 
   // ─── Assignments ───────────────────────────────────────────────────────────
   for (let i = 0; i < patients.length; i++) {
