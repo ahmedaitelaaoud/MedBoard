@@ -6,6 +6,7 @@ import Link from "next/link";
 import { AppShell } from "@/components/layout/AppShell";
 import { PatientHeader } from "@/components/patient/PatientHeader";
 import { DemographicsCard } from "@/components/patient/DemographicsCard";
+import { AdministrativePanel } from "@/components/patient/AdministrativePanel";
 import { ClinicalSummary } from "@/components/patient/ClinicalSummary";
 import { NotesTimeline } from "@/components/patient/NotesTimeline";
 import { DocumentsPlaceholder } from "@/components/patient/DocumentsPlaceholder";
@@ -94,6 +95,7 @@ export default function PatientPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left column — demographics + documents */}
           <div className="space-y-6">
+            <AdministrativePanel patient={patient} userRole={user?.role} onUpdated={fetchPatient} />
             <DemographicsCard patient={patient} />
             <DocumentsPlaceholder
               documents={patient.documents}
