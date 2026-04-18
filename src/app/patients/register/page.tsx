@@ -38,10 +38,10 @@ export default function PatientRegisterPage() {
     return (
       <AppShell>
         <div className="space-y-4 max-w-4xl animate-pulse">
-          <div className="h-6 w-52 bg-gray-100 rounded" />
-          <div className="h-28 bg-gray-100 rounded-xl" />
-          <div className="h-28 bg-gray-100 rounded-xl" />
-          <div className="h-28 bg-gray-100 rounded-xl" />
+          <div className="h-6 w-52 bg-gray-100 dark:bg-slate-800 rounded" />
+          <div className="h-28 bg-gray-100 dark:bg-slate-800 rounded-xl" />
+          <div className="h-28 bg-gray-100 dark:bg-slate-800 rounded-xl" />
+          <div className="h-28 bg-gray-100 dark:bg-slate-800 rounded-xl" />
         </div>
       </AppShell>
     );
@@ -51,25 +51,25 @@ export default function PatientRegisterPage() {
     <AppShell>
       <div className="space-y-6 max-w-4xl">
         <nav className="flex items-center gap-1.5 text-sm">
-          <Link href="/patients" className="text-gray-400 hover:text-gray-600 transition-colors">
+          <Link href="/patients" className="text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 transition-colors">
             Patients
           </Link>
-          <svg className="w-3.5 h-3.5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-3.5 h-3.5 text-gray-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
-          <span className="text-gray-700 font-medium">
-            {mode === "EMERGENCY_TEMPORARY" ? "Emergency Intake" : "Register Patient"}
+          <span className="text-gray-700 dark:text-slate-200 font-medium">
+            {mode === "EMERGENCY_TEMPORARY" ? "Admission d'urgence" : "Enregistrer un patient"}
           </span>
         </nav>
 
-        <div className="rounded-xl border border-gray-100 bg-white p-4 sm:p-5">
-          <h1 className="text-lg font-semibold text-gray-900">
-            {mode === "EMERGENCY_TEMPORARY" ? "Emergency Temporary Intake" : "Administrative Patient Registration"}
+        <div className="rounded-xl border border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5">
+          <h1 className="text-lg font-semibold text-gray-900 dark:text-slate-100">
+            {mode === "EMERGENCY_TEMPORARY" ? "Admission d'urgence temporaire" : "Enregistrement administratif du patient"}
           </h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">
             {mode === "EMERGENCY_TEMPORARY"
-              ? "Create a temporary patient identity so care can start immediately. Admissions/admin can complete official registration later."
-              : "Admissions/admin registers patient identity and admission details before medical ownership starts."}
+              ? "Créez une identité patient temporaire pour démarrer les soins immédiatement. L'admission/admin peut compléter l'enregistrement officiel plus tard."
+              : "L'admission/admin enregistre l'identité du patient et les détails d'admission avant le début de la prise en charge médicale."}
           </p>
         </div>
 

@@ -8,11 +8,11 @@ import { ROLE_LABELS } from "@/lib/constants";
 import type { Role } from "@/lib/constants";
 
 const pageTitles: Record<string, string> = {
-  "/dashboard": "Dashboard",
+  "/dashboard": "Tableau de bord",
   "/patients": "Patients",
-  "/activity": "Activity Log",
-  "/chat": "Team Chat",
-  "/staff": "Staff Directory",
+  "/activity": "Journal d'activité",
+  "/chat": "Chat d'équipe",
+  "/staff": "Annuaire du personnel",
 };
 
 function getPageTitle(pathname: string): string {
@@ -40,8 +40,8 @@ export function Topbar() {
           type="button"
           onClick={toggleTheme}
           className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
-          title="Toggle night mode"
-          aria-label="Toggle night mode"
+          title="Basculer le mode nuit"
+          aria-label="Basculer le mode nuit"
         >
           {!mounted || theme === "light" ? (
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -52,7 +52,7 @@ export function Topbar() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z" />
             </svg>
           )}
-          <span>{!mounted ? "Theme" : theme === "dark" ? "Night" : "Day"}</span>
+          <span>{!mounted ? "Thème" : theme === "dark" ? "Nuit" : "Jour"}</span>
         </button>
         {user && (
           <Badge variant="default" className="text-2xs">

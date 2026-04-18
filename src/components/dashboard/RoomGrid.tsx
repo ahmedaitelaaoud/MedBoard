@@ -41,7 +41,7 @@ export function RoomGrid({ rooms, loading }: RoomGridProps) {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
         </div>
-        <p className="text-sm text-gray-400 dark:text-slate-400">No rooms match your filters</p>
+        <p className="text-sm text-gray-400 dark:text-slate-400">Aucune chambre ne correspond aux filtres</p>
       </div>
     );
   }

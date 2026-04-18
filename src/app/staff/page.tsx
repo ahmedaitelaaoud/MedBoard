@@ -56,14 +56,14 @@ export default function StaffPage() {
     <AppShell>
       <div className="space-y-8 max-w-5xl">
         <div>
-          <h1 className="text-lg font-semibold text-gray-900">Staff Directory</h1>
-          <p className="text-sm text-gray-500 mt-0.5">{staff.length} team members</p>
+          <h1 className="text-lg font-semibold text-gray-900 dark:text-slate-100">Annuaire du personnel</h1>
+          <p className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">{staff.length} membres de l'équipe</p>
         </div>
 
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[1,2,3,4,5,6].map((i) => (
-              <div key={i} className="h-[88px] bg-white border border-gray-100 rounded-xl animate-pulse" />
+              <div key={i} className="h-[88px] bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-xl animate-pulse" />
             ))}
           </div>
         ) : (
@@ -71,22 +71,22 @@ export default function StaffPage() {
             {/* Doctors */}
             {doctors.length > 0 && (
               <div>
-                <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
-                  Doctors ({doctors.length})
+                <h2 className="text-xs font-semibold text-gray-400 dark:text-slate-500 uppercase tracking-wider mb-3">
+                  Médecins ({doctors.length})
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                   {doctors.map((member) => (
                     <div
                       key={member.id}
-                      className="flex items-center gap-3.5 px-4 py-3.5 bg-white border border-gray-100 rounded-xl hover:border-gray-200 hover:shadow-sm transition-all duration-150"
+                      className="flex items-center gap-3.5 px-4 py-3.5 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-xl hover:border-gray-200 dark:hover:border-slate-700 hover:shadow-sm transition-all duration-150"
                     >
                       <Avatar firstName={member.firstName} lastName={member.lastName} size="md" />
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">
+                        <p className="text-sm font-medium text-gray-900 dark:text-slate-100 truncate">
                           Dr. {member.firstName} {member.lastName}
                         </p>
-                        <p className="text-xs text-gray-500 truncate mt-0.5">
-                          {member.specialty || "General Practice"}
+                        <p className="text-xs text-gray-500 dark:text-slate-400 truncate mt-0.5">
+                          {member.specialty || "Médecine générale"}
                         </p>
                         <div className="flex items-center gap-2 mt-1.5">
                           <Badge
@@ -94,7 +94,7 @@ export default function StaffPage() {
                             dot
                             className="text-[10px] px-1.5 py-0"
                           >
-                            {member.isAvailable ? "Available" : "Unavailable"}
+                            {member.isAvailable ? "Disponible" : "Indisponible"}
                           </Badge>
                         </div>
                       </div>
@@ -107,28 +107,28 @@ export default function StaffPage() {
             {/* Nurses */}
             {nurses.length > 0 && (
               <div>
-                <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
-                  Nurses ({nurses.length})
+                <h2 className="text-xs font-semibold text-gray-400 dark:text-slate-500 uppercase tracking-wider mb-3">
+                  Infirmiers(ères) ({nurses.length})
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                   {nurses.map((member) => (
                     <div
                       key={member.id}
-                      className="flex items-center gap-3.5 px-4 py-3.5 bg-white border border-gray-100 rounded-xl hover:border-gray-200 hover:shadow-sm transition-all duration-150"
+                      className="flex items-center gap-3.5 px-4 py-3.5 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-xl hover:border-gray-200 dark:hover:border-slate-700 hover:shadow-sm transition-all duration-150"
                     >
                       <Avatar firstName={member.firstName} lastName={member.lastName} size="md" />
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">
+                        <p className="text-sm font-medium text-gray-900 dark:text-slate-100 truncate">
                           {member.firstName} {member.lastName}
                         </p>
                         <div className="flex items-center gap-2 mt-1.5">
-                          <Badge variant="success" className="text-[10px] px-1.5 py-0">Nurse</Badge>
+                          <Badge variant="success" className="text-[10px] px-1.5 py-0">Infirmier(ère)</Badge>
                           <Badge
                             variant={member.active ? "success" : "muted"}
                             dot
                             className="text-[10px] px-1.5 py-0"
                           >
-                            {member.active ? "Active" : "Inactive"}
+                            {member.active ? "Actif" : "Inactif"}
                           </Badge>
                         </div>
                       </div>
@@ -141,18 +141,18 @@ export default function StaffPage() {
             {/* Other Staff */}
             {others.length > 0 && (
               <div>
-                <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
-                  Other Staff ({others.length})
+                <h2 className="text-xs font-semibold text-gray-400 dark:text-slate-500 uppercase tracking-wider mb-3">
+                  Autre personnel ({others.length})
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                   {others.map((member) => (
                     <div
                       key={member.id}
-                      className="flex items-center gap-3.5 px-4 py-3.5 bg-white border border-gray-100 rounded-xl hover:border-gray-200 hover:shadow-sm transition-all duration-150"
+                      className="flex items-center gap-3.5 px-4 py-3.5 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-xl hover:border-gray-200 dark:hover:border-slate-700 hover:shadow-sm transition-all duration-150"
                     >
                       <Avatar firstName={member.firstName} lastName={member.lastName} size="md" />
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">
+                        <p className="text-sm font-medium text-gray-900 dark:text-slate-100 truncate">
                           {member.firstName} {member.lastName}
                         </p>
                         <div className="flex items-center gap-2 mt-1.5">

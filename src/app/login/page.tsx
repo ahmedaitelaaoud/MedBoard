@@ -2,8 +2,8 @@ import { LoginForm } from "@/components/auth/LoginForm";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Sign In — MedBoard",
-  description: "Sign in to MedBoard Hospital Operations Platform",
+  title: "Connexion — MedBoard",
+  description: "Connexion à la plateforme des opérations hospitalières MedBoard",
 };
 
 export default function LoginPage() {
@@ -20,13 +20,13 @@ export default function LoginPage() {
           </div>
           <div>
             <h2 className="text-2xl font-semibold leading-snug">
-              Hospital Operations<br />Platform
+              Plateforme<br />des opérations hospitalières
             </h2>
             <p className="text-sm text-white/60 mt-3 leading-relaxed">
-              Real-time ward visibility, patient records, and clinical task management in one place.
+              Visibilité des unités en temps réel, dossiers patients et gestion des tâches cliniques au même endroit.
             </p>
           </div>
-          <p className="text-xs text-white/30">v0.1 — Prototype Demo</p>
+          <p className="text-xs text-white/30">v0.1 — Prototype démo</p>
         </div>
         {/* Decorative circles */}
         <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-white/5 rounded-full" />

@@ -74,7 +74,7 @@ export default function PatientsPage() {
     return (
       <AppShell>
         <div className="space-y-2">
-          {[1,2,3,4,5].map(i => <div key={i} className="h-16 bg-gray-100 rounded-xl animate-pulse" />)}
+          {[1,2,3,4,5].map(i => <div key={i} className="h-16 bg-gray-100 dark:bg-slate-800 rounded-xl animate-pulse" />)}
         </div>
       </AppShell>
     );
@@ -85,39 +85,39 @@ export default function PatientsPage() {
       <div className="space-y-6 max-w-4xl">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-lg font-semibold text-gray-900">Patients</h1>
-            <p className="text-sm text-gray-500 mt-0.5">
+            <h1 className="text-lg font-semibold text-gray-900 dark:text-slate-100">Patients</h1>
+            <p className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">
               {user?.role === "DOCTOR"
-                ? `${patients.length} of your current and past patients`
-                : `${patients.length} patients in the registry`}
+                ? `${patients.length} de vos patients actuels et passés`
+                : `${patients.length} patients dans le registre`}
             </p>
           </div>
 
           <div className="flex items-center gap-2">
             <div className="w-64">
               <SearchInput
-                placeholder="Search patients..."
+                placeholder="Rechercher des patients..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 onClear={() => setSearch("")}
               />
             </div>
             {canRegisterNormal && (
-              <Button size="sm" onClick={() => router.push("/patients/register")}>Register Patient</Button>
+              <Button size="sm" onClick={() => router.push("/patients/register")}>Enregistrer un patient</Button>
             )}
             {canRegisterEmergency && (
-              <Button size="sm" variant="secondary" onClick={() => router.push("/patients/register?mode=emergency")}>Emergency Intake</Button>
+              <Button size="sm" variant="secondary" onClick={() => router.push("/patients/register?mode=emergency")}>Admission d'urgence</Button>
             )}
           </div>
         </div>
 
         {loading ? (
           <div className="space-y-2">
-            {[1,2,3,4,5].map(i => <div key={i} className="h-16 bg-gray-100 rounded-xl animate-pulse" />)}
+            {[1,2,3,4,5].map(i => <div key={i} className="h-16 bg-gray-100 dark:bg-slate-800 rounded-xl animate-pulse" />)}
           </div>
         ) : patients.length === 0 ? (
           <div className="text-center py-16">
-            <p className="text-sm text-gray-400">No patients found</p>
+            <p className="text-sm text-gray-400 dark:text-slate-500">Aucun patient trouvé</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -125,14 +125,14 @@ export default function PatientsPage() {
               <div
                 key={p.id}
                 onClick={() => router.push(`/patients/${p.id}`)}
-                className="flex items-center gap-3.5 px-4 py-3.5 bg-white border border-gray-100 rounded-xl hover:border-gray-200 hover:shadow-sm transition-all duration-150 cursor-pointer group"
+                className="flex items-center gap-3.5 px-4 py-3.5 bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-xl hover:border-gray-200 dark:hover:border-slate-700 hover:shadow-sm transition-all duration-150 cursor-pointer group"
               >
                 <Avatar firstName={p.firstName} lastName={p.lastName} size="md" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 group-hover:text-brand-700 transition-colors">
+                  <p className="text-sm font-medium text-gray-900 dark:text-slate-100 group-hover:text-brand-700 dark:group-hover:text-brand-300 transition-colors">
                     {p.firstName} {p.lastName}
                   </p>
-                  <p className="text-xs text-gray-400 mt-0.5">{p.patientCode}</p>
+                  <p className="text-xs text-gray-400 dark:text-slate-500 mt-0.5">{p.patientCode}</p>
                 </div>
                 <Badge variant={registrationToVariant(p.registrationStatus)} className="text-[10px]">
                   {REGISTRATION_STATUS_LABELS[p.registrationStatus]}
@@ -141,12 +141,12 @@ export default function PatientsPage() {
                   {PATIENT_STATUS_LABELS[p.status as keyof typeof PATIENT_STATUS_LABELS] || p.status}
                 </Badge>
                 {!p.hasMedicalRecord && (
-                  <Badge variant="warning" className="text-[10px]">No Medical Record</Badge>
+                  <Badge variant="warning" className="text-[10px]">Dossier médical manquant</Badge>
                 )}
                 {p.room && (
-                  <span className="text-xs text-gray-400">Room {p.room.number}</span>
+                  <span className="text-xs text-gray-400 dark:text-slate-500">Chambre {p.room.number}</span>
                 )}
-                <svg className="w-4 h-4 text-gray-300 group-hover:text-brand-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-gray-300 dark:text-slate-600 group-hover:text-brand-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </div>

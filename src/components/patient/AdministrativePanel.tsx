@@ -118,7 +118,7 @@ export function AdministrativePanel({ patient, userRole, onUpdated }: Administra
   return (
     <Card>
       <CardHeader>
-        <h2 className="text-sm font-semibold text-gray-900">Administrative Intake Data</h2>
+        <h2 className="text-sm font-semibold text-gray-900 dark:text-slate-100">Administrative Intake Data</h2>
       </CardHeader>
       <CardContent className="space-y-3.5">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
@@ -158,8 +158,8 @@ export function AdministrativePanel({ patient, userRole, onUpdated }: Administra
           <Select label="Room" value={roomId} onChange={(e) => setRoomId(e.target.value)} options={roomOptions} />
         </div>
 
-        {error && <p className="text-xs text-red-600">{error}</p>}
-        {message && <p className="text-xs text-emerald-600">{message}</p>}
+        {error && <p className="text-xs text-red-600 dark:text-red-300">{error}</p>}
+        {message && <p className="text-xs text-emerald-600 dark:text-emerald-300">{message}</p>}
 
         <div className="flex justify-end">
           <Button size="sm" loading={saving} onClick={handleSave}>

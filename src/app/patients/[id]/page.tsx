@@ -47,11 +47,11 @@ export default function PatientPage() {
     return (
       <AppShell>
         <div className="animate-pulse space-y-6 max-w-5xl">
-          <div className="h-4 w-32 bg-gray-100 rounded" />
-          <div className="h-28 bg-gray-100 rounded-xl" />
+          <div className="h-4 w-32 bg-gray-100 dark:bg-slate-800 rounded" />
+          <div className="h-28 bg-gray-100 dark:bg-slate-800 rounded-xl" />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="h-64 bg-gray-100 rounded-xl" />
-            <div className="lg:col-span-2 h-64 bg-gray-100 rounded-xl" />
+            <div className="h-64 bg-gray-100 dark:bg-slate-800 rounded-xl" />
+            <div className="lg:col-span-2 h-64 bg-gray-100 dark:bg-slate-800 rounded-xl" />
           </div>
         </div>
       </AppShell>
@@ -62,14 +62,14 @@ export default function PatientPage() {
     return (
       <AppShell>
         <div className="text-center py-16">
-          <div className="w-12 h-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3">
-            <svg className="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-12 h-12 bg-gray-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-3">
+            <svg className="w-5 h-5 text-gray-300 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
             </svg>
           </div>
-          <p className="text-sm text-gray-500 mb-2">Patient not found</p>
+          <p className="text-sm text-gray-500 dark:text-slate-400 mb-2">Patient introuvable</p>
           <Link href="/dashboard" className="text-sm text-brand-600 hover:text-brand-700 font-medium">
-            ← Back to dashboard
+            ← Retour au tableau de bord
           </Link>
         </div>
       </AppShell>
@@ -81,11 +81,11 @@ export default function PatientPage() {
       <div className="space-y-6 max-w-5xl">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-1.5 text-sm">
-          <Link href="/dashboard" className="text-gray-400 hover:text-gray-600 transition-colors">Dashboard</Link>
-          <svg className="w-3.5 h-3.5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <Link href="/dashboard" className="text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 transition-colors">Tableau de bord</Link>
+          <svg className="w-3.5 h-3.5 text-gray-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
-          <span className="text-gray-700 font-medium">{patient.firstName} {patient.lastName}</span>
+          <span className="text-gray-700 dark:text-slate-200 font-medium">{patient.firstName} {patient.lastName}</span>
         </nav>
 
         {/* Patient header */}

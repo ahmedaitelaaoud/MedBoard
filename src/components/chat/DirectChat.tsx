@@ -145,11 +145,11 @@ export function DirectChat({ user }: { user: SessionUser }) {
       <div className="rounded-2xl border border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
         <div className="p-4 border-b border-gray-100 dark:border-slate-800 space-y-3">
           <div>
-            <h2 className="text-sm font-semibold text-gray-900 dark:text-slate-100">Care Team Chat</h2>
-            <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">Doctors & nurses direct messages</p>
+            <h2 className="text-sm font-semibold text-gray-900 dark:text-slate-100">Chat équipe soignante</h2>
+            <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">Messages directs entre médecins et infirmiers(ères)</p>
           </div>
           <Input
-            placeholder="Search staff..."
+            placeholder="Rechercher un membre du personnel..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -163,7 +163,7 @@ export function DirectChat({ user }: { user: SessionUser }) {
               ))}
             </div>
           ) : visibleContacts.length === 0 ? (
-            <p className="text-sm text-gray-400 dark:text-slate-400 p-4">No staff found</p>
+            <p className="text-sm text-gray-400 dark:text-slate-400 p-4">Aucun membre trouvé</p>
           ) : (
             <div className="space-y-1">
               {visibleContacts.map((contact) => {
@@ -186,7 +186,7 @@ export function DirectChat({ user }: { user: SessionUser }) {
                             {contact.firstName} {contact.lastName}
                           </p>
                           <Badge variant={roleBadgeVariant(contact.role)} className="text-[10px] px-1.5 py-0">
-                            {contact.role === "DOCTOR" ? "Doctor" : "Nurse"}
+                            {contact.role === "DOCTOR" ? "Médecin" : "Infirmier(ère)"}
                           </Badge>
                         </div>
                         <p className="text-[11px] text-gray-500 dark:text-slate-400 truncate">{contact.email}</p>
@@ -211,17 +211,17 @@ export function DirectChat({ user }: { user: SessionUser }) {
                     {selectedContact.firstName} {selectedContact.lastName}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-slate-400">
-                    {selectedContact.role === "DOCTOR" ? "Doctor" : "Nurse"}
+                    {selectedContact.role === "DOCTOR" ? "Médecin" : "Infirmier(ère)"}
                     {selectedContact.specialty ? ` · ${selectedContact.specialty}` : ""}
                   </p>
                 </div>
               </div>
               <Badge variant={selectedContact.isAvailable ? "success" : "muted"} dot>
-                {selectedContact.isAvailable ? "Available" : "Unavailable"}
+                {selectedContact.isAvailable ? "Disponible" : "Indisponible"}
               </Badge>
             </div>
           ) : (
-            <p className="text-sm text-gray-400 dark:text-slate-400">Select a colleague to start chatting</p>
+            <p className="text-sm text-gray-400 dark:text-slate-400">Sélectionnez un collègue pour commencer la discussion</p>
           )}
         </div>
 
@@ -233,7 +233,7 @@ export function DirectChat({ user }: { user: SessionUser }) {
               ))}
             </div>
           ) : messages.length === 0 ? (
-            <p className="text-sm text-gray-400 dark:text-slate-400">No messages yet. Start the conversation.</p>
+            <p className="text-sm text-gray-400 dark:text-slate-400">Aucun message pour le moment. Commencez la conversation.</p>
           ) : (
             messages.map((msg) => {
               const mine = msg.senderId === user.id;
@@ -248,7 +248,7 @@ export function DirectChat({ user }: { user: SessionUser }) {
                   >
                     <p className="text-sm whitespace-pre-wrap break-words">{msg.content}</p>
                     <p className={`text-[10px] mt-1 ${mine ? "text-white/75" : "text-gray-400 dark:text-slate-500"}`}>
-                      {new Date(msg.createdAt).toLocaleString("en-US", {
+                      {new Date(msg.createdAt).toLocaleString("fr-FR", {
                         month: "short",
                         day: "numeric",
                         hour: "2-digit",
@@ -268,7 +268,7 @@ export function DirectChat({ user }: { user: SessionUser }) {
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={onComposerKeyDown}
-              placeholder={selectedContact ? "Type a message..." : "Select a colleague first"}
+              placeholder={selectedContact ? "Écrivez un message..." : "Sélectionnez d'abord un collègue"}
               disabled={!selectedContact || sending}
               rows={2}
               className="flex-1 px-3 py-2.5 text-sm bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl placeholder:text-gray-400 dark:placeholder:text-slate-500 text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-400 transition-all duration-150 resize-none"
@@ -278,7 +278,7 @@ export function DirectChat({ user }: { user: SessionUser }) {
               disabled={!selectedContact || !draft.trim()}
               loading={sending}
             >
-              Send
+              Envoyer
             </Button>
           </div>
         </div>

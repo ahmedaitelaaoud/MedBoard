@@ -135,8 +135,8 @@ export default function DashboardPage() {
       <div className="space-y-6">
         {/* Page header */}
         <div>
-          <h1 className="text-lg font-semibold text-gray-900">Ward Dashboard</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Real-time room occupancy and patient status</p>
+          <h1 className="text-lg font-semibold text-gray-900 dark:text-slate-100">Tableau de bord des unités</h1>
+          <p className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">Occupation des chambres et statut des patients en temps réel</p>
         </div>
 
         {/* Summary stats */}
@@ -162,8 +162,8 @@ export default function DashboardPage() {
 
         {/* Room grid */}
         <div>
-          <h2 className="text-sm font-medium text-gray-400 mb-4">
-            {selectedFloor !== null ? floors.find(f => f.number === selectedFloor)?.name : "All Floors"}
+          <h2 className="text-sm font-medium text-gray-400 dark:text-slate-500 mb-4">
+            {selectedFloor !== null ? floors.find(f => f.number === selectedFloor)?.name : "Tous les étages"}
           </h2>
           <RoomGrid rooms={rooms} loading={loading} />
         </div>

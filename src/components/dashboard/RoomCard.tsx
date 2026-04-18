@@ -43,7 +43,7 @@ export function RoomCard({ room }: RoomCardProps) {
       <div className="px-4 py-3.5">
         {/* Room number + status */}
         <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-semibold text-gray-400 dark:text-slate-400">Room {room.number}</span>
+          <span className="text-xs font-semibold text-gray-400 dark:text-slate-400">Chambre {room.number}</span>
           <Badge variant={statusToBadgeVariant(room.status)} className="text-[10px] px-1.5 py-0">
             {ROOM_STATUS_LABELS[room.status as keyof typeof ROOM_STATUS_LABELS] || room.status}
           </Badge>
@@ -82,7 +82,7 @@ export function RoomCard({ room }: RoomCardProps) {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
               </div>
-              <p className="text-[10px] text-gray-300 dark:text-slate-500 font-medium">Available</p>
+              <p className="text-[10px] text-gray-300 dark:text-slate-500 font-medium">Disponible</p>
             </div>
           </div>
         )}

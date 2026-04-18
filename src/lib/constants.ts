@@ -104,62 +104,62 @@ export type AssignmentRole = (typeof AssignmentRole)[keyof typeof AssignmentRole
 // ─── Display helpers ─────────────────────────────────────────────────────────
 
 export const ROOM_STATUS_LABELS: Record<RoomStatus, string> = {
-  EMPTY: "Empty",
-  OCCUPIED: "Occupied",
-  CRITICAL: "Critical",
-  DISCHARGE_READY: "Discharge Ready",
-  UNDER_OBSERVATION: "Under Observation",
-  UNAVAILABLE: "Unavailable",
+  EMPTY: "Libre",
+  OCCUPIED: "Occupée",
+  CRITICAL: "Critique",
+  DISCHARGE_READY: "Sortie prête",
+  UNDER_OBSERVATION: "Sous observation",
+  UNAVAILABLE: "Indisponible",
 };
 
 export const PATIENT_STATUS_LABELS: Record<PatientStatus, string> = {
-  ADMITTED: "Admitted",
-  UNDER_OBSERVATION: "Under Observation",
-  CRITICAL: "Critical",
+  ADMITTED: "Admis",
+  UNDER_OBSERVATION: "Sous observation",
+  CRITICAL: "Critique",
   STABLE: "Stable",
-  DISCHARGE_READY: "Discharge Ready",
-  DISCHARGED: "Discharged",
+  DISCHARGE_READY: "Sortie prête",
+  DISCHARGED: "Sorti",
 };
 
 export const REGISTRATION_STATUS_LABELS: Record<RegistrationStatus, string> = {
-  PENDING: "Pending",
-  REGISTERED: "Registered",
-  TEMPORARY: "Temporary",
-  COMPLETED: "Completed",
+  PENDING: "En attente",
+  REGISTERED: "Enregistré",
+  TEMPORARY: "Temporaire",
+  COMPLETED: "Complété",
 };
 
 export const ADMISSION_SOURCE_LABELS: Record<AdmissionSource, string> = {
-  WALK_IN: "Walk-in",
-  EMERGENCY: "Emergency",
-  REFERRAL: "Referral",
-  TRANSFER: "Transfer",
+  WALK_IN: "Arrivée directe",
+  EMERGENCY: "Urgence",
+  REFERRAL: "Référence",
+  TRANSFER: "Transfert",
 };
 
 export const INTAKE_TYPE_LABELS: Record<IntakeType, string> = {
-  NORMAL: "Normal Intake",
-  EMERGENCY_TEMPORARY: "Emergency Temporary",
+  NORMAL: "Admission normale",
+  EMERGENCY_TEMPORARY: "Urgence temporaire",
 };
 
 export const ADMISSION_STATUS_LABELS: Record<AdmissionStatus, string> = {
-  WAITING_ASSIGNMENT: "Waiting Assignment",
-  ASSIGNED: "Assigned",
-  ACTIVE: "Active",
-  DISCHARGED: "Discharged",
+  WAITING_ASSIGNMENT: "En attente d'affectation",
+  ASSIGNED: "Affecté",
+  ACTIVE: "Actif",
+  DISCHARGED: "Sorti",
 };
 
 export const NOTE_TYPE_LABELS: Record<NoteType, string> = {
   ADMISSION: "Admission",
-  PROGRESS: "Progress",
+  PROGRESS: "Évolution",
   OBSERVATION: "Observation",
-  PROCEDURE: "Procedure",
-  DISCHARGE: "Discharge",
+  PROCEDURE: "Procédure",
+  DISCHARGE: "Sortie",
   CONSULTATION: "Consultation",
 };
 
 export const ROLE_LABELS: Record<Role, string> = {
-  DOCTOR: "Doctor",
-  NURSE: "Nurse",
+  DOCTOR: "Médecin",
+  NURSE: "Infirmier(ère)",
   ADMIN: "Admin",
   PATIENT: "Patient",
-  READONLY: "Read-Only",
+  READONLY: "Lecture seule",
 };

@@ -27,7 +27,7 @@ export function LoginForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || "Login failed");
+        setError(data.error || "Échec de la connexion");
         return;
       }
 
@@ -38,17 +38,17 @@ export function LoginForm() {
         router.push("/dashboard");
       }
     } catch {
-      setError("Network error. Please try again.");
+      setError("Erreur réseau. Veuillez réessayer.");
     } finally {
       setLoading(false);
     }
   };
 
   const demoAccounts = [
-    { label: "Doctor", email: "dr.amrani@medboard.local", desc: "Full clinical access" },
-    { label: "Nurse", email: "n.benali@medboard.local", desc: "Patient care tasks" },
-    { label: "Admin", email: "admin@medboard.local", desc: "Platform management" },
-    { label: "Patient", email: "patient.kettani@medboard.local", desc: "Patient portal access" },
+    { label: "Médecin", email: "dr.amrani@medboard.local", desc: "Accès clinique complet" },
+    { label: "Infirmier(ère)", email: "n.benali@medboard.local", desc: "Tâches de soins" },
+    { label: "Admin", email: "admin@medboard.local", desc: "Gestion de la plateforme" },
+    { label: "Patient", email: "patient.kettani@medboard.local", desc: "Accès au portail patient" },
   ];
 
   return (
@@ -58,8 +58,8 @@ export function LoginForm() {
         <div className="w-12 h-12 bg-brand-600 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-md">
           <span className="text-white text-lg font-bold">M</span>
         </div>
-        <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">Welcome back</h1>
-        <p className="text-sm text-gray-500 mt-1.5">Sign in to MedBoard Operations Platform</p>
+        <h1 className="text-2xl font-semibold text-gray-900 tracking-tight">Bon retour</h1>
+        <p className="text-sm text-gray-500 mt-1.5">Connectez-vous à la plateforme MedBoard</p>
       </div>
 
       {/* Form */}
@@ -75,7 +75,7 @@ export function LoginForm() {
         <Input
           label="Password"
           type="password"
-          placeholder="Enter your password"
+          placeholder="Saisissez votre mot de passe"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
@@ -91,7 +91,7 @@ export function LoginForm() {
         )}
 
         <Button type="submit" loading={loading} className="w-full" size="lg">
-          Sign in
+          Se connecter
         </Button>
       </form>
 
@@ -102,7 +102,7 @@ export function LoginForm() {
             <div className="w-full border-t border-gray-100" />
           </div>
           <div className="relative flex justify-center">
-            <span className="bg-white px-3 text-xs text-gray-400">Demo accounts — password: demo123</span>
+            <span className="bg-white px-3 text-xs text-gray-400">Comptes démo — mot de passe : demo123</span>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-2.5 mt-5">

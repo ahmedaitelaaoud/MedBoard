@@ -154,7 +154,7 @@ export function PatientIntakeForm({ userRole, initialMode = "NORMAL", onSuccess 
       }
     } catch (submitError) {
       console.error("Failed to register patient:", submitError);
-      setError("Failed to register patient");
+      setError("Échec de l'enregistrement du patient");
     } finally {
       setSubmitting(false);
     }
@@ -164,7 +164,7 @@ export function PatientIntakeForm({ userRole, initialMode = "NORMAL", onSuccess 
     return (
       <Card>
         <CardContent>
-          <p className="text-sm text-red-600">You do not have permission to register patients.</p>
+          <p className="text-sm text-red-600 dark:text-red-300">Vous n'avez pas la permission d'enregistrer des patients.</p>
         </CardContent>
       </Card>
     );
@@ -175,28 +175,28 @@ export function PatientIntakeForm({ userRole, initialMode = "NORMAL", onSuccess 
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between gap-3">
-            <h2 className="text-sm font-semibold text-gray-900">Intake Mode</h2>
-            <label className="inline-flex items-center gap-2 text-xs text-gray-600">
+            <h2 className="text-sm font-semibold text-gray-900 dark:text-slate-100">Mode d'admission</h2>
+            <label className="inline-flex items-center gap-2 text-xs text-gray-600 dark:text-slate-300">
               <input
                 type="checkbox"
-                className="rounded border-gray-300"
+                className="rounded border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900"
                 checked={temporaryRegistration}
                 onChange={(e) => setTemporaryRegistration(e.target.checked)}
                 disabled={!isAdmin}
               />
-              Temporary emergency intake
+              Admission d'urgence temporaire
             </label>
           </div>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-slate-400">
             {temporaryRegistration
-              ? "Temporary mode lets doctor/nurse/admin create an incomplete identity so care can start immediately. Admissions/admin can complete official data later."
-              : "Normal mode is administrative registration. Use this for standard arrivals with full identity and admission details."}
+              ? "Le mode temporaire permet au médecin/infirmier(ère)/admin de créer une identité incomplète afin de démarrer les soins immédiatement. L'admission/admin peut compléter les données officielles plus tard."
+              : "Le mode normal correspond à l'enregistrement administratif. Utilisez-le pour les arrivées standards avec identité complète et détails d'admission."}
           </p>
           {!isAdmin && (
-            <p className="text-xs text-amber-600 mt-2">
-              Non-admin roles can only submit emergency temporary intake.
+            <p className="text-xs text-amber-600 dark:text-amber-300 mt-2">
+              Les rôles non-admin ne peuvent soumettre qu'une admission d'urgence temporaire.
             </p>
           )}
         </CardContent>
@@ -204,44 +204,44 @@ export function PatientIntakeForm({ userRole, initialMode = "NORMAL", onSuccess 
 
       <Card>
         <CardHeader>
-          <h2 className="text-sm font-semibold text-gray-900">Identity Information</h2>
+          <h2 className="text-sm font-semibold text-gray-900 dark:text-slate-100">Informations d'identité</h2>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
           <Input
-            label="Patient ID / MRN"
+            label="ID patient / N° dossier"
             value={patientCode}
             onChange={(e) => setPatientCode(e.target.value)}
-            placeholder={temporaryRegistration ? "Optional (auto-generated if empty)" : "PAT-00042"}
+            placeholder={temporaryRegistration ? "Optionnel (généré automatiquement si vide)" : "PAT-00042"}
           />
           <div className="hidden md:block" />
           <Input
-            label="First Name"
+            label="Prénom"
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
             required={!temporaryRegistration}
-            placeholder={temporaryRegistration ? "Optional (e.g. Unknown)" : "First name"}
+            placeholder={temporaryRegistration ? "Optionnel (ex. Inconnu)" : "Prénom"}
           />
           <Input
-            label="Last Name"
+            label="Nom"
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
             required={!temporaryRegistration}
-            placeholder={temporaryRegistration ? "Optional (e.g. Male 01)" : "Last name"}
+            placeholder={temporaryRegistration ? "Optionnel (ex. Homme 01)" : "Nom"}
           />
           <Input
-            label="Date of Birth"
+            label="Date de naissance"
             type="date"
             value={dateOfBirth}
             onChange={(e) => setDateOfBirth(e.target.value)}
             required={!temporaryRegistration}
           />
           <Select
-            label="Sex"
+            label="Sexe"
             value={sex}
             onChange={(e) => setSex(e.target.value)}
             options={[
-              { value: "MALE", label: "Male" },
-              { value: "FEMALE", label: "Female" },
+              { value: "MALE", label: "Homme" },
+              { value: "FEMALE", label: "Femme" },
             ]}
           />
         </CardContent>
@@ -249,17 +249,17 @@ export function PatientIntakeForm({ userRole, initialMode = "NORMAL", onSuccess 
 
       <Card>
         <CardHeader>
-          <h2 className="text-sm font-semibold text-gray-900">Contact / Emergency Contact</h2>
+          <h2 className="text-sm font-semibold text-gray-900 dark:text-slate-100">Contact / Contact d'urgence</h2>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-          <Input label="Phone Number" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
+          <Input label="Numéro de téléphone" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
           <Input
-            label="Emergency Contact Name"
+            label="Nom du contact d'urgence"
             value={emergencyContact}
             onChange={(e) => setEmergencyContact(e.target.value)}
           />
           <Input
-            label="Emergency Contact Phone"
+            label="Téléphone du contact d'urgence"
             value={emergencyPhone}
             onChange={(e) => setEmergencyPhone(e.target.value)}
           />
@@ -268,31 +268,31 @@ export function PatientIntakeForm({ userRole, initialMode = "NORMAL", onSuccess 
 
       <Card>
         <CardHeader>
-          <h2 className="text-sm font-semibold text-gray-900">Admission Information</h2>
+          <h2 className="text-sm font-semibold text-gray-900 dark:text-slate-100">Informations d'admission</h2>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
           <Input
-            label="Admission Date/Time"
+            label="Date/heure d'admission"
             type="datetime-local"
             value={admissionDate}
             onChange={(e) => setAdmissionDate(e.target.value)}
           />
           <Select
-            label="Admission Source"
+            label="Source d'admission"
             value={admissionSource}
             onChange={(e) => setAdmissionSource(e.target.value)}
             options={Object.entries(ADMISSION_SOURCE_LABELS).map(([value, label]) => ({ value, label }))}
             disabled={temporaryRegistration}
           />
           <Select
-            label="Registration Status"
+            label="Statut d'enregistrement"
             value={registrationStatus}
             onChange={(e) => setRegistrationStatus(e.target.value)}
             options={Object.entries(REGISTRATION_STATUS_LABELS).map(([value, label]) => ({ value, label }))}
             disabled={temporaryRegistration}
           />
           <Select
-            label="Admission Status"
+            label="Statut d'admission"
             value={admissionStatus}
             onChange={(e) => setAdmissionStatus(e.target.value)}
             options={Object.entries(ADMISSION_STATUS_LABELS).map(([value, label]) => ({ value, label }))}
@@ -302,27 +302,27 @@ export function PatientIntakeForm({ userRole, initialMode = "NORMAL", onSuccess 
 
       <Card>
         <CardHeader>
-          <h2 className="text-sm font-semibold text-gray-900">Room / Ward Assignment</h2>
+          <h2 className="text-sm font-semibold text-gray-900 dark:text-slate-100">Affectation chambre / service</h2>
         </CardHeader>
         <CardContent>
           <Select
-            label="Room"
+            label="Chambre"
             value={roomId}
             onChange={(e) => setRoomId(e.target.value)}
             options={roomOptions}
             disabled={loadingRooms}
           />
-          <p className="text-xs text-gray-400 mt-2">
-            Leave unassigned if room is not known yet.
+          <p className="text-xs text-gray-400 dark:text-slate-500 mt-2">
+            Laissez non affecté si la chambre n'est pas encore connue.
           </p>
         </CardContent>
       </Card>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-red-600 dark:text-red-300">{error}</p>}
 
       <div className="flex justify-end gap-2">
         <Button type="submit" loading={submitting} disabled={!canSubmit}>
-          {temporaryRegistration ? "Create Temporary Intake" : "Register Patient"}
+          {temporaryRegistration ? "Créer une admission temporaire" : "Enregistrer le patient"}
         </Button>
       </div>
     </form>

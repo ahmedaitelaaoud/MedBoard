@@ -19,7 +19,7 @@ export function FloorSelector({ floors, selectedFloor, onSelect }: FloorSelector
           }
         `}
       >
-        All
+        Tous
       </button>
       {floors.map((floor) => (
         <button

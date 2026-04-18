@@ -76,21 +76,21 @@ function ActionIcon({ action }: { action: string }) {
 }
 
 const actionLabels: Record<string, string> = {
-  PATIENT_ADMITTED: "Patient Admitted",
-  PATIENT_REGISTERED: "Patient Registered",
-  TEMPORARY_PATIENT_CREATED: "Emergency Temporary Intake",
-  ADMIN_DATA_COMPLETED: "Administrative Data Completed",
-  MEDICAL_RECORD_INITIALIZED: "Medical Record Initialized",
-  PATIENT_DISCHARGED: "Patient Discharged",
-  NOTE_CREATED: "Note Created",
-  NOTE_UPDATED: "Note Updated",
-  RECORD_UPDATED: "Record Updated",
-  STATUS_CHANGED: "Status Changed",
-  ROOM_ASSIGNED: "Room Assigned",
-  ROOM_TRANSFERRED: "Room Transfer",
-  ASSIGNMENT_CHANGED: "Assignment Changed",
-  LOGIN: "Login",
-  LOGOUT: "Logout",
+  PATIENT_ADMITTED: "Patient admis",
+  PATIENT_REGISTERED: "Patient enregistré",
+  TEMPORARY_PATIENT_CREATED: "Admission temporaire d'urgence",
+  ADMIN_DATA_COMPLETED: "Données administratives complétées",
+  MEDICAL_RECORD_INITIALIZED: "Dossier médical initialisé",
+  PATIENT_DISCHARGED: "Patient sorti",
+  NOTE_CREATED: "Note créée",
+  NOTE_UPDATED: "Note mise à jour",
+  RECORD_UPDATED: "Dossier mis à jour",
+  STATUS_CHANGED: "Statut modifié",
+  ROOM_ASSIGNED: "Chambre affectée",
+  ROOM_TRANSFERRED: "Transfert de chambre",
+  ASSIGNMENT_CHANGED: "Affectation modifiée",
+  LOGIN: "Connexion",
+  LOGOUT: "Déconnexion",
 };
 
 const noteActions = new Set(["NOTE_CREATED", "NOTE_UPDATED"]);
@@ -115,11 +115,11 @@ function getActivityMessage(activity: ActivityLogItem): string {
   const role = activity.user.role.toLowerCase();
 
   if (activity.action === "LOGIN") {
-    return `${fullName} (${role}) logged in`;
+    return `${fullName} (${role}) s'est connecté`;
   }
 
   if (activity.action === "LOGOUT") {
-    return `${fullName} (${role}) logged out`;
+    return `${fullName} (${role}) s'est déconnecté`;
   }
 
   return activity.details || actionLabels[activity.action] || activity.action;
@@ -145,7 +145,7 @@ export function ActivityFeed({ activities, loading }: ActivityFeedProps) {
   }
 
   if (visibleActivities.length === 0) {
-    return <p className="text-sm text-gray-400 dark:text-slate-400 py-6 text-center">No recent activity logs</p>;
+    return <p className="text-sm text-gray-400 dark:text-slate-400 py-6 text-center">Aucune activité récente</p>;
   }
 
   return (
@@ -170,7 +170,7 @@ export function ActivityFeed({ activities, loading }: ActivityFeedProps) {
                     {actionLabels[activity.action] || activity.action.replaceAll("_", " ")}
                   </Badge>
                   <span className="text-[11px] text-gray-400 dark:text-slate-500">
-                    {new Date(activity.createdAt).toLocaleDateString("en-US", {
+                    {new Date(activity.createdAt).toLocaleDateString("fr-FR", {
                       month: "short",
                       day: "numeric",
                       hour: "2-digit",
@@ -196,7 +196,7 @@ export function ActivityFeed({ activities, loading }: ActivityFeedProps) {
 
                   {activity.patient && (
                     <Badge variant="muted" className="text-[11px] px-2 py-0.5">
-                      Patient: {activity.patient.firstName} {activity.patient.lastName}
+                      Patient : {activity.patient.firstName} {activity.patient.lastName}
                     </Badge>
                   )}
                 </div>
