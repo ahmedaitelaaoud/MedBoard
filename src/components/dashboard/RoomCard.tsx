@@ -22,7 +22,7 @@ const statusBorderColors: Record<string, string> = {
 export function RoomCard({ room }: RoomCardProps) {
   const router = useRouter();
   const patient = room.patients[0];
-  const isOccupied = room.status !== "EMPTY" && room.status !== "UNAVAILABLE";
+  const hasPatient = Boolean(patient);
   const doctor = patient?.assignments?.doctor;
 
   const handleClick = () => {
@@ -33,11 +33,11 @@ export function RoomCard({ room }: RoomCardProps) {
 
   return (
     <div
-      onClick={isOccupied ? handleClick : undefined}
+      onClick={hasPatient ? handleClick : undefined}
       className={`
         bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 border-l-[3px] ${statusBorderColors[room.status] || "border-l-gray-200"}
         rounded-xl overflow-hidden transition-all duration-150
-        ${isOccupied ? "cursor-pointer hover:shadow-md hover:border-gray-200 dark:hover:border-slate-700" : ""}
+        ${hasPatient ? "cursor-pointer hover:shadow-md hover:border-gray-200 dark:hover:border-slate-700" : ""}
       `}
     >
       <div className="px-4 py-3.5">
