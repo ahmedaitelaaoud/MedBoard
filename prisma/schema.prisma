@@ -69,12 +69,18 @@ model Patient {
   lastName         String
   dateOfBirth      DateTime
   sex              String
+  phoneNumber      String?
   height           Float?
   weight           Float?
   allergies        String?
   emergencyContact String?
   emergencyPhone   String?
   status           String    @default("ADMITTED")
+  registrationStatus String  @default("PENDING")
+  createdByRole    String    @default("ADMIN")
+  admissionSource  String    @default("WALK_IN")
+  intakeType       String    @default("NORMAL")
+  admissionStatus  String    @default("ACTIVE")
   admissionDate    DateTime  @default(now())
   dischargeDate    DateTime?
   roomId           String?
