@@ -28,6 +28,10 @@ model User {
   activityLogs        ActivityLog[]
   tasksCreated        Task[]       @relation("TaskCreator")
   tasksAssigned       Task[]       @relation("TaskAssignee")
+  agentRunsTriggered  AgentRun[]   @relation("AgentRunTrigger")
+  approvedSuggestions AgentSuggestion[] @relation("SuggestionApprovedBy")
+  rejectedSuggestions AgentSuggestion[] @relation("SuggestionRejectedBy")
+  agentNotifications  AgentNotification[] @relation("NotificationRecipient")
   messagesSent        DirectMessage[] @relation("DirectMessageSender")
   messagesReceived    DirectMessage[] @relation("DirectMessageRecipient")
   patient             Patient?     @relation("PatientPortalAccount", fields: [patientId], references: [id])
@@ -95,6 +99,8 @@ model Patient {
   activityLogs  ActivityLog[]
   documents     Document[]
   tasks         Task[]
+  agentRuns     AgentRun[]
+  agentSuggestions AgentSuggestion[]
   scheduleItems PatientScheduleItem[]
   portalAccount User?                 @relation("PatientPortalAccount")
 }
@@ -171,6 +177,10 @@ model Task {
   id          String   @id @default(cuid())
   title       String
   description String?
+  source      String   @default("MANUAL")
+  sourceSuggestionId String? @unique
+  confidence  Float?
+  reasoning   String?
   priority    String   @default("NORMAL")
   status      String   @default("PENDING")
   dueDate     DateTime?
@@ -184,6 +194,91 @@ model Task {
   patient    Patient?  @relation(fields: [patientId], references: [id])
   createdBy  User      @relation("TaskCreator", fields: [createdById], references: [id])
   assignedTo User      @relation("TaskAssignee", fields: [assignedToId], references: [id])
+  sourceSuggestion AgentSuggestion? @relation("TaskSourceSuggestion", fields: [sourceSuggestionId], references: [id])
+}
+
+model AgentRun {
+  id                String   @id @default(cuid())
+  workflowType      String
+  triggerEntityType String
+  triggerEntityId   String
+  status            String   @default("PENDING")
+  modelName         String?
+  promptVersion     String?
+  latencyMs         Int?
+  tokenInput        Int?
+  tokenOutput       Int?
+  errorCode         String?
+  errorMessage      String?
+  inputJson         String?
+  triggeredById     String
+  patientId         String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  triggeredBy User   @relation("AgentRunTrigger", fields: [triggeredById], references: [id])
+  patient     Patient @relation(fields: [patientId], references: [id])
+  suggestions AgentSuggestion[]
+
+  @@index([patientId, createdAt])
+  @@index([status, createdAt])
+}
+
+model AgentSuggestion {
+  id              String   @id @default(cuid())
+  agentRunId      String
+  patientId       String
+  targetType      String   @default("TASK")
+  payloadJson     String
+  confidence      Float?
+  status          String   @default("PENDING")
+  approvedById    String?
+  approvedAt      DateTime?
+  rejectedById    String?
+  rejectedAt      DateTime?
+  rejectionReason String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  agentRun   AgentRun @relation(fields: [agentRunId], references: [id])
+  patient    Patient  @relation(fields: [patientId], references: [id])
+  approvedBy User?    @relation("SuggestionApprovedBy", fields: [approvedById], references: [id])
+  rejectedBy User?    @relation("SuggestionRejectedBy", fields: [rejectedById], references: [id])
+  evidences  SuggestionEvidence[]
+  appliedTask Task?   @relation("TaskSourceSuggestion")
+
+  @@index([patientId, status, createdAt])
+  @@index([agentRunId])
+}
+
+model SuggestionEvidence {
+  id           String   @id @default(cuid())
+  suggestionId String
+  sourceType   String
+  sourceId     String
+  snippet      String
+  score        Float?
+  createdAt    DateTime @default(now())
+
+  suggestion AgentSuggestion @relation(fields: [suggestionId], references: [id])
+
+  @@index([suggestionId, createdAt])
+}
+
+model AgentNotification {
+  id                String   @id @default(cuid())
+  recipientUserId   String
+  type              String
+  title             String
+  message           String
+  relatedEntityType String?
+  relatedEntityId   String?
+  readAt            DateTime?
+  createdAt         DateTime @default(now())
+
+  recipient User @relation("NotificationRecipient", fields: [recipientUserId], references: [id])
+
+  @@index([recipientUserId, readAt, createdAt])
 }
 
 model Document {

@@ -91,8 +91,29 @@ export const ActivityType = {
   RECORD_UPDATED: "RECORD_UPDATED",
   STATUS_CHANGED: "STATUS_CHANGED",
   ASSIGNMENT_CHANGED: "ASSIGNMENT_CHANGED",
+  AGENT_RUN_STARTED: "AGENT_RUN_STARTED",
+  AGENT_SUGGESTION_CREATED: "AGENT_SUGGESTION_CREATED",
+  AGENT_SUGGESTION_UPDATED: "AGENT_SUGGESTION_UPDATED",
+  AGENT_SUGGESTION_APPROVED: "AGENT_SUGGESTION_APPROVED",
+  AGENT_SUGGESTION_REJECTED: "AGENT_SUGGESTION_REJECTED",
+  AGENT_NURSE_ROUTING_APPLIED: "AGENT_NURSE_ROUTING_APPLIED",
+  AGENT_NOTIFICATION_CREATED: "AGENT_NOTIFICATION_CREATED",
 } as const;
 export type ActivityType = (typeof ActivityType)[keyof typeof ActivityType];
+
+export const TaskSource = {
+  MANUAL: "MANUAL",
+  AGENT: "AGENT",
+} as const;
+export type TaskSource = (typeof TaskSource)[keyof typeof TaskSource];
+
+export const AgentSuggestionStatus = {
+  PENDING: "PENDING",
+  APPROVED: "APPROVED",
+  REJECTED: "REJECTED",
+  APPLIED: "APPLIED",
+} as const;
+export type AgentSuggestionStatus = (typeof AgentSuggestionStatus)[keyof typeof AgentSuggestionStatus];
 
 export const AssignmentRole = {
   PRIMARY: "PRIMARY",

@@ -47,6 +47,17 @@ const PERMISSIONS: Record<string, readonly Role[]> = {
   "chat:read":             [Role.DOCTOR, Role.NURSE],
   "chat:send":             [Role.DOCTOR, Role.NURSE],
 
+  // Agent workflows
+  "agent:ticket:route":    [Role.DOCTOR],
+  "agent:suggestion:read": [Role.DOCTOR],
+  "agent:suggestion:approve": [Role.DOCTOR],
+  "agent:suggestion:reject": [Role.DOCTOR],
+  "agent:suggestion:update": [Role.DOCTOR],
+
+  // Notifications
+  "notification:read":     [Role.DOCTOR, Role.NURSE],
+  "notification:update":   [Role.DOCTOR, Role.NURSE],
+
   // Dashboard
   "dashboard:read":        [Role.DOCTOR, Role.NURSE, Role.ADMIN],
   "dashboard:manage":      [Role.ADMIN],
