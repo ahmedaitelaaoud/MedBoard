@@ -45,7 +45,7 @@ export async function POST(request: Request) {
     if (!user) return unauthorized();
 
     if (user.role !== "DOCTOR") {
-      return NextResponse.json({ error: "Only doctors can create tasks" }, { status: 403 });
+      return NextResponse.json({ error: "Seuls les médecins peuvent créer des tâches" }, { status: 403 });
     }
 
     const body = await request.json();
@@ -82,7 +82,7 @@ export async function POST(request: Request) {
     }
 
     if (!resolvedTitle) {
-      return badRequest("Content is required");
+      return badRequest("Le contenu est obligatoire");
     }
 
     const task = await prisma.task.create({

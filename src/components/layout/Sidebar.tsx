@@ -34,6 +34,30 @@ function getNavItems(user: SessionUser | null) {
     });
   }
 
+  if (user?.role === "DOCTOR") {
+    items.push({
+      name: "IA Diagnostic",
+      href: "/agent/diagnostic",
+      icon: (
+        <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 3.75h4.5A2.25 2.25 0 0116.5 6v1.5h1.5A2.25 2.25 0 0120.25 9.75v4.5A2.25 2.25 0 0118 16.5h-1.5V18A2.25 2.25 0 0114.25 20.25h-4.5A2.25 2.25 0 017.5 18v-1.5H6A2.25 2.25 0 013.75 14.25v-4.5A2.25 2.25 0 016 7.5h1.5V6A2.25 2.25 0 019.75 3.75z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.75 12h4.5M12 9.75v4.5" />
+        </svg>
+      ),
+    });
+
+    items.push({
+      name: "IA Planning",
+      href: "/agent/schedule",
+      icon: (
+        <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.25 3.75V6m7.5-2.25V6M4.5 9h15M5.625 20.25h12.75A2.625 2.625 0 0021 17.625V7.875A2.625 2.625 0 0018.375 5.25H5.625A2.625 2.625 0 003 7.875v9.75a2.625 2.625 0 002.625 2.625z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.25 13.5h3.75m-3.75 3h7.5" />
+        </svg>
+      ),
+    });
+  }
+
   if (can(user, "activity:read")) {
     items.push({
       name: "Activité",

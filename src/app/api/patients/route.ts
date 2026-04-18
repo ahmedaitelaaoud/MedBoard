@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
     try {
       requirePermission(user, "patient:read");
     } catch {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      return NextResponse.json({ error: "Accès interdit" }, { status: 403 });
     }
 
     const searchParams = request.nextUrl.searchParams;
@@ -103,7 +103,7 @@ export async function POST(request: Request) {
 
     const body = await request.json();
     const parsed = patientIntakeSchema.safeParse(body);
-    if (!parsed.success) return badRequest("Invalid intake data", parsed.error.flatten());
+    if (!parsed.success) return badRequest("Données d'admission invalides", parsed.error.flatten());
 
     const isEmergencyTemporary =
       parsed.data.temporaryRegistration === true || parsed.data.intakeType === "EMERGENCY_TEMPORARY";
@@ -112,27 +112,27 @@ export async function POST(request: Request) {
     const canCreateTemporary = can(user, "patient:create:temporary");
 
     if (user.role === Role.READONLY || user.role === Role.PATIENT) {
-      return NextResponse.json({ error: "Patient portal users cannot register patients" }, { status: 403 });
+      return NextResponse.json({ error: "Les utilisateurs du portail patient ne peuvent pas enregistrer de patients" }, { status: 403 });
     }
 
     if (!isEmergencyTemporary && !canCreateNormal) {
       return NextResponse.json(
         {
           error:
-            "Only admissions/admin can perform normal patient registration. Doctors and nurses can only create emergency temporary intake.",
+            "Seuls les admissions/admin peuvent effectuer un enregistrement patient normal. Les médecins et infirmiers(ères) ne peuvent créer qu'une admission d'urgence temporaire.",
         },
         { status: 403 }
       );
     }
 
     if (isEmergencyTemporary && !canCreateTemporary) {
-      return NextResponse.json({ error: "Only admin, doctors, or nurses can create temporary emergency intake" }, { status: 403 });
+      return NextResponse.json({ error: "Seuls les admins, médecins ou infirmiers(ères) peuvent créer une admission d'urgence temporaire" }, { status: 403 });
     }
 
     const roomId = parsed.data.roomId ?? null;
     if (roomId) {
       const room = await prisma.room.findUnique({ where: { id: roomId }, select: { id: true } });
-      if (!room) return badRequest("Selected room does not exist");
+      if (!room) return badRequest("La chambre sélectionnée n'existe pas");
     }
 
     const temporaryIdentity = isEmergencyTemporary ? await generateTemporaryIdentity() : null;
@@ -140,16 +140,16 @@ export async function POST(request: Request) {
     const firstName = parsed.data.firstName?.trim() || temporaryIdentity?.firstName || "";
     const lastName = parsed.data.lastName?.trim() || temporaryIdentity?.lastName || "";
     if (!firstName || !lastName) {
-      return badRequest("First name and last name are required for normal registration");
+      return badRequest("Le prénom et le nom sont requis pour un enregistrement normal");
     }
 
     const sex = parsed.data.sex || (isEmergencyTemporary ? "MALE" : undefined);
-    if (!sex) return badRequest("Sex is required for normal registration");
+    if (!sex) return badRequest("Le sexe est requis pour un enregistrement normal");
 
     const dateOfBirth = parseDateOrNull(parsed.data.dateOfBirth);
     const resolvedDateOfBirth = dateOfBirth || (isEmergencyTemporary ? new Date("1970-01-01") : null);
     if (!resolvedDateOfBirth) {
-      return badRequest("Date of birth is required for normal registration");
+      return badRequest("La date de naissance est requise pour un enregistrement normal");
     }
 
     const admissionDate = parseDateOrNull(parsed.data.admissionDate) || new Date();

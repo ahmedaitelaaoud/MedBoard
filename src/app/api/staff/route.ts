@@ -12,7 +12,7 @@ export async function GET() {
     try {
       requirePermission(user, "staff:read");
     } catch {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      return NextResponse.json({ error: "Accès interdit" }, { status: 403 });
     }
 
     const staff = await prisma.user.findMany({

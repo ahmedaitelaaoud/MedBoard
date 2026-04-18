@@ -22,6 +22,7 @@ npm-debug.log*
 
 # local env files
 .env
+*.env
 .env.*
 !.env.example
 .env*.local
@@ -33,3 +34,4 @@ next-env.d.ts
 # database
 # Keep prisma/dev.db tracked for Vercel demo deployments.
 prisma/dev.db-journal
+.env

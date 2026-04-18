@@ -14,7 +14,7 @@ export async function PATCH(
     if (!user) return unauthorized();
 
     if (user.role !== "DOCTOR") {
-      return NextResponse.json({ error: "Only doctors can edit notes" }, { status: 403 });
+      return NextResponse.json({ error: "Seuls les médecins peuvent modifier les notes" }, { status: 403 });
     }
 
     const { id } = await params;
@@ -22,7 +22,7 @@ export async function PATCH(
     const parsed = noteUpdateSchema.safeParse(body);
 
     if (!parsed.success) {
-      return badRequest("Invalid input", parsed.error.flatten());
+      return badRequest("Entrée invalide", parsed.error.flatten());
     }
 
     const note = await prisma.note.findUnique({
@@ -30,11 +30,11 @@ export async function PATCH(
       select: { authorId: true, medicalRecord: { select: { patientId: true } } },
     });
 
-    if (!note) return notFound("Note not found");
+    if (!note) return notFound("Note introuvable");
 
     // Doctors can only edit their own notes
     if (note.authorId !== user.id) {
-      return NextResponse.json({ error: "You can only edit your own notes" }, { status: 403 });
+      return NextResponse.json({ error: "Vous ne pouvez modifier que vos propres notes" }, { status: 403 });
     }
 
     const updated = await prisma.note.update({

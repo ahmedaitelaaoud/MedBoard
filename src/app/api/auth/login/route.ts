@@ -12,7 +12,7 @@ export async function POST(request: Request) {
     const parsed = loginSchema.safeParse(body);
 
     if (!parsed.success) {
-      return badRequest("Invalid input", parsed.error.flatten());
+      return badRequest("Entrée invalide", parsed.error.flatten());
     }
 
     const { email, password } = parsed.data;
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     const user = await prisma.user.findUnique({ where: { email } });
 
     if (!user || user.password !== password || !user.active) {
-      return badRequest("Invalid email or password");
+      return badRequest("Email ou mot de passe invalide");
     }
 
     const sessionUser = {

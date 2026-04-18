@@ -2,8 +2,11 @@
 
 ## Build And Run
 - Prefer `./setup.sh` for first-time setup on cluster machines.
+- Shortcut alternative for setup: `make setup`.
 - If npm is broken on the host, use local Node from `/goinfre/$USER/node/bin` in `PATH`.
 - Development server: `npm run dev`.
+- Makefile shortcut for local dev: `make dev`.
+- Production build/start: `npm run build`, `npm start`.
 - Lint before finalizing work: `npm run lint`.
 - Prisma workflow after schema changes: `npx prisma generate` then `npx prisma db push`.
 - Seed/reset utilities: `npx prisma db seed`, `make reset`.
@@ -23,6 +26,7 @@
 ## Conventions
 - Keep permission checks explicit in API routes using `can(...)` or `requirePermission(...)`.
 - Validate request bodies with Zod `safeParse` using schemas from `src/lib/validation`.
+- On validation failure, return standardized error responses via `badRequest(...)` helpers from `src/lib/errors.ts`.
 - Use error helpers from `src/lib/errors.ts` for consistent API response shape.
 - Log state-changing operations with `logActivity(...)`; activity logging must not block the main request path.
 - Follow existing role boundaries in `src/lib/permissions.ts` and avoid widening permissions without explicit request.

@@ -20,12 +20,12 @@ export async function GET(request: NextRequest) {
     try {
       requirePermission(user, "chat:read");
     } catch {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      return NextResponse.json({ error: "Accès interdit" }, { status: 403 });
     }
 
     const withUserId = request.nextUrl.searchParams.get("withUserId");
     if (!withUserId) {
-      return badRequest("withUserId is required");
+      return badRequest("withUserId est requis");
     }
 
     const target = await prisma.user.findFirst({
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!target) {
-      return badRequest("Chat target not found");
+      return badRequest("Destinataire du chat introuvable");
     }
 
     const messages = await prismaWithChat.directMessage.findMany({
@@ -84,7 +84,7 @@ export async function POST(request: Request) {
     try {
       requirePermission(user, "chat:send");
     } catch {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      return NextResponse.json({ error: "Accès interdit" }, { status: 403 });
     }
 
     const body = await request.json();
@@ -92,19 +92,19 @@ export async function POST(request: Request) {
     const content = typeof body.content === "string" ? body.content.trim() : "";
 
     if (!recipientId) {
-      return badRequest("recipientId is required");
+      return badRequest("recipientId est requis");
     }
 
     if (recipientId === user.id) {
-      return badRequest("Cannot send a message to yourself");
+      return badRequest("Impossible d'envoyer un message à vous-même");
     }
 
     if (!content) {
-      return badRequest("Message content is required");
+      return badRequest("Le contenu du message est obligatoire");
     }
 
     if (content.length > 1500) {
-      return badRequest("Message is too long");
+      return badRequest("Le message est trop long");
     }
 
     const target = await prisma.user.findFirst({
@@ -117,7 +117,7 @@ export async function POST(request: Request) {
     });
 
     if (!target) {
-      return badRequest("Recipient not found");
+      return badRequest("Destinataire introuvable");
     }
 
     const message = await prismaWithChat.directMessage.create({

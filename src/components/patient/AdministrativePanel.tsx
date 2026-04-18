@@ -65,7 +65,7 @@ export function AdministrativePanel({ patient, userRole, onUpdated }: Administra
 
   const roomOptions = useMemo(
     () => [
-      { value: "", label: "No room assigned" },
+      { value: "", label: "Aucune chambre attribuée" },
       ...rooms.map((room) => ({
         value: room.id,
         label: `${room.number} · ${room.floor.name} · ${room.ward.name}`,
@@ -102,14 +102,14 @@ export function AdministrativePanel({ patient, userRole, onUpdated }: Administra
 
       const json = await res.json();
       if (!res.ok) {
-        setError(json.error || "Failed to update administrative data");
+        setError(json.error || "Échec de la mise à jour des données administratives");
         return;
       }
 
-      setMessage("Administrative data updated.");
+      setMessage("Données administratives mises à jour.");
       onUpdated?.();
     } catch {
-      setError("Failed to update administrative data");
+      setError("Échec de la mise à jour des données administratives");
     } finally {
       setSaving(false);
     }
@@ -118,44 +118,44 @@ export function AdministrativePanel({ patient, userRole, onUpdated }: Administra
   return (
     <Card>
       <CardHeader>
-        <h2 className="text-sm font-semibold text-gray-900 dark:text-slate-100">Administrative Intake Data</h2>
+        <h2 className="text-sm font-semibold text-gray-900 dark:text-slate-100">Données administratives d’admission</h2>
       </CardHeader>
       <CardContent className="space-y-3.5">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-          <Input label="First Name" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
-          <Input label="Last Name" value={lastName} onChange={(e) => setLastName(e.target.value)} />
-          <Input label="Date of Birth" type="date" value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} />
+          <Input label="Prénom" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+          <Input label="Nom" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+          <Input label="Date de naissance" type="date" value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} />
           <Select
-            label="Sex"
+            label="Sexe"
             value={sex}
             onChange={(e) => setSex(e.target.value)}
             options={[
-              { value: "MALE", label: "Male" },
-              { value: "FEMALE", label: "Female" },
+              { value: "MALE", label: "Homme" },
+              { value: "FEMALE", label: "Femme" },
             ]}
           />
-          <Input label="Phone" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
-          <Input label="Emergency Contact" value={emergencyContact} onChange={(e) => setEmergencyContact(e.target.value)} />
-          <Input label="Emergency Phone" value={emergencyPhone} onChange={(e) => setEmergencyPhone(e.target.value)} />
+          <Input label="Téléphone" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
+          <Input label="Contact d'urgence" value={emergencyContact} onChange={(e) => setEmergencyContact(e.target.value)} />
+          <Input label="Téléphone d'urgence" value={emergencyPhone} onChange={(e) => setEmergencyPhone(e.target.value)} />
           <Select
-            label="Registration Status"
+            label="Statut d'enregistrement"
             value={registrationStatus}
             onChange={(e) => setRegistrationStatus(e.target.value as RegistrationStatus)}
             options={Object.entries(REGISTRATION_STATUS_LABELS).map(([value, label]) => ({ value, label }))}
           />
           <Select
-            label="Admission Source"
+            label="Source d'admission"
             value={admissionSource}
             onChange={(e) => setAdmissionSource(e.target.value as AdmissionSource)}
             options={Object.entries(ADMISSION_SOURCE_LABELS).map(([value, label]) => ({ value, label }))}
           />
           <Select
-            label="Admission Status"
+            label="Statut d'admission"
             value={admissionStatus}
             onChange={(e) => setAdmissionStatus(e.target.value as AdmissionStatus)}
             options={Object.entries(ADMISSION_STATUS_LABELS).map(([value, label]) => ({ value, label }))}
           />
-          <Select label="Room" value={roomId} onChange={(e) => setRoomId(e.target.value)} options={roomOptions} />
+          <Select label="Chambre" value={roomId} onChange={(e) => setRoomId(e.target.value)} options={roomOptions} />
         </div>
 
         {error && <p className="text-xs text-red-600 dark:text-red-300">{error}</p>}
@@ -163,7 +163,7 @@ export function AdministrativePanel({ patient, userRole, onUpdated }: Administra
 
         <div className="flex justify-end">
           <Button size="sm" loading={saving} onClick={handleSave}>
-            Save Administrative Data
+            Enregistrer les données administratives
           </Button>
         </div>
       </CardContent>

@@ -18,7 +18,7 @@ export async function GET(
     try {
       requirePermission(user, "patient:read");
     } catch {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      return NextResponse.json({ error: "Accès interdit" }, { status: 403 });
     }
 
     const { id } = await params;
@@ -57,7 +57,7 @@ export async function GET(
       },
     });
 
-    if (!patient) return notFound("Patient not found");
+    if (!patient) return notFound("Patient introuvable");
 
     return NextResponse.json({ data: patient });
   } catch (error) {
@@ -82,14 +82,14 @@ export async function PATCH(
       try {
         requirePermission(user, "record:write");
       } catch {
-        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+        return NextResponse.json({ error: "Accès interdit" }, { status: 403 });
       }
 
       const parsed = recordUpdateSchema.safeParse(body.record);
-      if (!parsed.success) return badRequest("Invalid record data", parsed.error.flatten());
+      if (!parsed.success) return badRequest("Données du dossier invalides", parsed.error.flatten());
 
       const patientExists = await prisma.patient.findUnique({ where: { id }, select: { id: true } });
-      if (!patientExists) return notFound("Patient not found");
+      if (!patientExists) return notFound("Patient introuvable");
 
       const existingRecord = await prisma.medicalRecord.findUnique({ where: { patientId: id } });
 
@@ -132,32 +132,32 @@ export async function PATCH(
     try {
       requirePermission(user, "patient:update:administrative");
     } catch {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      return NextResponse.json({ error: "Accès interdit" }, { status: 403 });
     }
 
     const parsed = patientAdminUpdateSchema.safeParse(body);
-    if (!parsed.success) return badRequest("Invalid input", parsed.error.flatten());
+    if (!parsed.success) return badRequest("Entrée invalide", parsed.error.flatten());
 
     const patient = await prisma.patient.findUnique({ where: { id } });
-    if (!patient) return notFound("Patient not found");
+    if (!patient) return notFound("Patient introuvable");
 
     let nextDateOfBirth: Date | undefined;
     if (parsed.data.dateOfBirth) {
       const parsedDate = new Date(parsed.data.dateOfBirth);
-      if (Number.isNaN(parsedDate.getTime())) return badRequest("Invalid dateOfBirth");
+      if (Number.isNaN(parsedDate.getTime())) return badRequest("dateOfBirth invalide");
       nextDateOfBirth = parsedDate;
     }
 
     let nextAdmissionDate: Date | undefined;
     if (parsed.data.admissionDate) {
       const parsedDate = new Date(parsed.data.admissionDate);
-      if (Number.isNaN(parsedDate.getTime())) return badRequest("Invalid admissionDate");
+      if (Number.isNaN(parsedDate.getTime())) return badRequest("admissionDate invalide");
       nextAdmissionDate = parsedDate;
     }
 
     if (parsed.data.roomId) {
       const room = await prisma.room.findUnique({ where: { id: parsed.data.roomId }, select: { id: true } });
-      if (!room) return badRequest("Selected room does not exist");
+      if (!room) return badRequest("La chambre sélectionnée n'existe pas");
     }
 
     const currentRoomId = patient.roomId;

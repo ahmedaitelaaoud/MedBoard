@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "MedBoard — Hospital Operations",
-  description: "Hospital operational visibility and patient record platform for healthcare environments.",
+  title: "MedBoard - Operations hospitalieres",
+  description: "Plateforme de visibilite operationnelle hospitaliere et de dossier patient pour les environnements de soins.",
 };
 
 export default function RootLayout({
@@ -12,7 +12,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="fr">
       <body>{children}</body>
     </html>
   );

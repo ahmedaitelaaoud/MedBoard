@@ -39,13 +39,13 @@ export function DocumentsPlaceholder({ documents, patientId, userRole, onUploade
 
       if (!response.ok) {
         const json = await response.json().catch(() => ({}));
-        setUploadError(json.error || "Upload failed");
+        setUploadError(json.error || "Échec du téléversement");
         return;
       }
 
       onUploaded?.();
     } catch {
-      setUploadError("Upload failed");
+      setUploadError("Échec du téléversement");
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -70,7 +70,7 @@ export function DocumentsPlaceholder({ documents, patientId, userRole, onUploade
                 loading={uploading}
                 onClick={() => fileInputRef.current?.click()}
               >
-                Upload file
+                Téléverser un fichier
               </Button>
             </>
           )}
@@ -84,7 +84,7 @@ export function DocumentsPlaceholder({ documents, patientId, userRole, onUploade
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
               </svg>
             </div>
-            <p className="text-xs text-gray-400 dark:text-slate-400">No documents uploaded</p>
+            <p className="text-xs text-gray-400 dark:text-slate-400">Aucun document téléversé</p>
           </div>
         ) : (
           <ul className="space-y-1">
@@ -108,7 +108,7 @@ export function DocumentsPlaceholder({ documents, patientId, userRole, onUploade
                   )}
                 </div>
                 <span className="text-[10px] text-gray-400 dark:text-slate-400">
-                  {new Date(doc.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                  {new Date(doc.createdAt).toLocaleDateString("fr-FR", { month: "short", day: "numeric" })}
                 </span>
               </li>
             ))}

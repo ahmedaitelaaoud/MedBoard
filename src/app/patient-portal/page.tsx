@@ -63,13 +63,13 @@ export default function PatientPortalPage() {
         const json = await res.json();
 
         if (!res.ok) {
-          setError(json.error || "Unable to load your portal information");
+          setError(json.error || "Impossible de charger vos informations de portail");
           return;
         }
 
         setData(json.data);
       } catch {
-        setError("Unable to load your portal information");
+        setError("Impossible de charger vos informations de portail");
       } finally {
         setLoading(false);
       }
@@ -94,10 +94,10 @@ export default function PatientPortalPage() {
     return (
       <div className="min-h-screen bg-white dark:bg-slate-950 px-6 py-8 sm:px-8 transition-colors duration-200">
         <div className="max-w-3xl mx-auto rounded-2xl border border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 px-5 py-5 transition-colors duration-200">
-          <h1 className="text-base font-semibold text-gray-900 dark:text-slate-100">Patient Portal</h1>
-          <p className="text-sm text-red-600 mt-3">{error || "Unable to load portal information"}</p>
+          <h1 className="text-base font-semibold text-gray-900 dark:text-slate-100">Portail patient</h1>
+          <p className="text-sm text-red-600 mt-3">{error || "Impossible de charger les informations du portail"}</p>
           <div className="mt-4">
-            <Button variant="danger" onClick={logout}>Sign out</Button>
+            <Button variant="danger" onClick={logout}>Se déconnecter</Button>
           </div>
         </div>
       </div>
@@ -110,15 +110,15 @@ export default function PatientPortalPage() {
         <header className="flex items-center justify-between rounded-2xl border border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 px-5 py-4 transition-colors duration-200">
           <div>
             <p className="text-xs text-gray-400 dark:text-slate-500">MedBoard</p>
-            <h1 className="text-lg font-semibold text-gray-900 dark:text-slate-100">Patient Portal</h1>
+            <h1 className="text-lg font-semibold text-gray-900 dark:text-slate-100">Portail patient</h1>
           </div>
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={toggleTheme}
               className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors"
-              title="Toggle night mode"
-              aria-label="Toggle night mode"
+              title="Basculer le mode nuit"
+              aria-label="Basculer le mode nuit"
             >
               {!mounted || theme === "light" ? (
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -129,10 +129,10 @@ export default function PatientPortalPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z" />
                 </svg>
               )}
-              <span>{!mounted ? "Theme" : theme === "dark" ? "Night" : "Day"}</span>
+              <span>{!mounted ? "Thème" : theme === "dark" ? "Nuit" : "Jour"}</span>
             </button>
             <Button variant="danger" size="sm" onClick={logout}>
-              Sign out
+              Se déconnecter
             </Button>
           </div>
         </header>

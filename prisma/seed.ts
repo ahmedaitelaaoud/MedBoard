@@ -406,18 +406,18 @@ async function main() {
 
   // ─── Tasks ─────────────────────────────────────────────────────────────────
   const taskDefs = [
-    { title: "Check vitals every 2 hours", description: "Monitor BP, HR, SpO2 and temperature. Alert if BP > 160/100 or HR > 110.", priority: "HIGH", status: "PENDING", patientIdx: 0, doctorIdx: 0, nurseIdx: 0 },
-    { title: "Administer IV antibiotics", description: "Amoxicillin-clavulanate 1.2g IV at 14:00 and 22:00. Check for allergic reactions.", priority: "HIGH", status: "PENDING", patientIdx: 1, doctorIdx: 0, nurseIdx: 1 },
-    { title: "Post-op wound check", description: "Inspect surgical site for signs of infection. Change dressing if saturated.", priority: "NORMAL", status: "IN_PROGRESS", patientIdx: 2, doctorIdx: 1, nurseIdx: 0 },
-    { title: "Prepare discharge paperwork", description: "Complete discharge summary and medication reconciliation for patient.", priority: "LOW", status: "PENDING", patientIdx: 5, doctorIdx: 1, nurseIdx: 2 },
-    { title: "Blood glucose monitoring", description: "Finger-prick glucose readings before meals and at bedtime. Target 5-10 mmol/L.", priority: "NORMAL", status: "PENDING", patientIdx: 3, doctorIdx: 0, nurseIdx: 1 },
-    { title: "Mobilization assessment", description: "Assist patient with supervised walking. Document distance and any difficulty.", priority: "NORMAL", status: "COMPLETED", patientIdx: 8, doctorIdx: 2, nurseIdx: 3 },
-    { title: "Administer pain medication PRN", description: "Paracetamol 1g PO if pain score > 4. Maximum 4g in 24 hours.", priority: "NORMAL", status: "PENDING", patientIdx: 4, doctorIdx: 2, nurseIdx: 2 },
-    { title: "Oxygen saturation monitoring", description: "Continuous SpO2 monitoring. Titrate O2 to maintain SpO2 > 94%. Escalate if desaturation below 90%.", priority: "HIGH", status: "IN_PROGRESS", patientIdx: 7, doctorIdx: 3, nurseIdx: 0 },
-    { title: "Fluid balance chart", description: "Strict input/output monitoring. Target positive balance of 500ml/24h.", priority: "NORMAL", status: "PENDING", patientIdx: 9, doctorIdx: 3, nurseIdx: 3 },
-    { title: "Neurological observations", description: "GCS assessment every 4 hours. Check pupil reactivity and limb movements.", priority: "HIGH", status: "PENDING", patientIdx: 4, doctorIdx: 3, nurseIdx: 1 },
-    { title: "Arrange physiotherapy consult", description: "Contact PT department for bedside assessment. Patient needs mobility plan.", priority: "LOW", status: "COMPLETED", patientIdx: 5, doctorIdx: 1, nurseIdx: 2 },
-    { title: "ECG monitoring", description: "12-lead ECG before morning rounds. Report any rhythm changes immediately.", priority: "HIGH", status: "PENDING", patientIdx: 0, doctorIdx: 0, nurseIdx: 0 },
+    { title: "Surveiller les signes vitaux toutes les 2 heures", description: "Surveiller TA, FC, SpO2 et temperature. Alerter si TA > 160/100 ou FC > 110.", priority: "HIGH", status: "PENDING", patientIdx: 0, doctorIdx: 0, nurseIdx: 0 },
+    { title: "Administrer les antibiotiques IV", description: "Amoxicilline-acide clavulanique 1,2 g IV a 14:00 et 22:00. Verifier les reactions allergiques.", priority: "HIGH", status: "PENDING", patientIdx: 1, doctorIdx: 0, nurseIdx: 1 },
+    { title: "Controle de plaie post-operatoire", description: "Inspecter le site chirurgical pour signes d'infection. Changer le pansement s'il est sature.", priority: "NORMAL", status: "IN_PROGRESS", patientIdx: 2, doctorIdx: 1, nurseIdx: 0 },
+    { title: "Preparer les documents de sortie", description: "Completer le resume de sortie et la reconciliation medicamenteuse du patient.", priority: "LOW", status: "PENDING", patientIdx: 5, doctorIdx: 1, nurseIdx: 2 },
+    { title: "Surveillance de la glycemie", description: "Mesures glycemiques capillaires avant les repas et au coucher. Cible 5-10 mmol/L.", priority: "NORMAL", status: "PENDING", patientIdx: 3, doctorIdx: 0, nurseIdx: 1 },
+    { title: "Evaluation de la mobilisation", description: "Aider le patient a marcher sous supervision. Documenter la distance et toute difficulte.", priority: "NORMAL", status: "COMPLETED", patientIdx: 8, doctorIdx: 2, nurseIdx: 3 },
+    { title: "Administrer un antalgique si besoin", description: "Paracetamol 1 g PO si score de douleur > 4. Maximum 4 g sur 24 heures.", priority: "NORMAL", status: "PENDING", patientIdx: 4, doctorIdx: 2, nurseIdx: 2 },
+    { title: "Surveillance de la saturation en oxygene", description: "Surveillance continue de la SpO2. Ajuster l'O2 pour maintenir SpO2 > 94 %. Escalader si desaturation < 90 %.", priority: "HIGH", status: "IN_PROGRESS", patientIdx: 7, doctorIdx: 3, nurseIdx: 0 },
+    { title: "Bilan hydrique", description: "Surveillance stricte des entrees/sorties. Cible: bilan positif de 500 ml/24 h.", priority: "NORMAL", status: "PENDING", patientIdx: 9, doctorIdx: 3, nurseIdx: 3 },
+    { title: "Observations neurologiques", description: "Evaluation du GCS toutes les 4 heures. Verifier reactivite pupillaire et mouvements des membres.", priority: "HIGH", status: "PENDING", patientIdx: 4, doctorIdx: 3, nurseIdx: 1 },
+    { title: "Organiser une consultation de kinesitherapie", description: "Contacter le service de kine pour evaluation au lit. Le patient a besoin d'un plan de mobilisation.", priority: "LOW", status: "COMPLETED", patientIdx: 5, doctorIdx: 1, nurseIdx: 2 },
+    { title: "Surveillance ECG", description: "ECG 12 derivations avant la visite matinale. Signaler immediatement tout changement de rythme.", priority: "HIGH", status: "PENDING", patientIdx: 0, doctorIdx: 0, nurseIdx: 0 },
   ];
 
   for (const t of taskDefs) {

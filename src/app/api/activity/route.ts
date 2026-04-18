@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     try {
       requirePermission(user, "activity:read");
     } catch {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      return NextResponse.json({ error: "Accès interdit" }, { status: 403 });
     }
 
     const limit = parseInt(request.nextUrl.searchParams.get("limit") || "30");

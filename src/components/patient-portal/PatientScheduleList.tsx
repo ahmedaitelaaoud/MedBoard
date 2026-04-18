@@ -37,13 +37,13 @@ function typeToStyles(type: string): { dot: string; label: string; card: string 
 function formatScheduleDate(value: string): { day: string; time: string } {
   const date = new Date(value);
 
-  const day = date.toLocaleDateString("en-US", {
+  const day = date.toLocaleDateString("fr-FR", {
     weekday: "long",
     month: "short",
     day: "numeric",
   });
 
-  const time = date.toLocaleTimeString("en-US", {
+  const time = date.toLocaleTimeString("fr-FR", {
     hour: "2-digit",
     minute: "2-digit",
     hour12: false,
@@ -55,11 +55,11 @@ function formatScheduleDate(value: string): { day: string; time: string } {
 export function PatientScheduleList({ schedule }: PatientScheduleListProps) {
   return (
     <section className="rounded-2xl border border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 px-5 py-5 transition-colors duration-200">
-      <h2 className="text-base font-semibold text-gray-900 dark:text-slate-100">Upcoming Schedule</h2>
-      <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">Your planned visits and routine checks.</p>
+      <h2 className="text-base font-semibold text-gray-900 dark:text-slate-100">Planning à venir</h2>
+      <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">Vos visites prévues et contrôles de routine.</p>
 
       {schedule.length === 0 ? (
-        <p className="text-sm text-gray-500 dark:text-slate-400 mt-5">No upcoming visits scheduled yet.</p>
+        <p className="text-sm text-gray-500 dark:text-slate-400 mt-5">Aucune visite planifiée pour le moment.</p>
       ) : (
         <ol className="mt-5 space-y-3">
           {schedule.map((item) => {
@@ -71,11 +71,11 @@ export function PatientScheduleList({ schedule }: PatientScheduleListProps) {
                   <p className="text-sm font-medium text-gray-900 dark:text-slate-100">{item.title}</p>
                   <span className={`inline-flex items-center gap-1.5 text-[11px] ${styles.label}`}>
                     <span className={`w-1.5 h-1.5 rounded-full ${styles.dot}`} />
-                    {item.type === "DOCTOR_VISIT" ? "Doctor" : item.type === "NURSE_VISIT" ? "Nurse" : "Checkup"}
+                    {item.type === "DOCTOR_VISIT" ? "Médecin" : item.type === "NURSE_VISIT" ? "Infirmier" : "Contrôle"}
                   </span>
                 </div>
                 <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
-                  {formatted.day} at {formatted.time}
+                  {formatted.day} à {formatted.time}
                 </p>
                 {item.notes && <p className="text-xs text-gray-500 dark:text-slate-400 mt-1.5">{item.notes}</p>}
               </li>

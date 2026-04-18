@@ -10,6 +10,8 @@ import type { Role } from "@/lib/constants";
 const pageTitles: Record<string, string> = {
   "/dashboard": "Tableau de bord",
   "/patients": "Patients",
+  "/agent/diagnostic": "IA Diagnostic",
+  "/agent/schedule": "IA Planning",
   "/activity": "Journal d'activité",
   "/chat": "Chat d'équipe",
   "/staff": "Annuaire du personnel",

@@ -11,20 +11,20 @@ export function DemographicsCard({ patient }: DemographicsCardProps) {
   );
 
   const fields = [
-    { label: "Date of Birth", value: new Date(patient.dateOfBirth).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) },
-    { label: "Age", value: `${age} years` },
-    { label: "Sex", value: patient.sex === "MALE" ? "Male" : "Female" },
-    { label: "Height", value: patient.height ? `${patient.height} cm` : "—" },
-    { label: "Weight", value: patient.weight ? `${patient.weight} kg` : "—" },
-    { label: "Allergies", value: patient.allergies || "None recorded", highlight: !!patient.allergies },
-    { label: "Emergency Contact", value: patient.emergencyContact || "—" },
-    { label: "Emergency Phone", value: patient.emergencyPhone || "—" },
+    { label: "Date de naissance", value: new Date(patient.dateOfBirth).toLocaleDateString("fr-FR", { month: "long", day: "numeric", year: "numeric" }) },
+    { label: "Âge", value: `${age} ans` },
+    { label: "Sexe", value: patient.sex === "MALE" ? "Homme" : "Femme" },
+    { label: "Taille", value: patient.height ? `${patient.height} cm` : "—" },
+    { label: "Poids", value: patient.weight ? `${patient.weight} kg` : "—" },
+    { label: "Allergies", value: patient.allergies || "Aucune renseignée", highlight: !!patient.allergies },
+    { label: "Contact d'urgence", value: patient.emergencyContact || "—" },
+    { label: "Téléphone d'urgence", value: patient.emergencyPhone || "—" },
   ];
 
   return (
     <Card>
       <CardHeader>
-        <h2 className="text-sm font-semibold text-gray-900 dark:text-slate-100">Demographics</h2>
+        <h2 className="text-sm font-semibold text-gray-900 dark:text-slate-100">Données démographiques</h2>
       </CardHeader>
       <CardContent>
         <dl className="space-y-3">

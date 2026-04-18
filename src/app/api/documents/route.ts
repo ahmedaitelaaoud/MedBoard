@@ -19,20 +19,20 @@ export async function POST(request: Request) {
     try {
       requirePermission(user, "document:upload");
     } catch {
-      return NextResponse.json({ error: "Only doctors can upload documents" }, { status: 403 });
+      return NextResponse.json({ error: "Seuls les médecins peuvent téléverser des documents" }, { status: 403 });
     }
 
     const formData = await request.formData();
     const patientId = String(formData.get("patientId") || "").trim();
     const file = formData.get("file");
 
-    if (!patientId) return badRequest("Missing patientId");
-    if (!(file instanceof File)) return badRequest("Missing file");
-    if (file.size === 0) return badRequest("Empty file");
-    if (file.size > 10 * 1024 * 1024) return badRequest("File too large (max 10MB)");
+    if (!patientId) return badRequest("patientId manquant");
+    if (!(file instanceof File)) return badRequest("Fichier manquant");
+    if (file.size === 0) return badRequest("Fichier vide");
+    if (file.size > 10 * 1024 * 1024) return badRequest("Fichier trop volumineux (max 10MB)");
 
     const patient = await prisma.patient.findUnique({ where: { id: patientId }, select: { id: true } });
-    if (!patient) return badRequest("Patient not found");
+    if (!patient) return badRequest("Patient introuvable");
 
     const originalName = sanitizeFilename(file.name || "document");
     const timestamp = Date.now();

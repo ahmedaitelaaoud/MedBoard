@@ -17,7 +17,7 @@ export async function PATCH(
     try {
       requirePermission(user, "room:manage");
     } catch {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      return NextResponse.json({ error: "Accès interdit" }, { status: 403 });
     }
 
     const { id } = await params;
@@ -25,11 +25,11 @@ export async function PATCH(
     const parsed = roomUpdateSchema.safeParse(body);
 
     if (!parsed.success) {
-      return badRequest("Invalid input", parsed.error.flatten());
+      return badRequest("Entrée invalide", parsed.error.flatten());
     }
 
     const room = await prisma.room.findUnique({ where: { id } });
-    if (!room) return notFound("Room not found");
+    if (!room) return notFound("Chambre introuvable");
 
     const updated = await prisma.room.update({
       where: { id },

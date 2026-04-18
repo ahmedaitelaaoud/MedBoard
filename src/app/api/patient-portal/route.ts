@@ -64,7 +64,7 @@ export async function GET() {
     });
 
     const patient = portalUser?.patient;
-    if (!patient) return notFound("No patient profile linked to this account");
+    if (!patient) return notFound("Aucun profil patient lié à ce compte");
 
     const assignment = patient.assignments[0];
     const profile = {
@@ -78,10 +78,10 @@ export async function GET() {
       floorName: patient.room?.floor.name ?? null,
       attendingDoctorName: assignment?.doctor
         ? `Dr. ${assignment.doctor.firstName} ${assignment.doctor.lastName}`
-        : "Not assigned",
+        : "Non attribué",
       assignedNurseName: assignment?.nurse
         ? `${assignment.nurse.firstName} ${assignment.nurse.lastName}`
-        : "Not assigned",
+        : "Non attribué",
       emergencyContact: patient.emergencyContact ?? null,
     };
 

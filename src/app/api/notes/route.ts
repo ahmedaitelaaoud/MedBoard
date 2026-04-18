@@ -16,13 +16,13 @@ export async function POST(request: Request) {
     const parsed = noteCreateSchema.safeParse(body);
 
     if (!parsed.success) {
-      return badRequest("Invalid input", parsed.error.flatten());
+      return badRequest("Entrée invalide", parsed.error.flatten());
     }
 
     // Check note type permission
     if (!canCreateNoteType(user.role as Role, parsed.data.type)) {
       return NextResponse.json(
-        { error: `Your role cannot create ${parsed.data.type} notes` },
+        { error: `Votre rôle ne peut pas créer de notes ${parsed.data.type}` },
         { status: 403 }
       );
     }
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
       where: { id: parsed.data.medicalRecordId },
       select: { patientId: true },
     });
-    if (!record) return badRequest("Medical record not found");
+    if (!record) return badRequest("Dossier médical introuvable");
 
     const note = await prisma.note.create({
       data: {

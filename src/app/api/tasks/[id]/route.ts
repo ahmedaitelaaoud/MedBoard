@@ -15,11 +15,11 @@ export async function PATCH(
     const body = await request.json();
 
     const task = await prisma.task.findUnique({ where: { id } });
-    if (!task) return notFound("Task not found");
+    if (!task) return notFound("Tâche introuvable");
 
     // Only assignee or creator can update
     if (task.assignedToId !== user.id && task.createdById !== user.id) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      return NextResponse.json({ error: "Accès interdit" }, { status: 403 });
     }
 
     const data: Record<string, unknown> = {};

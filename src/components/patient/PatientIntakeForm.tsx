@@ -99,7 +99,7 @@ export function PatientIntakeForm({ userRole, initialMode = "NORMAL", onSuccess 
 
   const roomOptions = useMemo(
     () => [
-      { value: "", label: "No room assignment yet" },
+      { value: "", label: "Aucune chambre attribuée pour le moment" },
       ...rooms.map((room) => ({
         value: room.id,
         label: `${room.number} · ${room.floor.name} · ${room.ward.name}`,
@@ -144,7 +144,7 @@ export function PatientIntakeForm({ userRole, initialMode = "NORMAL", onSuccess 
 
       const json = await res.json();
       if (!res.ok) {
-        setError(json.error || "Failed to register patient");
+        setError(json.error || "Échec de l'enregistrement du patient");
         return;
       }
 
