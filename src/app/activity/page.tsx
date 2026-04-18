@@ -44,7 +44,7 @@ export default function ActivityPage() {
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
               <h1 className="text-xl font-semibold text-gray-900 dark:text-slate-100">Activity Logs</h1>
-              <p className="text-sm text-gray-600 dark:text-slate-300 mt-1">Live platform events (notes excluded)</p>
+              <p className="text-sm text-gray-600 dark:text-slate-300 mt-1">Live platform events</p>
             </div>
             <div className="grid grid-cols-3 gap-2 w-full md:w-auto">
               <div className="rounded-lg bg-white/80 dark:bg-slate-800/80 border border-white dark:border-slate-700 px-3 py-2">
