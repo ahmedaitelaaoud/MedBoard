@@ -10,7 +10,7 @@ import type { SessionUser } from "@/lib/auth";
 function getNavItems(user: SessionUser | null) {
   const items = [];
 
-  if (!user || can(user, "dashboard:read")) {
+  if (can(user, "dashboard:read")) {
     items.push({
       name: "Dashboard",
       href: "/dashboard",

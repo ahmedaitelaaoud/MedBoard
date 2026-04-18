@@ -38,8 +38,7 @@ export default function PatientsPage() {
   const canViewPatients =
     user?.role === "DOCTOR" ||
     user?.role === "NURSE" ||
-    user?.role === "ADMIN" ||
-    user?.role === "READONLY";
+    user?.role === "ADMIN";
 
   const canRegisterNormal = user?.role === "ADMIN";
   const canRegisterEmergency = user?.role === "ADMIN" || user?.role === "DOCTOR" || user?.role === "NURSE";
