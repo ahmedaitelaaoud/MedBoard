@@ -12,6 +12,8 @@ function ActionIcon({ action }: { action: string }) {
   const iconClass = "w-4 h-4";
   switch (action) {
     case "PATIENT_ADMITTED":
+    case "PATIENT_REGISTERED":
+    case "TEMPORARY_PATIENT_CREATED":
       return (
         <div className="w-8 h-8 bg-blue-50 dark:bg-blue-900/30 rounded-full flex items-center justify-center shrink-0 border border-blue-100 dark:border-blue-900/70">
           <svg className={`${iconClass} text-blue-500`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -37,6 +39,7 @@ function ActionIcon({ action }: { action: string }) {
         </div>
       );
     case "RECORD_UPDATED":
+    case "MEDICAL_RECORD_INITIALIZED":
       return (
         <div className="w-8 h-8 bg-amber-50 dark:bg-amber-900/30 rounded-full flex items-center justify-center shrink-0 border border-amber-100 dark:border-amber-900/70">
           <svg className={`${iconClass} text-amber-500`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -74,6 +77,10 @@ function ActionIcon({ action }: { action: string }) {
 
 const actionLabels: Record<string, string> = {
   PATIENT_ADMITTED: "Patient Admitted",
+  PATIENT_REGISTERED: "Patient Registered",
+  TEMPORARY_PATIENT_CREATED: "Emergency Temporary Intake",
+  ADMIN_DATA_COMPLETED: "Administrative Data Completed",
+  MEDICAL_RECORD_INITIALIZED: "Medical Record Initialized",
   PATIENT_DISCHARGED: "Patient Discharged",
   NOTE_CREATED: "Note Created",
   NOTE_UPDATED: "Note Updated",
@@ -89,9 +96,17 @@ const actionLabels: Record<string, string> = {
 const noteActions = new Set(["NOTE_CREATED", "NOTE_UPDATED"]);
 
 function actionToVariant(action: string): "info" | "success" | "warning" | "muted" {
-  if (action === "PATIENT_ADMITTED" || action === "ROOM_ASSIGNED" || action === "ROOM_TRANSFERRED") return "info";
+  if (
+    action === "PATIENT_ADMITTED" ||
+    action === "PATIENT_REGISTERED" ||
+    action === "TEMPORARY_PATIENT_CREATED" ||
+    action === "ROOM_ASSIGNED" ||
+    action === "ROOM_TRANSFERRED"
+  ) {
+    return "info";
+  }
   if (action === "PATIENT_DISCHARGED") return "success";
-  if (action === "STATUS_CHANGED" || action === "RECORD_UPDATED") return "warning";
+  if (action === "STATUS_CHANGED" || action === "RECORD_UPDATED" || action === "ADMIN_DATA_COMPLETED" || action === "MEDICAL_RECORD_INITIALIZED") return "warning";
   return "muted";
 }
 
