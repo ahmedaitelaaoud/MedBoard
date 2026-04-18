@@ -127,6 +127,7 @@ async function main() {
   for (let i = 0; i < patientDefs.length; i++) {
     const p = patientDefs[i];
     const room = i < occupiedRooms.length ? occupiedRooms[i] : null;
+    const admissionSource = i % 4 === 0 ? "EMERGENCY" : i % 4 === 1 ? "WALK_IN" : i % 4 === 2 ? "REFERRAL" : "TRANSFER";
     const patient = await prisma.patient.create({
       data: {
         patientCode: `PAT-${String(i + 1).padStart(5, "0")}`,
@@ -134,18 +135,46 @@ async function main() {
         lastName: p.lastName,
         dateOfBirth: new Date(p.dob),
         sex: p.sex,
+        phoneNumber: `+212 6${String(50000000 + i * 1234).slice(0, 8)}`,
         height: p.height,
         weight: p.weight,
         allergies: p.allergies,
         emergencyContact: p.emergency,
         emergencyPhone: p.emergPhone,
         status: p.status,
+        registrationStatus: i % 6 === 0 ? "COMPLETED" : "REGISTERED",
+        createdByRole: "ADMIN",
+        admissionSource,
+        intakeType: "NORMAL",
+        admissionStatus: room ? "ASSIGNED" : "WAITING_ASSIGNMENT",
         admissionDate: new Date(Date.now() - Math.floor(Math.random() * 14) * 86400000),
         roomId: room?.id ?? null,
       },
     });
     patients.push(patient);
   }
+
+  const temporaryPatient = await prisma.patient.create({
+    data: {
+      patientCode: "TMP-00001",
+      firstName: "Unknown",
+      lastName: "Male 01",
+      dateOfBirth: new Date("1970-01-01"),
+      sex: "MALE",
+      phoneNumber: null,
+      emergencyContact: null,
+      emergencyPhone: null,
+      status: "UNDER_OBSERVATION",
+      registrationStatus: "TEMPORARY",
+      createdByRole: "DOCTOR",
+      admissionSource: "EMERGENCY",
+      intakeType: "EMERGENCY_TEMPORARY",
+      admissionStatus: "WAITING_ASSIGNMENT",
+      admissionDate: new Date(),
+      roomId: null,
+    },
+  });
+  patients.push(temporaryPatient);
   console.log(`  ✓ ${patients.length} patients`);
 
   // ─── Medical Records ───────────────────────────────────────────────────────
@@ -248,6 +277,10 @@ async function main() {
   // ─── Activity Log ──────────────────────────────────────────────────────────
   const activities = [
     { action: "PATIENT_ADMITTED", details: "Patient admitted to ward" },
+    { action: "PATIENT_REGISTERED", details: "Patient registered by admissions" },
+    { action: "TEMPORARY_PATIENT_CREATED", details: "Temporary emergency intake created" },
+    { action: "ADMIN_DATA_COMPLETED", details: "Administrative registration completed" },
+    { action: "MEDICAL_RECORD_INITIALIZED", details: "Doctor initialized medical record" },
     { action: "NOTE_CREATED", details: "Progress note added" },
     { action: "RECORD_UPDATED", details: "Medical record updated" },
     { action: "STATUS_CHANGED", details: "Patient status changed" },
