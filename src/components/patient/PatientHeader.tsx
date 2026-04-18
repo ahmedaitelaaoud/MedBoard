@@ -14,8 +14,13 @@ export function PatientHeader({ patient }: PatientHeaderProps) {
     (Date.now() - new Date(patient.dateOfBirth).getTime()) / (365.25 * 24 * 60 * 60 * 1000)
   );
 
-  const doctor = patient.assignments[0]?.doctor;
-  const nurse = patient.assignments[0]?.nurse;
+  const doctors = Array.from(
+    new Map(
+      patient.assignments
+        .filter((assignment) => assignment.active && assignment.doctor)
+        .map((assignment) => [assignment.doctor.id, assignment.doctor])
+    ).values()
+  );
   const hasAllergies = patient.allergies && patient.allergies.trim() !== "";
 
   return (
@@ -49,20 +54,13 @@ export function PatientHeader({ patient }: PatientHeaderProps) {
 
         {/* Assigned staff */}
         <div className="text-right text-xs space-y-1.5">
-          {doctor && (
-            <div className="flex items-center gap-2 justify-end">
+          {doctors.map((doctor) => (
+            <div key={doctor.id} className="flex items-center gap-2 justify-end">
               <span className="text-gray-400">Doctor</span>
               <span className="font-medium text-gray-700">Dr. {doctor.firstName} {doctor.lastName}</span>
               <Avatar firstName={doctor.firstName} lastName={doctor.lastName} size="sm" />
             </div>
-          )}
-          {nurse && (
-            <div className="flex items-center gap-2 justify-end">
-              <span className="text-gray-400">Nurse</span>
-              <span className="font-medium text-gray-700">{nurse.firstName} {nurse.lastName}</span>
-              <Avatar firstName={nurse.firstName} lastName={nurse.lastName} size="sm" />
-            </div>
-          )}
+          ))}
           <p className="text-gray-400 pt-1">
             Admitted {new Date(patient.admissionDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
           </p>
