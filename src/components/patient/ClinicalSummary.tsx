@@ -20,6 +20,7 @@ export function ClinicalSummary({ record, patientId, userRole, onUpdate }: Clini
   const [plan, setPlan] = useState(record?.currentPlan || "");
 
   const canEdit = userRole === "DOCTOR" && record;
+  const canInitialize = userRole === "DOCTOR" && !record;
 
   const handleSave = async () => {
     if (!patientId) return;
@@ -51,10 +52,42 @@ export function ClinicalSummary({ record, patientId, userRole, onUpdate }: Clini
     return (
       <Card>
         <CardHeader>
-          <h2 className="text-sm font-semibold text-gray-900">Clinical Summary</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-gray-900">Clinical Summary</h2>
+            {canInitialize && (
+              <Button
+                size="sm"
+                loading={saving}
+                onClick={async () => {
+                  if (!patientId) return;
+                  setSaving(true);
+                  try {
+                    const res = await fetch(`/api/patients/${patientId}`, {
+                      method: "PATCH",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        record: {
+                          diagnosisSummary: "",
+                          medicalHistory: "",
+                          currentPlan: "",
+                        },
+                      }),
+                    });
+                    if (res.ok) onUpdate?.();
+                  } catch (err) {
+                    console.error("Failed to initialize medical record:", err);
+                  } finally {
+                    setSaving(false);
+                  }
+                }}
+              >
+                Initialize Record
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-gray-400">No medical record available</p>
+          <p className="text-sm text-gray-400">No medical record available yet.</p>
         </CardContent>
       </Card>
     );
