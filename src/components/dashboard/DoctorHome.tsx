@@ -64,6 +64,7 @@ export function DoctorHome({ user }: { user: SessionUser }) {
   const [ticketNote, setTicketNote] = useState("");
   const [, setSelectedPatientId] = useState<string | null>(null);
   const [taskLoading, setTaskLoading] = useState(false);
+  const [taskFeedback, setTaskFeedback] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [mentionOpen, setMentionOpen] = useState(false);
   const [mentionQuery, setMentionQuery] = useState("");
   const [mentionStart, setMentionStart] = useState<number | null>(null);
@@ -252,26 +253,69 @@ export function DoctorHome({ user }: { user: SessionUser }) {
 
     const mentionedPatientId = detectMentionedPatientId(content);
     setTaskLoading(true);
+    setTaskFeedback(null);
     try {
-      const res = await fetch("/api/tasks", {
+      if (mentionedPatientId) {
+        const res = await fetch("/api/agent/ticket/route", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            patientId: mentionedPatientId,
+            ticketContent: content,
+          }),
+        });
+
+        if (res.ok) {
+          setTicketNote("");
+          setSelectedPatientId(null);
+          setMentionOpen(false);
+          setMentionQuery("");
+          setMentionStart(null);
+          setShowTaskForm(false);
+          setTaskFeedback({
+            type: "success",
+            text: "Suggestion IA creee. Vous pouvez maintenant la revoir, modifier et approuver depuis le profil patient.",
+          });
+          router.push(`/patients/${mentionedPatientId}`);
+          return;
+        }
+
+        const errorJson = await res.json().catch(() => ({}));
+        setTaskFeedback({
+          type: "error",
+          text: errorJson?.error || "Le routage IA a echoue. Vous pouvez envoyer une tache manuelle sans mention @.",
+        });
+        return;
+      }
+
+      const manualRes = await fetch("/api/tasks", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           content,
-          patientId: mentionedPatientId || null,
+          patientId: null,
         }),
       });
-      if (res.ok) {
+
+      if (manualRes.ok) {
         setTicketNote("");
         setSelectedPatientId(null);
         setMentionOpen(false);
         setMentionQuery("");
         setMentionStart(null);
         setShowTaskForm(false);
+        setTaskFeedback({ type: "success", text: "Tache manuelle creee avec succes." });
         fetchData();
+      } else {
+        const errorJson = await manualRes.json().catch(() => ({}));
+        setTaskFeedback({
+          type: "error",
+          text: errorJson?.error || "Impossible de creer la tache manuelle.",
+        });
       }
     } catch (err) {
       console.error("Failed to create task:", err);
+      setTaskFeedback({ type: "error", text: "Erreur reseau lors de la creation du ticket." });
     } finally {
       setTaskLoading(false);
     }
@@ -305,8 +349,8 @@ export function DoctorHome({ user }: { user: SessionUser }) {
           </h1>
           <p className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">{user.email}</p>
           <div className="flex items-center gap-3 mt-2">
-            <Badge variant="info" dot>Active</Badge>
-            <span className="text-xs text-gray-400 dark:text-slate-500">{patients.length} patients assigned</span>
+            <Badge variant="info" dot>Actif</Badge>
+            <span className="text-xs text-gray-400 dark:text-slate-500">{patients.length} patients assignés</span>
           </div>
         </div>
       </div>
@@ -314,13 +358,13 @@ export function DoctorHome({ user }: { user: SessionUser }) {
       {/* My Patients */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-semibold text-gray-900 dark:text-slate-100">My Patients</h2>
-          <span className="text-xs text-gray-400 dark:text-slate-500">{patients.length} total</span>
+          <h2 className="text-sm font-semibold text-gray-900 dark:text-slate-100">Mes patients</h2>
+          <span className="text-xs text-gray-400 dark:text-slate-500">{patients.length} au total</span>
         </div>
         {patients.length === 0 ? (
           <Card>
             <CardContent>
-              <p className="text-sm text-gray-400 dark:text-slate-400 text-center py-6">No patients currently assigned</p>
+              <p className="text-sm text-gray-400 dark:text-slate-400 text-center py-6">Aucun patient assigné pour le moment</p>
             </CardContent>
           </Card>
         ) : (
@@ -341,7 +385,7 @@ export function DoctorHome({ user }: { user: SessionUser }) {
                       {PATIENT_STATUS_LABELS[patient.status as keyof typeof PATIENT_STATUS_LABELS] || patient.status}
                     </Badge>
                     {patient.room && (
-                      <span className="text-[10px] text-gray-400 dark:text-slate-500">Room {patient.room.number}</span>
+                      <span className="text-[10px] text-gray-400 dark:text-slate-500">Chambre {patient.room.number}</span>
                     )}
                   </div>
                 </div>
@@ -358,15 +402,15 @@ export function DoctorHome({ user }: { user: SessionUser }) {
       <div className="rounded-2xl border border-gray-100 dark:border-slate-800 bg-gradient-to-b from-white to-gray-50/60 dark:from-slate-900 dark:to-slate-900/70 p-4 sm:p-5 transition-colors">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-sm font-semibold text-gray-900 dark:text-slate-100">Assigned Tickets</h2>
-            <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">Write a short doctor note and tag a patient with @.</p>
+            <h2 className="text-sm font-semibold text-gray-900 dark:text-slate-100">Tickets assignés</h2>
+            <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">Rédigez une courte note médecin et mentionnez un patient avec @.</p>
           </div>
           <Button
             size="sm"
             variant={showTaskForm ? "secondary" : "primary"}
             onClick={() => setShowTaskForm(!showTaskForm)}
           >
-            {showTaskForm ? "Cancel" : "+ New Ticket Note"}
+            {showTaskForm ? "Annuler" : "+ Nouvelle note ticket"}
           </Button>
         </div>
 
@@ -376,13 +420,13 @@ export function DoctorHome({ user }: { user: SessionUser }) {
             <CardContent>
               <form onSubmit={createTask} className="space-y-3">
                 <div className="relative">
-                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Doctor ticket note</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1.5">Note ticket médecin</label>
                   <textarea
                     ref={ticketTextareaRef}
                     value={ticketNote}
                     onChange={(e) => handleTicketNoteChange(e.target.value, e.target.selectionStart ?? e.target.value.length)}
                     className="w-full px-3.5 py-3 text-sm bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg placeholder:text-gray-400 dark:placeholder:text-slate-500 text-gray-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-brand-400/30 focus:border-brand-400 transition-all duration-150 resize-y min-h-[110px]"
-                    placeholder="Write a short note for the future agent workflow. Type @ to tag a patient, e.g. @Amina Benali"
+                    placeholder="Rédigez une courte note pour le futur flux agentique. Tapez @ pour mentionner un patient, ex. @Amina Benali"
                     rows={4}
                     required
                   />
@@ -406,12 +450,24 @@ export function DoctorHome({ user }: { user: SessionUser }) {
 
                 <div className="flex items-center justify-between gap-3 pt-1">
                   <p className="text-[11px] text-gray-500 dark:text-slate-400">
-                    {availablePatients.length} patients available for @mention from the current dashboard.
+                    {availablePatients.length} patients disponibles pour @mention depuis ce tableau de bord.
                   </p>
                   <Button type="submit" loading={taskLoading} disabled={!ticketNote.trim()}>
-                    Create Note Ticket
+                    Créer un ticket de note
                   </Button>
                 </div>
+
+                {taskFeedback && (
+                  <div
+                    className={`text-xs rounded-md px-2.5 py-2 ${
+                      taskFeedback.type === "success"
+                        ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300"
+                        : "bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-300"
+                    }`}
+                  >
+                    {taskFeedback.text}
+                  </div>
+                )}
               </form>
             </CardContent>
           </Card>
@@ -421,7 +477,7 @@ export function DoctorHome({ user }: { user: SessionUser }) {
         {tasks.length === 0 ? (
           <Card>
             <CardContent>
-              <p className="text-sm text-gray-400 dark:text-slate-400 text-center py-6">No tickets created yet</p>
+              <p className="text-sm text-gray-400 dark:text-slate-400 text-center py-6">Aucun ticket créé pour le moment</p>
             </CardContent>
           </Card>
         ) : (
@@ -451,7 +507,7 @@ export function DoctorHome({ user }: { user: SessionUser }) {
                   )}
                   <div className="flex items-center gap-2 mt-1">
                     <Badge variant="muted" className="text-[10px] px-1.5 py-0">
-                      {new Date(task.createdAt).toLocaleString("en-US", {
+                      {new Date(task.createdAt).toLocaleString("fr-FR", {
                         month: "short",
                         day: "numeric",
                         hour: "numeric",
@@ -474,8 +530,8 @@ export function DoctorHome({ user }: { user: SessionUser }) {
       {/* Full ward dashboard for doctors */}
       <div className="space-y-6 rounded-2xl border border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5 transition-colors">
         <div>
-          <h2 className="text-sm font-semibold text-gray-900 dark:text-slate-100">Ward Dashboard</h2>
-          <p className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">Complete live room visibility across all floors</p>
+          <h2 className="text-sm font-semibold text-gray-900 dark:text-slate-100">Tableau de service</h2>
+          <p className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">Vue en temps réel de toutes les chambres sur tous les étages</p>
         </div>
 
         <OccupancySummary rooms={rooms} />
@@ -499,7 +555,7 @@ export function DoctorHome({ user }: { user: SessionUser }) {
 
         <div>
           <h3 className="text-sm font-medium text-gray-400 dark:text-slate-500 mb-4">
-            {selectedFloor !== null ? floors.find((f) => f.number === selectedFloor)?.name : "All Floors"}
+            {selectedFloor !== null ? floors.find((f) => f.number === selectedFloor)?.name : "Tous les étages"}
           </h3>
           <RoomGrid rooms={rooms} loading={roomsLoading} />
         </div>

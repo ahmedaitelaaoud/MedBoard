@@ -11,6 +11,7 @@ import { ClinicalSummary } from "@/components/patient/ClinicalSummary";
 import { NotesTimeline } from "@/components/patient/NotesTimeline";
 import { DocumentsPlaceholder } from "@/components/patient/DocumentsPlaceholder";
 import { NoteEditor } from "@/components/notes/NoteEditor";
+import { AgentSuggestionsPanel } from "@/components/patient/AgentSuggestionsPanel";
 import { useAuth } from "@/hooks/useAuth";
 import { canCreateNoteType } from "@/lib/permissions";
 import type { PatientFull } from "@/types/domain";
@@ -91,6 +92,26 @@ export default function PatientPage() {
         {/* Patient header */}
         <PatientHeader patient={patient} />
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <Link
+            href={`/agent/diagnostic?patientId=${patient.id}&patientName=${encodeURIComponent(`${patient.firstName} ${patient.lastName}`)}&patientCode=${patient.patientCode}`}
+            className="rounded-xl border border-blue-100 dark:border-blue-900/40 bg-blue-50/70 dark:bg-blue-900/15 px-4 py-3 hover:border-blue-200 dark:hover:border-blue-800/60 transition-colors"
+          >
+            <p className="text-xs text-blue-600 dark:text-blue-300">Future AI workflow</p>
+            <p className="text-sm font-semibold text-blue-900 dark:text-blue-100 mt-0.5">Diagnostic upload et suggestions médecin</p>
+            <p className="text-xs text-blue-700/80 dark:text-blue-200/80 mt-1">Simuler upload, analyse IA et validation clinique.</p>
+          </Link>
+
+          <Link
+            href={`/agent/schedule?patientId=${patient.id}&patientName=${encodeURIComponent(`${patient.firstName} ${patient.lastName}`)}&patientCode=${patient.patientCode}`}
+            className="rounded-xl border border-emerald-100 dark:border-emerald-900/40 bg-emerald-50/70 dark:bg-emerald-900/15 px-4 py-3 hover:border-emerald-200 dark:hover:border-emerald-800/60 transition-colors"
+          >
+            <p className="text-xs text-emerald-600 dark:text-emerald-300">Future AI workflow</p>
+            <p className="text-sm font-semibold text-emerald-900 dark:text-emerald-100 mt-0.5">Suggestion planning et synchronisation portail patient</p>
+            <p className="text-xs text-emerald-700/80 dark:text-emerald-200/80 mt-1">Simuler approbation partielle et reflet instantané côté patient.</p>
+          </Link>
+        </div>
+
         {/* Content grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left column — demographics + documents */}
@@ -107,6 +128,8 @@ export default function PatientPage() {
 
           {/* Right column — clinical + notes */}
           <div className="lg:col-span-2 space-y-6">
+            {user?.role === "DOCTOR" && <AgentSuggestionsPanel patientId={patient.id} />}
+
             <ClinicalSummary record={patient.medicalRecord} patientId={patient.id} userRole={user?.role} onUpdate={fetchPatient} />
 
             {/* Note editor (only for doctors and nurses) */}

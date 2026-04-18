@@ -8,6 +8,7 @@ import { OccupancySummary } from "@/components/dashboard/OccupancySummary";
 import { FloorSelector } from "@/components/dashboard/FloorSelector";
 import { FilterBar } from "@/components/dashboard/FilterBar";
 import { RoomGrid } from "@/components/dashboard/RoomGrid";
+import { NurseNotificationsPanel } from "@/components/dashboard/NurseNotificationsPanel";
 import { useDebounce } from "@/hooks/useDebounce";
 import type { SessionUser } from "@/lib/auth";
 import type { RoomWithPatient } from "@/types/domain";
@@ -18,6 +19,7 @@ interface TaskItem {
   description: string | null;
   priority: string;
   status: string;
+  source?: string;
   patient: { id: string; firstName: string; lastName: string; patientCode?: string } | null;
   createdBy: { id: string; firstName: string; lastName: string };
   createdAt: string;
@@ -59,8 +61,8 @@ function ensureOpenCategoryExamples(tasks: TaskItem[]): { mergedTasks: TaskItem[
   if (!openCategories.has("PATIENT_CHECKS")) {
     examples.push({
       id: "sample-category-patient-checks",
-      title: "Routine patient checks",
-      description: "Perform vitals and comfort round for assigned patients before shift handoff.",
+      title: "Vérifications patient de routine",
+      description: "Effectuer les constantes et le tour de confort des patients assignés avant la relève.",
       priority: "NORMAL",
       status: "IN_PROGRESS",
       patient: { id: "sample-p-cat-1", firstName: "Ahmed", lastName: "Benjelloun", patientCode: "PAT-00001" },
@@ -72,8 +74,8 @@ function ensureOpenCategoryExamples(tasks: TaskItem[]): { mergedTasks: TaskItem[
   if (!openCategories.has("MEDICATION")) {
     examples.push({
       id: "sample-category-medication",
-      title: "Administer scheduled medication",
-      description: "Give due medication round and verify allergies before administration.",
+      title: "Administrer le traitement planifié",
+      description: "Faire le passage médicamenteux prévu et vérifier les allergies avant administration.",
       priority: "HIGH",
       status: "IN_PROGRESS",
       patient: { id: "sample-p-cat-2", firstName: "Fatima Zahra", lastName: "Kettani", patientCode: "PAT-00002" },
@@ -85,8 +87,8 @@ function ensureOpenCategoryExamples(tasks: TaskItem[]): { mergedTasks: TaskItem[
   if (!openCategories.has("ADMIN_HANDOVER")) {
     examples.push({
       id: "sample-category-admin-handover",
-      title: "Prepare admin handover summary",
-      description: "Update handover chart and discharge paperwork for the next shift.",
+      title: "Préparer le résumé administratif de relève",
+      description: "Mettre à jour la feuille de relève et la sortie pour l'équipe suivante.",
       priority: "NORMAL",
       status: "PENDING",
       patient: { id: "sample-p-cat-3", firstName: "Houda", lastName: "Berrada", patientCode: "PAT-00006" },
@@ -113,8 +115,8 @@ function getExampleNurseTasks(): TaskItem[] {
   return [
     {
       id: "sample-nurse-task-1",
-      title: "Morning vitals round",
-      description: "Check BP, HR, SpO2 and temperature for assigned rooms before 09:00.",
+      title: "Tournée matinale des constantes",
+      description: "Contrôler TA, FC, SpO2 et température des chambres assignées avant 09:00.",
       priority: "HIGH",
       status: "PENDING",
       patient: { id: "sample-p-1", firstName: "Ahmed", lastName: "Benjelloun", patientCode: "PAT-00001" },
@@ -123,8 +125,8 @@ function getExampleNurseTasks(): TaskItem[] {
     },
     {
       id: "sample-nurse-task-2",
-      title: "Administer IV antibiotics",
-      description: "Give scheduled dose at 14:00 and monitor for allergic reaction.",
+      title: "Administrer les antibiotiques IV",
+      description: "Administrer la dose prévue à 14:00 et surveiller toute réaction allergique.",
       priority: "HIGH",
       status: "IN_PROGRESS",
       patient: { id: "sample-p-2", firstName: "Fatima Zahra", lastName: "Kettani", patientCode: "PAT-00002" },
@@ -133,8 +135,8 @@ function getExampleNurseTasks(): TaskItem[] {
     },
     {
       id: "sample-nurse-task-3",
-      title: "Glucose monitoring",
-      description: "Pre-meal and bedtime glucose checks with chart update.",
+      title: "Surveillance glycémique",
+      description: "Contrôles glycémie avant repas et au coucher avec mise à jour du dossier.",
       priority: "NORMAL",
       status: "PENDING",
       patient: { id: "sample-p-3", firstName: "Mohammed", lastName: "Alaoui", patientCode: "PAT-00003" },
@@ -143,8 +145,8 @@ function getExampleNurseTasks(): TaskItem[] {
     },
     {
       id: "sample-nurse-task-4",
-      title: "Prepare discharge paperwork",
-      description: "Verify medication reconciliation and handover summary before discharge.",
+      title: "Préparer le dossier de sortie",
+      description: "Vérifier la conciliation médicamenteuse et le résumé de relève avant la sortie.",
       priority: "LOW",
       status: "PENDING",
       patient: { id: "sample-p-4", firstName: "Houda", lastName: "Berrada", patientCode: "PAT-00006" },
@@ -181,7 +183,7 @@ export function NurseHome({ user }: { user: SessionUser }) {
           setTasks(mergedTasks);
 
           if (addedCount > 0) {
-            setTaskActionMessage(`Added ${addedCount} example task${addedCount > 1 ? "s" : ""} to fill empty board categories.`);
+            setTaskActionMessage(`${addedCount} tâche(s) exemple ajoutée(s) pour compléter les catégories vides du tableau.`);
             setTimeout(() => setTaskActionMessage(null), 3200);
           }
 
@@ -191,13 +193,13 @@ export function NurseHome({ user }: { user: SessionUser }) {
 
       const { mergedTasks } = ensureOpenCategoryExamples(getExampleNurseTasks());
       setTasks(mergedTasks);
-      setTaskActionMessage("No assigned tasks found. Showing example nurse tasks.");
+      setTaskActionMessage("Aucune tâche assignée trouvée. Affichage de tâches infirmier(ère) exemple.");
       setTimeout(() => setTaskActionMessage(null), 3200);
     } catch (err) {
       console.error("Failed to fetch tasks:", err);
       const { mergedTasks } = ensureOpenCategoryExamples(getExampleNurseTasks());
       setTasks(mergedTasks);
-      setTaskActionMessage("Unable to load tasks. Showing example nurse tasks.");
+      setTaskActionMessage("Impossible de charger les tâches. Affichage de tâches infirmier(ère) exemple.");
       setTimeout(() => setTaskActionMessage(null), 3200);
     } finally {
       setLoading(false);
@@ -263,14 +265,14 @@ export function NurseHome({ user }: { user: SessionUser }) {
 
   const updateTaskStatus = async (taskId: string, status: string) => {
     if (status === "COMPLETED") {
-      const confirmed = window.confirm("Security confirmation: are you sure you want to mark this task as completed?");
+      const confirmed = window.confirm("Confirmation de sécurité: voulez-vous vraiment marquer cette tâche comme terminée?");
       if (!confirmed) {
-        setTaskActionMessage("Task completion was cancelled for security.");
+        setTaskActionMessage("La finalisation de la tâche a été annulée pour sécurité.");
         setTimeout(() => setTaskActionMessage(null), 2200);
         return;
       }
 
-      setTaskActionMessage("Security confirmation received. Completing task...");
+      setTaskActionMessage("Confirmation de sécurité reçue. Finalisation de la tâche...");
       setTimeout(() => setTaskActionMessage(null), 1600);
     }
 
@@ -289,7 +291,7 @@ export function NurseHome({ user }: { user: SessionUser }) {
       );
 
       if (status === "COMPLETED") {
-        setTaskActionMessage("Task marked as completed after confirmation.");
+        setTaskActionMessage("Tâche marquée comme terminée après confirmation.");
         setTimeout(() => setTaskActionMessage(null), 2200);
       }
 
@@ -306,7 +308,7 @@ export function NurseHome({ user }: { user: SessionUser }) {
         fetchTasks();
 
         if (status === "COMPLETED") {
-          setTaskActionMessage("Task marked as completed.");
+          setTaskActionMessage("Tâche marquée comme terminée.");
           setTimeout(() => setTaskActionMessage(null), 2200);
         }
       }
@@ -348,7 +350,7 @@ export function NurseHome({ user }: { user: SessionUser }) {
 
   const formatTaskTime = (dateString: string) => {
     try {
-      return new Intl.DateTimeFormat("en-GB", {
+      return new Intl.DateTimeFormat("fr-FR", {
         hour: "2-digit",
         minute: "2-digit",
         hour12: false,
@@ -366,25 +368,25 @@ export function NurseHome({ user }: { user: SessionUser }) {
   }[] = [
     {
       key: "PATIENT_CHECKS",
-      title: "PATIENT CHECKS",
+      title: "VÉRIFICATIONS PATIENT",
       subtitle: "(VÉRIFICATIONS PATIENTS)",
       tasks: patientChecks,
     },
     {
       key: "MEDICATION",
-      title: "MEDICATION",
+      title: "MÉDICATION",
       subtitle: "(MÉDICAMENTS)",
       tasks: medication,
     },
     {
       key: "ADMIN_HANDOVER",
-      title: "ADMIN & HANDOVER",
+      title: "ADMIN & RELÈVE",
       subtitle: "(ADMINISTRATIVE ET TRANSMISSION)",
       tasks: adminHandover,
     },
     {
       key: "COMPLETED",
-      title: "COMPLETED",
+      title: "TERMINÉ",
       subtitle: "(TERMINÉ)",
       tasks: completedTasks,
     },
@@ -406,9 +408,14 @@ export function NurseHome({ user }: { user: SessionUser }) {
         `}
       >
         <div className="flex items-start justify-between gap-2">
-          <p className={`text-sm font-semibold leading-snug ${isCompleted ? "text-gray-500 dark:text-slate-500 line-through" : "text-slate-800 dark:text-slate-100"}`}>
-            {task.title}
-          </p>
+          <div className="min-w-0">
+            <p className={`text-sm font-semibold leading-snug ${isCompleted ? "text-gray-500 dark:text-slate-500 line-through" : "text-slate-800 dark:text-slate-100"}`}>
+              {task.title}
+            </p>
+            {task.source === "AGENT" && (
+              <Badge variant="info" className="text-[10px] px-1.5 py-0 mt-1">Routage IA</Badge>
+            )}
+          </div>
           <Badge
             variant={priorityToBadgeVariant(normalizePriority(task.priority)) as "critical" | "warning" | "muted"}
             className="text-[10px] px-1.5 py-0 uppercase shrink-0"
@@ -426,7 +433,7 @@ export function NurseHome({ user }: { user: SessionUser }) {
           <p className="text-sm text-slate-600 dark:text-slate-300">
             {task.patient
               ? `${task.patient.firstName} ${task.patient.lastName}`
-              : `From Dr. ${task.createdBy.firstName} ${task.createdBy.lastName}`}
+                : `Par Dr. ${task.createdBy.firstName} ${task.createdBy.lastName}`}
           </p>
         </div>
 
@@ -434,20 +441,20 @@ export function NurseHome({ user }: { user: SessionUser }) {
           <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">{formatTaskTime(task.createdAt)}</span>
 
           {isCompleted ? (
-            <Badge variant="success" className="text-[10px] px-2 py-0">Done</Badge>
+            <Badge variant="success" className="text-[10px] px-2 py-0">Terminé</Badge>
           ) : task.status === "IN_PROGRESS" ? (
             <button
               onClick={() => updateTaskStatus(task.id, "COMPLETED")}
               className="text-[11px] font-medium px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-900/60 text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/35 transition-colors"
             >
-              Mark as completed
+              Marquer comme terminée
             </button>
           ) : (
             <button
               onClick={() => updateTaskStatus(task.id, "IN_PROGRESS")}
               className="text-[11px] font-medium px-2.5 py-1 rounded-full border border-amber-200 dark:border-amber-900/60 text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/35 transition-colors"
             >
-              To Do
+              À faire
             </button>
           )}
         </div>
@@ -477,29 +484,31 @@ export function NurseHome({ user }: { user: SessionUser }) {
           </h1>
           <p className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">{user.email}</p>
           <div className="flex items-center gap-3 mt-2">
-            <Badge variant="info" dot>On Duty</Badge>
+            <Badge variant="info" dot>En service</Badge>
             <span className="text-xs text-gray-400 dark:text-slate-500">
-              {totalActive} active tasks
+              {totalActive} tâches actives
             </span>
           </div>
         </div>
       </div>
 
+      <NurseNotificationsPanel />
+
       {/* Daily task board */}
       <div className="rounded-2xl border border-gray-200/80 dark:border-slate-700 bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-900/90 p-4 sm:p-5 shadow-sm transition-colors duration-200">
         <div className="flex items-start justify-between gap-3 mb-4">
           <div>
-            <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">Daily Task Board</h2>
-            <p className="text-[11px] uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400 mt-1">Your nurse workflow for today</p>
+            <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">Tableau de tâches quotidien</h2>
+            <p className="text-[11px] uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400 mt-1">Votre flux infirmier(ère) pour aujourd’hui</p>
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <span className="text-xs px-2.5 py-1 rounded-full bg-blue-50 dark:bg-blue-900/25 text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-blue-900/50">
-                Active: {totalActive}
+                Actives: {totalActive}
               </span>
               <span className="text-xs px-2.5 py-1 rounded-full bg-amber-50 dark:bg-amber-900/25 text-amber-700 dark:text-amber-300 border border-amber-100 dark:border-amber-900/50">
-                In progress: {inProgressCount}
+                En cours: {inProgressCount}
               </span>
               <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-50 dark:bg-emerald-900/25 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-900/50">
-                Completed: {completedCount}
+                Terminées: {completedCount}
               </span>
             </div>
           </div>
@@ -518,14 +527,14 @@ export function NurseHome({ user }: { user: SessionUser }) {
                   }
                 `}
               >
-                {filter === "ALL" ? "All" : filter === "URGENT" ? "Urgent" : filter === "HIGH" ? "High" : "Normal"}
+                {filter === "ALL" ? "Toutes" : filter === "URGENT" ? "Urgent" : filter === "HIGH" ? "Élevée" : "Normale"}
               </button>
             ))}
           </div>
         </div>
 
         <div className="flex items-center justify-between mb-3.5">
-          <div className="text-[10px] uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Task categories</div>
+          <div className="text-[10px] uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Catégories de tâches</div>
           <div className="text-xs text-slate-500 dark:text-slate-400 capitalize">{boardDateLabel}</div>
         </div>
 
@@ -547,7 +556,7 @@ export function NurseHome({ user }: { user: SessionUser }) {
               <div className="mt-2.5 space-y-2.5 min-h-[260px]">
                 {column.tasks.length === 0 ? (
                   <div className="h-[56px] rounded-lg border border-dashed border-slate-300 dark:border-slate-600 bg-white/80 dark:bg-slate-900/40 flex items-center justify-center text-xs text-slate-500 dark:text-slate-400">
-                    No task
+                    Aucune tâche
                   </div>
                 ) : (
                   column.tasks.map(renderTaskCard)
@@ -561,7 +570,7 @@ export function NurseHome({ user }: { user: SessionUser }) {
       {tasks.length === 0 && (
         <Card>
           <CardContent>
-            <p className="text-sm text-gray-400 dark:text-slate-400 text-center py-8">No tasks assigned yet. Tasks from doctors will appear here.</p>
+            <p className="text-sm text-gray-400 dark:text-slate-400 text-center py-8">Aucune tâche assignée pour le moment. Les tâches des médecins apparaîtront ici.</p>
           </CardContent>
         </Card>
       )}
@@ -569,8 +578,8 @@ export function NurseHome({ user }: { user: SessionUser }) {
       {/* Full room dashboard for nurses */}
       <div className="space-y-6 rounded-2xl border border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5 transition-colors">
         <div>
-          <h2 className="text-sm font-semibold text-gray-900 dark:text-slate-100">All Rooms</h2>
-          <p className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">Complete live room visibility across all floors</p>
+          <h2 className="text-sm font-semibold text-gray-900 dark:text-slate-100">Toutes les chambres</h2>
+          <p className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">Vue en temps réel de toutes les chambres sur tous les étages</p>
         </div>
 
         <OccupancySummary rooms={rooms} />
@@ -594,7 +603,7 @@ export function NurseHome({ user }: { user: SessionUser }) {
 
         <div>
           <h3 className="text-sm font-medium text-gray-400 dark:text-slate-500 mb-4">
-            {selectedFloor !== null ? floors.find((f) => f.number === selectedFloor)?.name : "All Floors"}
+            {selectedFloor !== null ? floors.find((f) => f.number === selectedFloor)?.name : "Tous les étages"}
           </h3>
           <RoomGrid rooms={rooms} loading={roomsLoading} />
         </div>
