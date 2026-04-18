@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
 const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "medboard-dev-secret-2026"
+  process.env.JWT_SECRET || "medboard-dev-secret-fallback"
 );
 
 const PUBLIC_PATHS = ["/login", "/api/auth/login"];
