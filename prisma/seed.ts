@@ -88,11 +88,8 @@ async function main() {
     // Admins
     prisma.user.create({ data: { email: "admin@medboard.local", password: "demo123", firstName: "Nadia", lastName: "Ziani", role: "ADMIN" } }),
     prisma.user.create({ data: { email: "admin2@medboard.local", password: "demo123", firstName: "Mehdi", lastName: "Bouchta", role: "ADMIN" } }),
-    // Read-only
-    prisma.user.create({ data: { email: "viewer@medboard.local", password: "demo123", firstName: "Sara", lastName: "Mouline", role: "READONLY" } }),
-    prisma.user.create({ data: { email: "viewer2@medboard.local", password: "demo123", firstName: "Amine", lastName: "Fassi", role: "READONLY" } }),
   ]);
-  console.log(`  ✓ ${users.length} users`);
+  console.log(`  ✓ ${users.length} staff users`);
 
   const doctors = users.filter((u) => u.role === "DOCTOR");
   const nurses = users.filter((u) => u.role === "NURSE");
@@ -147,6 +144,33 @@ async function main() {
     patients.push(patient);
   }
   console.log(`  ✓ ${patients.length} patients`);
+
+  // ─── Patient portal users ────────────────────────────────────────────────
+  const patientPortalUsers = await Promise.all([
+    prisma.user.create({
+      data: {
+        email: "patient.ahmed@medboard.local",
+        password: "demo123",
+        firstName: patients[0].firstName,
+        lastName: patients[0].lastName,
+        role: "PATIENT",
+        patientId: patients[0].id,
+        isAvailable: false,
+      },
+    }),
+    prisma.user.create({
+      data: {
+        email: "patient.fatima@medboard.local",
+        password: "demo123",
+        firstName: patients[1].firstName,
+        lastName: patients[1].lastName,
+        role: "PATIENT",
+        patientId: patients[1].id,
+        isAvailable: false,
+      },
+    }),
+  ]);
+  console.log(`  ✓ ${patientPortalUsers.length} patient portal users`);
 
   // ─── Medical Records ───────────────────────────────────────────────────────
   const diagnoses = [

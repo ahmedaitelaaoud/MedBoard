@@ -31,7 +31,7 @@ export function LoginForm() {
         return;
       }
 
-      router.push("/dashboard");
+      router.push(data.redirectTo || "/dashboard");
     } catch {
       setError("Network error. Please try again.");
     } finally {
@@ -43,7 +43,7 @@ export function LoginForm() {
     { label: "Doctor", email: "dr.amrani@medboard.local", desc: "Full clinical access" },
     { label: "Nurse", email: "n.benali@medboard.local", desc: "Patient care tasks" },
     { label: "Admin", email: "admin@medboard.local", desc: "Platform management" },
-    { label: "Read-only", email: "viewer@medboard.local", desc: "View-only access" },
+    { label: "Patient", email: "patient.ahmed@medboard.local", desc: "Profile and visit schedule" },
   ];
 
   return (

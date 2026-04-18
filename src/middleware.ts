@@ -7,6 +7,8 @@ const JWT_SECRET = new TextEncoder().encode(
 );
 
 const PUBLIC_PATHS = ["/login", "/api/auth/login"];
+const PATIENT_PORTAL_PATH = "/patient";
+const PATIENT_ALLOWED_API_PREFIXES = ["/api/auth/me", "/api/auth/logout", "/api/patient-portal"];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -38,7 +40,30 @@ export async function middleware(request: NextRequest) {
 
   // Verify token
   try {
-    await jwtVerify(token, JWT_SECRET);
+    const { payload } = await jwtVerify(token, JWT_SECRET);
+    const role = typeof payload.role === "string" ? payload.role : null;
+
+    // Patients are restricted to their own portal and minimal auth APIs.
+    if (role === "PATIENT") {
+      if (pathname.startsWith("/api/")) {
+        const allowedApi = PATIENT_ALLOWED_API_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+        if (!allowedApi) {
+          return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+        }
+        return NextResponse.next();
+      }
+
+      if (!pathname.startsWith(PATIENT_PORTAL_PATH)) {
+        return NextResponse.redirect(new URL(PATIENT_PORTAL_PATH, request.url));
+      }
+
+      return NextResponse.next();
+    }
+
+    if (pathname.startsWith(PATIENT_PORTAL_PATH)) {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+
     return NextResponse.next();
   } catch {
     // Invalid token — redirect to login

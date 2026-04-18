@@ -4,7 +4,7 @@ import { createToken, getSessionCookieName } from "@/lib/auth";
 import { loginSchema } from "@/lib/validation/auth";
 import { logActivity } from "@/lib/activity-logger";
 import { badRequest, serverError } from "@/lib/errors";
-import type { Role } from "@/lib/constants";
+import { Role } from "@/lib/constants";
 
 export async function POST(request: Request) {
   try {
@@ -32,6 +32,7 @@ export async function POST(request: Request) {
     };
 
     const token = await createToken(sessionUser);
+    const redirectTo = sessionUser.role === Role.PATIENT ? "/patient" : "/dashboard";
 
     // Log the login
     logActivity({
@@ -40,7 +41,7 @@ export async function POST(request: Request) {
       details: `${user.firstName} ${user.lastName} logged in`,
     });
 
-    const response = NextResponse.json({ user: sessionUser });
+    const response = NextResponse.json({ user: sessionUser, redirectTo });
     response.cookies.set(getSessionCookieName(), token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",

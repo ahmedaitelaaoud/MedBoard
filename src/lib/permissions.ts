@@ -10,7 +10,8 @@ import type { SessionUser } from "./auth";
 
 const PERMISSIONS: Record<string, readonly Role[]> = {
   // Patient data
-  "patient:read":          [Role.DOCTOR, Role.NURSE, Role.ADMIN, Role.READONLY],
+  "patient:read":          [Role.DOCTOR, Role.NURSE, Role.ADMIN],
+  "patient:self:read":     [Role.PATIENT],
   "patient:create":        [Role.DOCTOR, Role.ADMIN],
   "patient:update":        [Role.DOCTOR, Role.ADMIN],
 
@@ -25,7 +26,7 @@ const PERMISSIONS: Record<string, readonly Role[]> = {
   "note:update":           [Role.DOCTOR],
 
   // Room management
-  "room:read":             [Role.DOCTOR, Role.NURSE, Role.ADMIN, Role.READONLY],
+  "room:read":             [Role.DOCTOR, Role.NURSE, Role.ADMIN],
   "room:manage":           [Role.ADMIN],
 
   // Staff
@@ -40,7 +41,7 @@ const PERMISSIONS: Record<string, readonly Role[]> = {
   "chat:send":             [Role.DOCTOR, Role.NURSE],
 
   // Dashboard
-  "dashboard:read":        [Role.DOCTOR, Role.NURSE, Role.ADMIN, Role.READONLY],
+  "dashboard:read":        [Role.DOCTOR, Role.NURSE, Role.ADMIN],
   "dashboard:manage":      [Role.ADMIN],
 } as const;
 

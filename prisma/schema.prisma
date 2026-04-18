@@ -14,6 +14,7 @@ model User {
   firstName String
   lastName  String
   role      String   @default("NURSE")
+  patientId String?  @unique
   avatarUrl String?
   active    Boolean  @default(true)
   specialty String?
@@ -29,6 +30,7 @@ model User {
   tasksAssigned       Task[]       @relation("TaskAssignee")
   messagesSent        DirectMessage[] @relation("DirectMessageSender")
   messagesReceived    DirectMessage[] @relation("DirectMessageRecipient")
+  patient             Patient?     @relation("PatientAccount", fields: [patientId], references: [id])
 }
 
 model Floor {
@@ -87,6 +89,7 @@ model Patient {
   activityLogs  ActivityLog[]
   documents     Document[]
   tasks         Task[]
+  account       User?         @relation("PatientAccount")
 }
 
 model MedicalRecord {
