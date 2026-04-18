@@ -106,7 +106,7 @@ export default function PatientsPage() {
               <Button size="sm" onClick={() => router.push("/patients/register")}>Enregistrer un patient</Button>
             )}
             {canRegisterEmergency && (
-              <Button size="sm" variant="secondary" onClick={() => router.push("/patients/register?mode=emergency")}>Admission d'urgence</Button>
+              <Button size="sm" variant="secondary" onClick={() => router.push("/patients/register?mode=emergency")}>Admission d’urgence</Button>
             )}
           </div>
         </div>

@@ -164,7 +164,7 @@ export function PatientIntakeForm({ userRole, initialMode = "NORMAL", onSuccess 
     return (
       <Card>
         <CardContent>
-          <p className="text-sm text-red-600 dark:text-red-300">Vous n'avez pas la permission d'enregistrer des patients.</p>
+          <p className="text-sm text-red-600 dark:text-red-300">Vous n’avez pas la permission d’enregistrer des patients.</p>
         </CardContent>
       </Card>
     );
@@ -175,7 +175,7 @@ export function PatientIntakeForm({ userRole, initialMode = "NORMAL", onSuccess 
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between gap-3">
-            <h2 className="text-sm font-semibold text-gray-900 dark:text-slate-100">Mode d'admission</h2>
+            <h2 className="text-sm font-semibold text-gray-900 dark:text-slate-100">Mode d’admission</h2>
             <label className="inline-flex items-center gap-2 text-xs text-gray-600 dark:text-slate-300">
               <input
                 type="checkbox"
@@ -184,19 +184,19 @@ export function PatientIntakeForm({ userRole, initialMode = "NORMAL", onSuccess 
                 onChange={(e) => setTemporaryRegistration(e.target.checked)}
                 disabled={!isAdmin}
               />
-              Admission d'urgence temporaire
+              Admission d’urgence temporaire
             </label>
           </div>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-gray-500 dark:text-slate-400">
             {temporaryRegistration
-              ? "Le mode temporaire permet au médecin/infirmier(ère)/admin de créer une identité incomplète afin de démarrer les soins immédiatement. L'admission/admin peut compléter les données officielles plus tard."
-              : "Le mode normal correspond à l'enregistrement administratif. Utilisez-le pour les arrivées standards avec identité complète et détails d'admission."}
+              ? "Le mode temporaire permet au médecin/infirmier(ère)/admin de créer une identité incomplète afin de démarrer les soins immédiatement. L’admission/admin peut compléter les données officielles plus tard."
+              : "Le mode normal correspond à l’enregistrement administratif. Utilisez-le pour les arrivées standards avec identité complète et détails d’admission."}
           </p>
           {!isAdmin && (
             <p className="text-xs text-amber-600 dark:text-amber-300 mt-2">
-              Les rôles non-admin ne peuvent soumettre qu'une admission d'urgence temporaire.
+              Les rôles non-admin ne peuvent soumettre qu’une admission d’urgence temporaire.
             </p>
           )}
         </CardContent>
@@ -204,7 +204,7 @@ export function PatientIntakeForm({ userRole, initialMode = "NORMAL", onSuccess 
 
       <Card>
         <CardHeader>
-          <h2 className="text-sm font-semibold text-gray-900 dark:text-slate-100">Informations d'identité</h2>
+          <h2 className="text-sm font-semibold text-gray-900 dark:text-slate-100">Informations d’identité</h2>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
           <Input
@@ -249,17 +249,17 @@ export function PatientIntakeForm({ userRole, initialMode = "NORMAL", onSuccess 
 
       <Card>
         <CardHeader>
-          <h2 className="text-sm font-semibold text-gray-900 dark:text-slate-100">Contact / Contact d'urgence</h2>
+          <h2 className="text-sm font-semibold text-gray-900 dark:text-slate-100">Contact / Contact d’urgence</h2>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
           <Input label="Numéro de téléphone" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
           <Input
-            label="Nom du contact d'urgence"
+            label="Nom du contact d’urgence"
             value={emergencyContact}
             onChange={(e) => setEmergencyContact(e.target.value)}
           />
           <Input
-            label="Téléphone du contact d'urgence"
+            label="Téléphone du contact d’urgence"
             value={emergencyPhone}
             onChange={(e) => setEmergencyPhone(e.target.value)}
           />
@@ -268,31 +268,31 @@ export function PatientIntakeForm({ userRole, initialMode = "NORMAL", onSuccess 
 
       <Card>
         <CardHeader>
-          <h2 className="text-sm font-semibold text-gray-900 dark:text-slate-100">Informations d'admission</h2>
+          <h2 className="text-sm font-semibold text-gray-900 dark:text-slate-100">Informations d’admission</h2>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
           <Input
-            label="Date/heure d'admission"
+            label="Date/heure d’admission"
             type="datetime-local"
             value={admissionDate}
             onChange={(e) => setAdmissionDate(e.target.value)}
           />
           <Select
-            label="Source d'admission"
+            label="Source d’admission"
             value={admissionSource}
             onChange={(e) => setAdmissionSource(e.target.value)}
             options={Object.entries(ADMISSION_SOURCE_LABELS).map(([value, label]) => ({ value, label }))}
             disabled={temporaryRegistration}
           />
           <Select
-            label="Statut d'enregistrement"
+            label="Statut d’enregistrement"
             value={registrationStatus}
             onChange={(e) => setRegistrationStatus(e.target.value)}
             options={Object.entries(REGISTRATION_STATUS_LABELS).map(([value, label]) => ({ value, label }))}
             disabled={temporaryRegistration}
           />
           <Select
-            label="Statut d'admission"
+            label="Statut d’admission"
             value={admissionStatus}
             onChange={(e) => setAdmissionStatus(e.target.value)}
             options={Object.entries(ADMISSION_STATUS_LABELS).map(([value, label]) => ({ value, label }))}
@@ -313,7 +313,7 @@ export function PatientIntakeForm({ userRole, initialMode = "NORMAL", onSuccess 
             disabled={loadingRooms}
           />
           <p className="text-xs text-gray-400 dark:text-slate-500 mt-2">
-            Laissez non affecté si la chambre n'est pas encore connue.
+            Laissez non affecté si la chambre n’est pas encore connue.
           </p>
         </CardContent>
       </Card>

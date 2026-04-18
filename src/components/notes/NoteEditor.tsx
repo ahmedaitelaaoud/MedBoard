@@ -56,7 +56,7 @@ export function NoteEditor({ medicalRecordId, userRole, onNoteCreated }: NoteEdi
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold text-gray-900 dark:text-slate-100">Ajouter une note</h2>
           {userRole === "NURSE" && (
-            <span className="text-[10px] text-gray-400 dark:text-slate-500">Notes d'observation uniquement</span>
+            <span className="text-[10px] text-gray-400 dark:text-slate-500">Notes d’observation uniquement</span>
           )}
         </div>
       </CardHeader>

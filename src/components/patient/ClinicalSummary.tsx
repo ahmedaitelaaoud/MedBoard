@@ -88,7 +88,7 @@ export function ClinicalSummary({ record, patientId, userRole, onUpdate }: Clini
         </CardHeader>
         <CardContent>
           <p className="text-sm text-gray-500 dark:text-slate-400">
-            Le patient est enregistré, mais le dossier clinique n'est pas encore initialisé.
+            Le patient est enregistré, mais le dossier clinique n’est pas encore initialisé.
           </p>
           {userRole !== "DOCTOR" && (
             <p className="text-xs text-gray-400 dark:text-slate-500 mt-2">Seuls les médecins peuvent initialiser et modifier le dossier médical.</p>

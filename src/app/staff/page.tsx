@@ -57,7 +57,7 @@ export default function StaffPage() {
       <div className="space-y-8 max-w-5xl">
         <div>
           <h1 className="text-lg font-semibold text-gray-900 dark:text-slate-100">Annuaire du personnel</h1>
-          <p className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">{staff.length} membres de l'équipe</p>
+          <p className="text-sm text-gray-500 dark:text-slate-400 mt-0.5">{staff.length} membres de l’équipe</p>
         </div>
 
         {loading ? (
