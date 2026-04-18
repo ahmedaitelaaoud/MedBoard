@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { Avatar } from "@/components/ui/Avatar";
 import { can } from "@/lib/permissions";
-import { Role } from "@/lib/constants";
 import type { SessionUser } from "@/lib/auth";
 
 function getNavItems(user: SessionUser | null) {
@@ -23,7 +22,7 @@ function getNavItems(user: SessionUser | null) {
     });
   }
 
-  if (user && (user.role === Role.DOCTOR || user.role === Role.ADMIN)) {
+  if (can(user, "patient:read")) {
     items.push({
       name: "Patients",
       href: "/patients",
