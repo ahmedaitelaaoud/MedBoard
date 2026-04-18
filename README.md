@@ -2,6 +2,32 @@
 
 Last updated: 2026-04-18
 
+## Quick Start (Simple Setup)
+
+If someone installs this project for the first time, follow these steps:
+
+1. Clone and enter the project folder.
+2. Run initial setup:
+  - Preferred: `./setup.sh`
+  - Alternative: `make setup`
+3. Create your local environment file:
+  - `cp .env.example .env`
+  - Fill in at least:
+    - `JWT_SECRET`
+    - `GEMINI_API_KEY`
+4. Prepare database and Prisma client:
+  - `host-spawn env PATH="/goinfre/$USER/node/bin:$PATH" npx prisma generate`
+  - `host-spawn env PATH="/goinfre/$USER/node/bin:$PATH" npx prisma db push`
+  - Optional demo data: `host-spawn env PATH="/goinfre/$USER/node/bin:$PATH" npx prisma db seed`
+5. Start the development server:
+  - `host-spawn env PATH="/goinfre/$USER/node/bin:$PATH" npm run dev`
+6. Open the app:
+  - `http://localhost:3000`
+
+Notes:
+- On some cluster machines, npm is not in PATH by default; use `host-spawn env PATH="/goinfre/$USER/node/bin:$PATH" ...`.
+- Do not commit `.env` or any real API keys.
+
 This document explains MedBoard in simple technical terms:
 - What the platform does
 - Which stack is used
