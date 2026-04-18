@@ -10,6 +10,7 @@ export const Role = {
   DOCTOR: "DOCTOR",
   NURSE: "NURSE",
   ADMIN: "ADMIN",
+  PATIENT: "PATIENT",
   READONLY: "READONLY",
 } as const;
 export type Role = (typeof Role)[keyof typeof Role];
@@ -159,5 +160,6 @@ export const ROLE_LABELS: Record<Role, string> = {
   DOCTOR: "Doctor",
   NURSE: "Nurse",
   ADMIN: "Admin",
+  PATIENT: "Patient",
   READONLY: "Read-Only",
 };
