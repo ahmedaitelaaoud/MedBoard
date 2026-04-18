@@ -24,6 +24,9 @@ const PERMISSIONS: Record<string, readonly Role[]> = {
   "note:create:observation": [Role.DOCTOR, Role.NURSE],
   "note:update":           [Role.DOCTOR],
 
+  // Documents
+  "document:upload":       [Role.DOCTOR],
+
   // Room management
   "room:read":             [Role.DOCTOR, Role.NURSE, Role.ADMIN, Role.READONLY],
   "room:manage":           [Role.ADMIN],
