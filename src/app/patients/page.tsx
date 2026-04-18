@@ -5,9 +5,10 @@ import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge, statusToBadgeVariant } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 import { SearchInput } from "@/components/ui/SearchInput";
 import { useAuth } from "@/hooks/useAuth";
-import { PATIENT_STATUS_LABELS } from "@/lib/constants";
+import { PATIENT_STATUS_LABELS, REGISTRATION_STATUS_LABELS } from "@/lib/constants";
 
 interface Patient {
   id: string;
@@ -15,7 +16,16 @@ interface Patient {
   firstName: string;
   lastName: string;
   status: string;
+  registrationStatus: "PENDING" | "REGISTERED" | "TEMPORARY" | "COMPLETED";
+  intakeType: "NORMAL" | "EMERGENCY_TEMPORARY";
+  hasMedicalRecord: boolean;
   room: { number: string; floor: { name: string }; ward: { name: string } } | null;
+}
+
+function registrationToVariant(status: Patient["registrationStatus"]): "warning" | "success" | "info" {
+  if (status === "TEMPORARY") return "warning";
+  if (status === "COMPLETED") return "success";
+  return "info";
 }
 
 export default function PatientsPage() {
@@ -25,7 +35,14 @@ export default function PatientsPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
-  const canViewPatients = user?.role === "DOCTOR" || user?.role === "ADMIN";
+  const canViewPatients =
+    user?.role === "DOCTOR" ||
+    user?.role === "NURSE" ||
+    user?.role === "ADMIN" ||
+    user?.role === "READONLY";
+
+  const canRegisterNormal = user?.role === "ADMIN";
+  const canRegisterEmergency = user?.role === "ADMIN" || user?.role === "DOCTOR" || user?.role === "NURSE";
 
   useEffect(() => {
     if (!authLoading && !canViewPatients) {
@@ -73,16 +90,25 @@ export default function PatientsPage() {
             <p className="text-sm text-gray-500 mt-0.5">
               {user?.role === "DOCTOR"
                 ? `${patients.length} of your current and past patients`
-                : `${patients.length} patients across hospital history`}
+                : `${patients.length} patients in the registry`}
             </p>
           </div>
-          <div className="w-64">
-            <SearchInput
-              placeholder="Search patients..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onClear={() => setSearch("")}
-            />
+
+          <div className="flex items-center gap-2">
+            <div className="w-64">
+              <SearchInput
+                placeholder="Search patients..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                onClear={() => setSearch("")}
+              />
+            </div>
+            {canRegisterNormal && (
+              <Button size="sm" onClick={() => router.push("/patients/register")}>Register Patient</Button>
+            )}
+            {canRegisterEmergency && (
+              <Button size="sm" variant="secondary" onClick={() => router.push("/patients/register?mode=emergency")}>Emergency Intake</Button>
+            )}
           </div>
         </div>
 
@@ -109,9 +135,15 @@ export default function PatientsPage() {
                   </p>
                   <p className="text-xs text-gray-400 mt-0.5">{p.patientCode}</p>
                 </div>
-                <Badge variant={statusToBadgeVariant(p.status)} className="text-[10px]">
-                  {PATIENT_STATUS_LABELS[p.status as keyof typeof PATIENT_STATUS_LABELS]}
+                <Badge variant={registrationToVariant(p.registrationStatus)} className="text-[10px]">
+                  {REGISTRATION_STATUS_LABELS[p.registrationStatus]}
                 </Badge>
+                <Badge variant={statusToBadgeVariant(p.status)} className="text-[10px]">
+                  {PATIENT_STATUS_LABELS[p.status as keyof typeof PATIENT_STATUS_LABELS] || p.status}
+                </Badge>
+                {!p.hasMedicalRecord && (
+                  <Badge variant="warning" className="text-[10px]">No Medical Record</Badge>
+                )}
                 {p.room && (
                   <span className="text-xs text-gray-400">Room {p.room.number}</span>
                 )}
