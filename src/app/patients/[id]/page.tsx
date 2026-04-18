@@ -95,7 +95,12 @@ export default function PatientPage() {
           {/* Left column — demographics + documents */}
           <div className="space-y-6">
             <DemographicsCard patient={patient} />
-            <DocumentsPlaceholder documents={patient.documents} />
+            <DocumentsPlaceholder
+              documents={patient.documents}
+              patientId={patient.id}
+              userRole={user?.role as Role | undefined}
+              onUploaded={fetchPatient}
+            />
           </div>
 
           {/* Right column — clinical + notes */}
