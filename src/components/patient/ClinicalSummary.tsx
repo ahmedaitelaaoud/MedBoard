@@ -87,7 +87,12 @@ export function ClinicalSummary({ record, patientId, userRole, onUpdate }: Clini
           </div>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-gray-400">No medical record available yet.</p>
+          <p className="text-sm text-gray-500">
+            Patient is registered, but the clinical record has not been initialized yet.
+          </p>
+          {userRole !== "DOCTOR" && (
+            <p className="text-xs text-gray-400 mt-2">Only doctors can initialize and edit the medical record.</p>
+          )}
         </CardContent>
       </Card>
     );

@@ -1,20 +1,25 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/layout/AppShell";
 import { PatientIntakeForm } from "@/components/patient/PatientIntakeForm";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function PatientRegisterPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { user, loading } = useAuth();
+  const [mode, setMode] = useState<"NORMAL" | "EMERGENCY_TEMPORARY">("NORMAL");
 
-  const mode = searchParams.get("mode") === "emergency" ? "EMERGENCY_TEMPORARY" : "NORMAL";
   const canRegisterNormal = user?.role === "ADMIN";
   const canRegisterEmergency = user?.role === "ADMIN" || user?.role === "DOCTOR" || user?.role === "NURSE";
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    setMode(params.get("mode") === "emergency" ? "EMERGENCY_TEMPORARY" : "NORMAL");
+  }, []);
 
   useEffect(() => {
     if (loading) return;

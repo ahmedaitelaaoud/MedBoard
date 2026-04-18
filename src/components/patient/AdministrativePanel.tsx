@@ -10,6 +10,7 @@ import {
   ADMISSION_STATUS_LABELS,
   REGISTRATION_STATUS_LABELS,
 } from "@/lib/constants";
+import type { AdmissionSource, AdmissionStatus, RegistrationStatus } from "@/lib/constants";
 import type { PatientFull } from "@/types/domain";
 
 interface RoomOption {
@@ -35,9 +36,9 @@ export function AdministrativePanel({ patient, userRole, onUpdated }: Administra
   const [phoneNumber, setPhoneNumber] = useState(patient.phoneNumber ?? "");
   const [emergencyContact, setEmergencyContact] = useState(patient.emergencyContact ?? "");
   const [emergencyPhone, setEmergencyPhone] = useState(patient.emergencyPhone ?? "");
-  const [registrationStatus, setRegistrationStatus] = useState(patient.registrationStatus);
-  const [admissionSource, setAdmissionSource] = useState(patient.admissionSource);
-  const [admissionStatus, setAdmissionStatus] = useState(patient.admissionStatus);
+  const [registrationStatus, setRegistrationStatus] = useState<RegistrationStatus>(patient.registrationStatus);
+  const [admissionSource, setAdmissionSource] = useState<AdmissionSource>(patient.admissionSource);
+  const [admissionStatus, setAdmissionStatus] = useState<AdmissionStatus>(patient.admissionStatus);
   const [roomId, setRoomId] = useState(patient.room?.id ?? "");
 
   const [rooms, setRooms] = useState<RoomOption[]>([]);
@@ -139,19 +140,19 @@ export function AdministrativePanel({ patient, userRole, onUpdated }: Administra
           <Select
             label="Registration Status"
             value={registrationStatus}
-            onChange={(e) => setRegistrationStatus(e.target.value)}
+            onChange={(e) => setRegistrationStatus(e.target.value as RegistrationStatus)}
             options={Object.entries(REGISTRATION_STATUS_LABELS).map(([value, label]) => ({ value, label }))}
           />
           <Select
             label="Admission Source"
             value={admissionSource}
-            onChange={(e) => setAdmissionSource(e.target.value)}
+            onChange={(e) => setAdmissionSource(e.target.value as AdmissionSource)}
             options={Object.entries(ADMISSION_SOURCE_LABELS).map(([value, label]) => ({ value, label }))}
           />
           <Select
             label="Admission Status"
             value={admissionStatus}
-            onChange={(e) => setAdmissionStatus(e.target.value)}
+            onChange={(e) => setAdmissionStatus(e.target.value as AdmissionStatus)}
             options={Object.entries(ADMISSION_STATUS_LABELS).map(([value, label]) => ({ value, label }))}
           />
           <Select label="Room" value={roomId} onChange={(e) => setRoomId(e.target.value)} options={roomOptions} />

@@ -2,7 +2,7 @@
 
 import { Badge, statusToBadgeVariant } from "@/components/ui/Badge";
 import { Avatar } from "@/components/ui/Avatar";
-import { PATIENT_STATUS_LABELS } from "@/lib/constants";
+import { INTAKE_TYPE_LABELS, PATIENT_STATUS_LABELS, REGISTRATION_STATUS_LABELS } from "@/lib/constants";
 import type { PatientFull } from "@/types/domain";
 
 interface PatientHeaderProps {
@@ -22,6 +22,8 @@ export function PatientHeader({ patient }: PatientHeaderProps) {
     ).values()
   );
   const hasAllergies = patient.allergies && patient.allergies.trim() !== "";
+  const isTemporary = patient.registrationStatus === "TEMPORARY" || patient.intakeType === "EMERGENCY_TEMPORARY";
+  const isIncomplete = patient.registrationStatus !== "COMPLETED";
 
   return (
     <div className="bg-white border border-gray-100 rounded-xl shadow-card p-6">
@@ -37,6 +39,13 @@ export function PatientHeader({ patient }: PatientHeaderProps) {
               <Badge variant={statusToBadgeVariant(patient.status)} dot>
                 {PATIENT_STATUS_LABELS[patient.status as keyof typeof PATIENT_STATUS_LABELS]}
               </Badge>
+              <Badge variant={isTemporary ? "warning" : isIncomplete ? "info" : "success"}>
+                {REGISTRATION_STATUS_LABELS[patient.registrationStatus]}
+              </Badge>
+              <Badge variant={patient.intakeType === "EMERGENCY_TEMPORARY" ? "warning" : "muted"}>
+                {INTAKE_TYPE_LABELS[patient.intakeType]}
+              </Badge>
+              {!patient.medicalRecord && <Badge variant="warning">No Medical Record Yet</Badge>}
               <span className="text-xs text-gray-400">{age} yrs · {patient.sex === "MALE" ? "Male" : "Female"}</span>
               {patient.room && (
                 <span className="text-xs text-gray-400">
