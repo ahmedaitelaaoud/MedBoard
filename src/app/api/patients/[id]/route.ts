@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { requirePermission } from "@/lib/permissions";
 import { unauthorized, notFound, serverError, badRequest } from "@/lib/errors";
-import { patientUpdateSchema, recordUpdateSchema } from "@/lib/validation/patient";
+import { patientAdminUpdateSchema, recordUpdateSchema } from "@/lib/validation/patient";
 import { logActivity } from "@/lib/activity-logger";
 import { can } from "@/lib/permissions";
 
@@ -88,48 +88,116 @@ export async function PATCH(
       const parsed = recordUpdateSchema.safeParse(body.record);
       if (!parsed.success) return badRequest("Invalid record data", parsed.error.flatten());
 
-      const record = await prisma.medicalRecord.findUnique({ where: { patientId: id } });
-      if (!record) return notFound("Medical record not found");
+      const patientExists = await prisma.patient.findUnique({ where: { id }, select: { id: true } });
+      if (!patientExists) return notFound("Patient not found");
+
+      const existingRecord = await prisma.medicalRecord.findUnique({ where: { patientId: id } });
+
+      if (!existingRecord) {
+        await prisma.medicalRecord.create({
+          data: {
+            patientId: id,
+            diagnosisSummary: parsed.data.diagnosisSummary,
+            medicalHistory: parsed.data.medicalHistory,
+            currentPlan: parsed.data.currentPlan,
+          },
+        });
+
+        await logActivity({
+          action: "MEDICAL_RECORD_INITIALIZED",
+          userId: user.id,
+          patientId: id,
+          details: `Medical record initialized by Dr. ${user.lastName}`,
+        });
+
+        return NextResponse.json({ success: true, initialized: true });
+      }
 
       await prisma.medicalRecord.update({
-        where: { id: record.id },
+        where: { id: existingRecord.id },
         data: parsed.data,
       });
 
-      logActivity({
+      await logActivity({
         action: "RECORD_UPDATED",
         userId: user.id,
         patientId: id,
         details: `Medical record updated by Dr. ${user.lastName}`,
       });
 
-      return NextResponse.json({ success: true });
+      return NextResponse.json({ success: true, initialized: false });
     }
 
-    // Update patient fields
+    // Update administrative patient fields
     try {
-      requirePermission(user, "patient:update");
+      requirePermission(user, "patient:update:administrative");
     } catch {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    const parsed = patientUpdateSchema.safeParse(body);
+    const parsed = patientAdminUpdateSchema.safeParse(body);
     if (!parsed.success) return badRequest("Invalid input", parsed.error.flatten());
 
     const patient = await prisma.patient.findUnique({ where: { id } });
     if (!patient) return notFound("Patient not found");
 
+    let nextDateOfBirth: Date | undefined;
+    if (parsed.data.dateOfBirth) {
+      const parsedDate = new Date(parsed.data.dateOfBirth);
+      if (Number.isNaN(parsedDate.getTime())) return badRequest("Invalid dateOfBirth");
+      nextDateOfBirth = parsedDate;
+    }
+
+    let nextAdmissionDate: Date | undefined;
+    if (parsed.data.admissionDate) {
+      const parsedDate = new Date(parsed.data.admissionDate);
+      if (Number.isNaN(parsedDate.getTime())) return badRequest("Invalid admissionDate");
+      nextAdmissionDate = parsedDate;
+    }
+
+    if (parsed.data.roomId) {
+      const room = await prisma.room.findUnique({ where: { id: parsed.data.roomId }, select: { id: true } });
+      if (!room) return badRequest("Selected room does not exist");
+    }
+
+    const currentRoomId = patient.roomId;
+    const nextRoomId = parsed.data.roomId === undefined ? patient.roomId : parsed.data.roomId;
+    const previousRegistrationStatus = patient.registrationStatus;
+    const nextRegistrationStatus = parsed.data.registrationStatus;
+
     const updated = await prisma.patient.update({
       where: { id },
-      data: parsed.data,
+      data: {
+        ...parsed.data,
+        dateOfBirth: nextDateOfBirth,
+        admissionDate: nextAdmissionDate,
+      },
     });
 
-    if (parsed.data.status) {
-      logActivity({
+    if (parsed.data.status && parsed.data.status !== patient.status) {
+      await logActivity({
         action: "STATUS_CHANGED",
         userId: user.id,
         patientId: id,
         details: `Patient status changed to ${parsed.data.status}`,
+      });
+    }
+
+    if (nextRegistrationStatus && nextRegistrationStatus !== previousRegistrationStatus) {
+      await logActivity({
+        action: "ADMIN_DATA_COMPLETED",
+        userId: user.id,
+        patientId: id,
+        details: `Administrative registration updated to ${nextRegistrationStatus}`,
+      });
+    }
+
+    if (nextRoomId !== currentRoomId && nextRoomId) {
+      await logActivity({
+        action: currentRoomId ? "ROOM_TRANSFERRED" : "ROOM_ASSIGNED",
+        userId: user.id,
+        patientId: id,
+        details: currentRoomId ? "Room transfer completed during administrative update" : "Room assigned during administrative update",
       });
     }
 
