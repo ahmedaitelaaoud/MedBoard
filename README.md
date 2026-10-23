@@ -1,6 +1,8 @@
 # MedBoard
 
-MedBoard is a hospital operations platform for ward visibility, patient records, staff workflows, and auditable clinical actions. It gives doctors, nurses, and administrators a single operational view while keeping permissions, validation, and traceability explicit.
+> **Educational prototype — synthetic data only.** This application is not ready for real patient records or clinical use. The current login compares plaintext passwords, authentication has a development JWT-secret fallback, and a local SQLite database is tracked. These require remediation before considering a deployment with sensitive data. The proposed Gemini/RAG integration is not an implemented capability.
+
+MedBoard is a hospital operations prototype for ward visibility, patient records, staff workflows, and auditable clinical actions. It gives doctors, nurses, and administrators a single operational view while keeping permissions, validation, and traceability explicit.
 
 ## What This Project Covers
 
@@ -127,7 +129,7 @@ flowchart TD
 - Error responses stay standardized.
 - Audit logging must not block the main request path.
 - AI suggestions remain non-autonomous until a human approves them.
-- Secrets stay in environment files and are never hardcoded.
+- Production configuration must require a strong JWT secret; the existing development fallback still needs removal.
 
 ## Commands
 
@@ -149,3 +151,12 @@ flowchart TD
 - [future/tasks/README.md](future/tasks/README.md)
 - [future/alerts/README.md](future/alerts/README.md)
 - [future/integrations/README.md](future/integrations/README.md)
+
+
+## Portfolio review status
+
+Source inspection confirmed the prototype limitations above. The hosted demo and a clean install were not verified. No production-readiness or clinical-safety claim is made.
+
+## License
+
+No repository-level license is currently included.
